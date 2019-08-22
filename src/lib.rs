@@ -3,12 +3,19 @@ mod render;
 mod resources;
 
 use wasm_bindgen::prelude::*;
+use game::Game;
 
 #[wasm_bindgen(start)]
 pub fn main() {
-    game::run(|_world| {
+    let mut game = Game::new();
+
+    game.setup(|_world| {
+        // setup
+    });
+
+    game.run(move |_world| {
         // update
-    }, |_world| {
+    }, move |_world| {
         // render
     });
 }

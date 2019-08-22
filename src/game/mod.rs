@@ -2,18 +2,33 @@ use specs::prelude::*;
 use wasm_bindgen::{prelude::*, JsCast};
 use super::resources::Timing;
 
-pub fn run<U, R>(update: U, render: R)
-    where U: Fn(&mut World) + 'static, R: Fn(&mut World) + 'static
-{
-    let mut world = World::new();
-
-    world.insert(Timing::default());
-
-    frame(world, current_time(), update, render);
+pub struct Game {
+    pub world: World,
 }
 
-fn frame<U, R>(mut world: World, previous: f64, update: U, render: R)
-    where U: Fn(&mut World) + 'static, R: Fn(&mut World) + 'static
+impl Game {
+    pub fn new() -> Self {
+        let mut world = World::new();
+
+        world.insert(Timing::default());
+
+        Self { world }
+    }
+
+    pub fn setup<C: FnMut(&mut World)>(&mut self, mut callback: C) {
+        callback(&mut self.world);
+    }
+
+    pub fn run<U, R>(self, update: U, render: R)
+        where U: FnMut(&mut World) + 'static, R: FnMut(&mut World) + 'static,
+    {
+        frame(self.world, current_time(), update, render);
+    }
+}
+
+
+fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
+    where U: FnMut(&mut World) + 'static, R: FnMut(&mut World) + 'static
 {
     let mut t = timing_resource(&mut world);
 
