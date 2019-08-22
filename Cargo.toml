@@ -1,0 +1,27 @@
+[package]
+name = "minimal-rust-wasm"
+description = "An extremely minimal Rust + WASM example."
+repository = "https://github.com/tuzz/minimal-rust-wasm"
+version = "0.1.0"
+license = "MIT"
+authors = ["Chris Patuzzo <chris@patuzzo.co.uk>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+
+[dependencies]
+wasm-bindgen = "0.2.42"
+
+[dependencies.web-sys]
+version = "0.3.19"
+features = [
+  'Document',
+  'Element',
+  'HtmlElement',
+  'Node',
+  'Window',
+]
