@@ -27,5 +27,6 @@ features = [
   'Element',
   'HtmlElement',
   'Node',
+  'Performance',
   'Window',
 ]
