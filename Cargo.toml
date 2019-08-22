@@ -16,6 +16,10 @@ lto = true
 [dependencies]
 wasm-bindgen = "0.2.42"
 
+[dependencies.specs]
+version = "0.15.0"
+default-features = false
+
 [dependencies.web-sys]
 version = "0.3.19"
 features = [
