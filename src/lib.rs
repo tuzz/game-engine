@@ -1,20 +1,18 @@
+mod render;
+
+use specs::prelude::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub fn main() {
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
-    let body = document.body().unwrap();
-    let p = document.create_element("p").unwrap();
+    let mut world = World::new();
 
-    p.set_inner_html("Hello, world!");
-    body.append_child(&p).unwrap();
+    let mut dispatcher = DispatcherBuilder::new()
+        .with(render::Render, "render", &[])
+        .build();
 
-    log("Hello, console!");
-}
+    dispatcher.setup(&mut world);
+    dispatcher.dispatch(&world);
 
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
+    world.maintain();
 }
