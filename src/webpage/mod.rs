@@ -1,9 +1,9 @@
 use specs::prelude::*;
 use wasm_bindgen::JsCast;
 
-use super::resources;
+use super::resources::Window;
 
-use web_sys::{Document, Element, Window};
+use web_sys::{Document, Element, Window as Win};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGlRenderingContext as Context;
 
@@ -26,7 +26,8 @@ impl<'a> System<'a> for Webpage {
         add_to_page(&document, &style);
         resize_canvas(&window, &document, &canvas);
 
-        world.insert(resources::Window { window, context });
+        let resource = Window::new(window, context);
+        world.insert(resource);
     }
 
     fn run(&mut self, (): Self::SystemData) {
@@ -62,7 +63,7 @@ fn add_to_page(document: &Document, element: &Element) {
     document.body().unwrap().append_child(element).unwrap();
 }
 
-fn resize_canvas(window: &Window, document: &Document, canvas: &Canvas) {
+fn resize_canvas(window: &Win, document: &Document, canvas: &Canvas) {
     let pixel_ratio = window.device_pixel_ratio();
 
     let body = document.body().unwrap();

@@ -6,5 +6,11 @@ pub struct Window {
     pub context: Context,
 }
 
+impl Window {
+    pub fn new(window: Win, context: Context) -> Self {
+        Self { window, context }
+    }
+}
+
 unsafe impl Send for Window {}
 unsafe impl Sync for Window {}
