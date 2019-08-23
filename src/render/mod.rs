@@ -5,6 +5,7 @@ use super::resources::Window;
 use web_sys::WebGlRenderingContext as GL;
 
 mod buffer;
+mod feed;
 mod shader;
 mod program;
 mod viewport;
@@ -12,6 +13,7 @@ mod viewport;
 use program::Program;
 use buffer::Buffer;
 use viewport::Viewport;
+use feed::*;
 
 pub struct Render;
 
@@ -26,10 +28,6 @@ impl<'a> System<'a> for Render {
         let context = &window.context;
 
         let program = Program::default(context);
-
-        let a_position = program.attribute_location("a_position");
-        let a_color = program.attribute_location("a_color");
-        let u_matrix = program.uniform_location("u_matrix");
 
         let position_buffer = Buffer::new(context, &[
             0.0, 0.0,
@@ -48,23 +46,16 @@ impl<'a> System<'a> for Render {
 
         program.enable(context);
 
-        context.enable_vertex_attrib_array(a_position as u32);
-        position_buffer.bind(context);
-        context.vertex_attrib_pointer_with_i32(a_position as u32, 2, GL::FLOAT, false, 0, 0);
+        feed_attribute(context, &program, "a_position", &position_buffer, 2);
+        feed_attribute(context, &program, "a_color", &color_buffer, 4);
 
-        //
-        context.enable_vertex_attrib_array(a_color as u32);
-        color_buffer.bind(context);
-        context.vertex_attrib_pointer_with_i32(a_color as u32, 4, GL::FLOAT, false, 0, 0);
-        //
-
-        let matrix = [
+        feed_uniform(context, &program, "u_matrix", &[
             1.0, 0.0, 0.0,
             0.0, 1.0, 0.0,
             0.0, 0.0, 1.0,
-        ];
-        context.uniform_matrix3fv_with_f32_array(Some(&u_matrix), false, &matrix);
-        context.draw_arrays(GL::TRIANGLES, 0, 3);
+        ]);
+
+        context.draw_arrays(GL::TRIANGLES, 0, position_buffer.len(2));
     }
 
     fn run(&mut self, (): Self::SystemData) {
