@@ -24,9 +24,13 @@ default-features = false
 version = "0.3.19"
 features = [
   'Document',
+  'DomRect',
   'Element',
+  'HtmlCanvasElement',
   'HtmlElement',
   'Node',
   'Performance',
+  'Text',
+  'WebGlRenderingContext',
   'Window',
 ]

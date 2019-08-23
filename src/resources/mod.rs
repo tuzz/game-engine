@@ -18,3 +18,11 @@ impl Default for Timing {
         }
     }
 }
+
+pub struct Window {
+    pub window: web_sys::Window,
+    pub context: web_sys::WebGlRenderingContext,
+}
+
+unsafe impl Send for Window {}
+unsafe impl Sync for Window {}
