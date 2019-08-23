@@ -3,17 +3,15 @@ use wasm_bindgen::prelude::*;
 use super::resources::Window;
 
 use web_sys::WebGlRenderingContext as GL;
-use web_sys::HtmlCanvasElement as Canvas;
-use web_sys::WebGlRenderingContext as Context;
 
+mod buffer;
 mod shader;
 mod program;
-mod buffer;
+mod viewport;
 
 use program::Program;
 use buffer::Buffer;
-
-use js_sys::Float32Array;
+use viewport::Viewport;
 
 pub struct Render;
 
@@ -45,7 +43,8 @@ impl<'a> System<'a> for Render {
             0.5, 0.5, 1.0, 1.0,
         ]);
 
-        clear_viewport(&canvas, &context);
+        let viewport = Viewport::new(0.0, 0.0, 0.0, 0.0);
+        viewport.clear(canvas, context);
 
         program.enable(context);
 
@@ -75,15 +74,6 @@ impl<'a> System<'a> for Render {
 
 fn window_resource(world: &mut World) -> &mut Window {
     world.get_mut::<Window>().unwrap()
-}
-
-fn clear_viewport(canvas: &Canvas, context: &Context) {
-    let width = canvas.width() as i32;
-    let height = canvas.height() as i32;
-
-    context.viewport(0, 0, width, height);
-    context.clear_color(0.0, 0.0, 0.0, 0.0);
-    context.clear(GL::COLOR_BUFFER_BIT);
 }
 
 #[wasm_bindgen]
