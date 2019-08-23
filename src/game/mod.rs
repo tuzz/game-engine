@@ -41,11 +41,11 @@ fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
         t.time_since_update = t.pause_updates_after;
     }
 
-    while t.time_since_update >= t.fixed_update_time {
+    while t.time_since_update >= t.fixed_update_time() {
         update(&mut world);
 
         t = timing_resource(&mut world);
-        t.time_since_update -= t.fixed_update_time;
+        t.time_since_update -= t.fixed_update_time();
     }
     render(&mut world);
 
