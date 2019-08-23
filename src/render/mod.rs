@@ -3,10 +3,13 @@ use wasm_bindgen::prelude::*;
 use super::resources::Window;
 
 use web_sys::WebGlRenderingContext as GL;
-use web_sys::WebGlProgram as Program;
-use web_sys::WebGlShader as Shader;
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGlRenderingContext as Context;
+
+mod shader;
+mod program;
+
+use program::Program;
 
 use js_sys::Float32Array;
 
@@ -22,35 +25,11 @@ impl<'a> System<'a> for Render {
         let canvas = &window.canvas;
         let context = &window.context;
 
-        let vertex_shader = create_shader(context, GL::VERTEX_SHADER, "
-            attribute vec2 a_position;
+        let program = Program::default(context);
 
-            attribute vec4 a_color;
-            varying vec4 v_color;
-
-            uniform mat3 u_matrix;
-
-            void main() {
-              gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
-              v_color = a_color;
-            }
-        ");
-
-        let fragment_shader = create_shader(context, GL::FRAGMENT_SHADER, "
-            precision mediump float;
-
-            varying vec4 v_color;
-
-            void main() {
-              gl_FragColor = v_color; // return redish-purple
-            }
-        ");
-
-        let program = create_program(context, &vertex_shader, &fragment_shader);
-
-        let a_position = context.get_attrib_location(&program, "a_position");
-        let a_color = context.get_attrib_location(&program, "a_color");
-        let u_matrix = context.get_uniform_location(&program, "u_matrix").unwrap();
+        let a_position = program.attribute_location("a_position");
+        let a_color = program.attribute_location("a_color");
+        let u_matrix = program.uniform_location("u_matrix");
 
         let position_buffer = context.create_buffer().unwrap();
         context.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
@@ -80,7 +59,7 @@ impl<'a> System<'a> for Render {
 
         clear_viewport(&canvas, &context);
 
-        context.use_program(Some(&program));
+        program.enable(context);
 
         context.enable_vertex_attrib_array(a_position as u32);
         context.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
@@ -108,26 +87,6 @@ impl<'a> System<'a> for Render {
 
 fn window_resource(world: &mut World) -> &mut Window {
     world.get_mut::<Window>().unwrap()
-}
-
-fn create_shader(context: &GL, kind: u32, source: &str) -> Shader {
-    let shader = context.create_shader(kind).unwrap();
-
-    context.shader_source(&shader, source);
-    context.compile_shader(&shader);
-
-    shader
-}
-
-fn create_program(context: &GL, vert: &Shader, frag: &Shader) -> Program {
-    let program = context.create_program().unwrap();
-
-    context.attach_shader(&program, vert);
-    context.attach_shader(&program, frag);
-
-    context.link_program(&program);
-
-    program
 }
 
 fn clear_viewport(canvas: &Canvas, context: &Context) {
