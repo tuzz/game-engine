@@ -26,7 +26,7 @@ impl<'a> System<'a> for Webpage {
         add_to_page(&document, &style);
         resize_canvas(&window, &document, &canvas);
 
-        let resource = Window::new(window, context);
+        let resource = Window::new(window, canvas, context);
         world.insert(resource);
     }
 
