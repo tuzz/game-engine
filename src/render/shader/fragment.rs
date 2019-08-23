@@ -1,7 +1,4 @@
-use super::Shader;
-
-use web_sys::WebGlRenderingContext as GL;
-use web_sys::WebGlShader;
+use super::*;
 
 type V = Vec<&'static str>;
 

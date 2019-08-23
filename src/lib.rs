@@ -17,7 +17,7 @@ pub fn main() {
     let mut game = Game::new();
 
     let mut webpage = Webpage;
-    let mut render = Render;
+    let mut render = Render::default();
 
     game.setup(|world| {
         System::setup(&mut webpage, world);
