@@ -8,8 +8,10 @@ use web_sys::WebGlRenderingContext as Context;
 
 mod shader;
 mod program;
+mod buffer;
 
 use program::Program;
+use buffer::Buffer;
 
 use js_sys::Float32Array;
 
@@ -31,43 +33,29 @@ impl<'a> System<'a> for Render {
         let a_color = program.attribute_location("a_color");
         let u_matrix = program.uniform_location("u_matrix");
 
-        let position_buffer = context.create_buffer().unwrap();
-        context.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
-        let positions = [
+        let position_buffer = Buffer::new(context, &[
             0.0, 0.0,
             0.0, 0.5,
             0.7, 0.0,
-        ];
+        ]);
 
-        unsafe {
-        context.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &Float32Array::view(&positions), GL::STATIC_DRAW);
-        }
-
-        //
-        let color_buffer = context.create_buffer().unwrap();
-        context.bind_buffer(GL::ARRAY_BUFFER, Some(&color_buffer));
-        let colors = [
+        let color_buffer = Buffer::new(context, &[
             1.0, 0.5, 0.5, 1.0,
             0.5, 1.0, 0.5, 1.0,
             0.5, 0.5, 1.0, 1.0,
-        ];
-
-        unsafe {
-        context.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &Float32Array::view(&colors), GL::STATIC_DRAW);
-        }
-        //
+        ]);
 
         clear_viewport(&canvas, &context);
 
         program.enable(context);
 
         context.enable_vertex_attrib_array(a_position as u32);
-        context.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
+        position_buffer.bind(context);
         context.vertex_attrib_pointer_with_i32(a_position as u32, 2, GL::FLOAT, false, 0, 0);
 
         //
         context.enable_vertex_attrib_array(a_color as u32);
-        context.bind_buffer(GL::ARRAY_BUFFER, Some(&color_buffer));
+        color_buffer.bind(context);
         context.vertex_attrib_pointer_with_i32(a_color as u32, 4, GL::FLOAT, false, 0, 0);
         //
 
