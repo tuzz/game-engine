@@ -2,28 +2,16 @@
 extern crate specs_derive;
 
 mod game_loop;
-mod resources;
 mod components;
-
-mod webpage;
-mod webgl_viewport;
-mod webgl_shader;
-mod webgl_program;
-mod webgl_buffer;
-mod webgl_render;
+mod resources;
+mod systems;
 
 use specs::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use game_loop::GameLoop;
-use webpage::Webpage;
-use webgl_viewport::WebGlViewport;
-use webgl_shader::WebGlShader;
-use webgl_program::WebGlProgram;
-use webgl_buffer::WebGlBuffer;
-use webgl_render::WebGlRender;
-
 use components::*;
+use systems::*;
 
 #[wasm_bindgen(start)]
 pub fn main() {
