@@ -1,6 +1,6 @@
 use specs::prelude::*;
 use wasm_bindgen::{prelude::*, JsCast};
-use super::resources::Timing;
+use super::resources::GameTiming;
 
 pub struct Game {
     pub world: World,
@@ -10,7 +10,7 @@ impl Game {
     pub fn new() -> Self {
         let mut world = World::new();
 
-        world.insert(Timing::default());
+        world.insert(GameTiming::default());
 
         Self { world }
     }
@@ -30,7 +30,7 @@ impl Game {
 fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
     where U: FnMut(&mut World) + 'static, R: FnMut(&mut World) + 'static
 {
-    let mut t = timing_resource(&mut world);
+    let mut t = game_timing(&mut world);
 
     let current = current_time();
     let elapsed = current - previous;
@@ -44,7 +44,7 @@ fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
     while t.time_since_update >= t.fixed_update_time() {
         update(&mut world);
 
-        t = timing_resource(&mut world);
+        t = game_timing(&mut world);
         t.time_since_update -= t.fixed_update_time();
     }
     render(&mut world);
@@ -54,8 +54,8 @@ fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
     });
 }
 
-fn timing_resource(world: &mut World) -> &mut Timing {
-    world.get_mut::<Timing>().unwrap()
+fn game_timing(world: &mut World) -> &mut GameTiming {
+    world.get_mut::<GameTiming>().unwrap()
 }
 
 fn request_animation_frame<F: FnOnce() + 'static>(callback: F) {
