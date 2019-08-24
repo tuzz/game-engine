@@ -7,7 +7,6 @@ mod feed;
 
 use feed::*;
 
-#[derive(Default)]
 pub struct Render;
 
 impl<'a> System<'a> for Render {
@@ -18,20 +17,24 @@ impl<'a> System<'a> for Render {
         ReadStorage<'a, Geometry>,
         ReadStorage<'a, Coloring>,
         ReadStorage<'a, WebGlBuffer>,
+        ReadStorage<'a, Dimensions>,
     );
 
     fn run(&mut self, system_data: Self::SystemData) {
-        let (context, programs, geometries, colorings, webgl_buffers) = system_data;
+        let (context, programs, geometries, colorings, webgl_buffers, dimensions) = system_data;
 
         let program = &programs.default;
         context.use_program(Some(&program.compiled));
 
         for (geometry, coloring) in (&geometries, &colorings).join() {
-            let geometry = webgl_buffers.get(geometry.model).unwrap();
-            let coloring = webgl_buffers.get(coloring.model).unwrap();
+            let geometry_buffer = webgl_buffers.get(geometry.model).unwrap();
+            let coloring_buffer = webgl_buffers.get(coloring.model).unwrap();
 
-            feed_attribute(&context, program, "a_position", &geometry, 2); // TODO
-            feed_attribute(&context, program, "a_color", &coloring, 4); // TODO
+            let geometry_dimensions = dimensions.get(geometry.model).unwrap();
+            let coloring_dimensions = dimensions.get(coloring.model).unwrap();
+
+            feed_attribute(&context, program, "a_position", geometry_buffer, **geometry_dimensions as i32);
+            feed_attribute(&context, program, "a_color", coloring_buffer, **coloring_dimensions as i32);
 
             feed_uniform(&context, program, "u_matrix", &[
                 1.0, 0.0, 0.0, 0.0,
@@ -40,7 +43,8 @@ impl<'a> System<'a> for Render {
                 0.0, 0.0, 0.0, 1.0,
             ]);
 
-            context.draw_arrays(GL::TRIANGLES, 0, 3); // TODO
+            let elements = geometry_buffer.len / **geometry_dimensions as usize;
+            context.draw_arrays(GL::TRIANGLES, 0, elements as i32);
         }
     }
 }

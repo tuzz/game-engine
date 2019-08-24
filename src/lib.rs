@@ -34,7 +34,7 @@ pub fn main() {
     let mut webgl_shader = WebGlShader;
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
-    let mut render = Render::default();
+    let mut render = Render;
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
@@ -48,13 +48,13 @@ pub fn main() {
             -1.0, 0.0,
             -0.5, 0.0,
             -1.0, 0.5,
-        ])).build();
+        ])).with(Dimensions(2)).build();
 
         let coloring_model = world.create_entity().with(BufferData(vec![
             1.0, 0.5, 0.5, 1.0,
             0.5, 1.0, 0.5, 1.0,
             0.5, 0.5, 1.0, 1.0,
-        ])).build();
+        ])).with(Dimensions(4)).build();
 
         world.create_entity()
             .with(Geometry { model: geometry_model })
