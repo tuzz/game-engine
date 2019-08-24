@@ -10,7 +10,7 @@ mod webgl_viewport;
 mod webgl_shader;
 mod webgl_program;
 mod webgl_buffer;
-mod render;
+mod webgl_render;
 
 use specs::prelude::*;
 use wasm_bindgen::prelude::*;
@@ -21,7 +21,7 @@ use webgl_viewport::WebGlViewport;
 use webgl_shader::WebGlShader;
 use webgl_program::WebGlProgram;
 use webgl_buffer::WebGlBuffer;
-use render::Render;
+use webgl_render::WebGlRender;
 
 use components::*;
 
@@ -34,7 +34,7 @@ pub fn main() {
     let mut webgl_shader = WebGlShader;
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
-    let mut render = Render;
+    let mut webgl_render = WebGlRender;
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
@@ -42,7 +42,7 @@ pub fn main() {
         System::setup(&mut webgl_shader, world);
         System::setup(&mut webgl_program, world);
         System::setup(&mut webgl_buffer, world);
-        System::setup(&mut render, world);
+        System::setup(&mut webgl_render, world);
 
         let geometry_model = world.create_entity().with(BufferData(vec![
             -1.0, 0.0,
@@ -67,6 +67,6 @@ pub fn main() {
     }, move |world| {
         webgl_viewport.run_now(world);
         webgl_buffer.run_now(world);
-        render.run_now(world);
+        webgl_render.run_now(world);
     });
 }

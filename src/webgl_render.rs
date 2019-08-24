@@ -4,9 +4,9 @@ use web_sys::WebGlRenderingContext as GL;
 use crate::resources::{*, shader_types::*};
 use crate::components::*;
 
-pub struct Render;
+pub struct WebGlRender;
 
-impl<'a> System<'a> for Render {
+impl<'a> System<'a> for WebGlRender {
     type SystemData = (
         ReadExpect<'a, WebGlContext>,
         ReadExpect<'a, ShaderPrograms>,
