@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate specs_derive;
 
+#[macro_use] #[cfg(test)]
+extern crate assert_approx_eq;
+
 mod components;
 mod resources;
 mod systems;
