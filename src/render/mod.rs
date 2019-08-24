@@ -1,5 +1,5 @@
 use specs::prelude::*;
-use super::resources::Window;
+use super::resources::WebGlContext;
 
 use web_sys::WebGlRenderingContext as GL;
 
@@ -23,13 +23,12 @@ pub struct Render {
 }
 
 impl<'a> System<'a> for Render {
-    type SystemData = ReadExpect<'a, Window>;
+    type SystemData = ReadExpect<'a, WebGlContext>;
 
     fn setup(&mut self, world: &mut World) {
         Self::SystemData::setup(world);
 
-        let window = window_resource(world);
-        let context = &window.context;
+        let context = world.get_mut::<WebGlContext>().unwrap();
 
         self.program = Some(Program::default(context));
 
@@ -46,19 +45,17 @@ impl<'a> System<'a> for Render {
         ]));
     }
 
-    fn run(&mut self, window: Self::SystemData) {
-        let context = &window.context;
-
+    fn run(&mut self, context: Self::SystemData) {
         let program = self.program.as_ref().unwrap();
         let positions = self.positions.as_ref().unwrap();
         let colors = self.colors.as_ref().unwrap();
 
-        program.enable(context);
+        program.enable(&context);
 
-        feed_attribute(context, program, "a_position", &positions, 2);
-        feed_attribute(context, program, "a_color", &colors, 4);
+        feed_attribute(&context, program, "a_position", &positions, 2);
+        feed_attribute(&context, program, "a_color", &colors, 4);
 
-        feed_uniform(context, &program, "u_matrix", &[
+        feed_uniform(&context, &program, "u_matrix", &[
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
@@ -67,7 +64,7 @@ impl<'a> System<'a> for Render {
 
         context.draw_arrays(GL::TRIANGLES, 0, positions.len(2));
 
-        feed_uniform(context, &program, "u_matrix", &[
+        feed_uniform(&context, &program, "u_matrix", &[
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
@@ -82,8 +79,4 @@ impl<'a> System<'a> for Render {
             self.offset = 0.0;
         }
     }
-}
-
-fn window_resource(world: &mut World) -> &mut Window {
-    world.get_mut::<Window>().unwrap()
 }

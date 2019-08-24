@@ -3,17 +3,21 @@ use web_sys::WebGlRenderingContext as GL;
 
 use super::resources::ClearColor;
 use super::resources::Window;
+use super::resources::WebGlContext;
 
 pub struct Viewport;
 
 impl<'a> System<'a> for Viewport {
-    type SystemData = (Read<'a, ClearColor>, ReadExpect<'a, Window>);
+    type SystemData = (
+        Read<'a, ClearColor>,
+        ReadExpect<'a, Window>,
+        ReadExpect<'a, WebGlContext>,
+    );
 
-    fn run(&mut self, (clear_color, window): Self::SystemData) {
+    fn run(&mut self, (clear_color, window, context): Self::SystemData) {
         let ClearColor(r, g, b, a) = *clear_color;
 
         let canvas = &window.canvas;
-        let context = &window.context;
 
         context.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
 

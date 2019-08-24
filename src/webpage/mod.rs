@@ -2,6 +2,7 @@ use specs::prelude::*;
 use wasm_bindgen::JsCast;
 
 use super::resources::Window;
+use super::resources::WebGlContext;
 
 use web_sys::{Document, Element, Window as Win};
 use web_sys::HtmlCanvasElement as Canvas;
@@ -26,8 +27,10 @@ impl<'a> System<'a> for Webpage {
         add_to_page(&document, &style);
         resize_canvas(&window, &document, &canvas);
 
-        let resource = Window::new(window, canvas, context);
+        let resource = Window::new(window, canvas);
         world.insert(resource);
+
+        world.insert(WebGlContext(context));
     }
 
     fn run(&mut self, (): Self::SystemData) {
