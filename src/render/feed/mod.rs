@@ -11,5 +11,5 @@ pub fn feed_attribute(context: &GL, program: &Program, name: &str, buffer: &Buff
 pub fn feed_uniform(context: &GL, program: &Program, name: &str, matrix: &[f32]) {
     let location = program.uniform_location(name);
 
-    context.uniform_matrix3fv_with_f32_array(Some(&location), false, matrix);
+    context.uniform_matrix4fv_with_f32_array(Some(&location), false, matrix);
 }

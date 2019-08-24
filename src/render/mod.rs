@@ -39,8 +39,8 @@ impl<'a> System<'a> for Render {
 
         self.positions = Some(Buffer::new(context, &[
             -1.0, 0.0,
-            -1.0, 0.5,
             -0.5, 0.0,
+            -1.0, 0.5,
         ]));
 
         self.colors = Some(Buffer::new(context, &[
@@ -66,14 +66,24 @@ impl<'a> System<'a> for Render {
         feed_attribute(context, program, "a_color", &colors, 4);
 
         feed_uniform(context, &program, "u_matrix", &[
-            1.0, 0.0, 0.0,
-            0.0, 1.0, 0.0,
-            self.offset, 0.0, 1.0,
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            self.offset / 2.0, 0.0, 0.0, 1.0,
         ]);
 
         context.draw_arrays(GL::TRIANGLES, 0, positions.len(2));
 
-        self.offset += 0.001;
+        feed_uniform(context, &program, "u_matrix", &[
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            self.offset, 0.0, 0.5, 1.0,
+        ]);
+
+        context.draw_arrays(GL::TRIANGLES, 0, positions.len(2));
+
+        self.offset += 0.002;
 
         if self.offset > 1.5 {
             self.offset = 0.0;
