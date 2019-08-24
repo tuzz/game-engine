@@ -5,6 +5,8 @@ use web_sys::WebGlShader;
 use web_sys::WebGlProgram;
 
 use super::resources::*;
+use super::resources::vertex_shaders::*;
+use super::resources::shader_programs::*;
 
 pub struct Program;
 
@@ -14,8 +16,9 @@ impl<'a> System<'a> for Program {
     fn setup(&mut self, world: &mut World) {
         Self::SystemData::setup(world);
 
-        let default = default_program(world);
-        world.insert(ShaderPrograms { default });
+        let program = default_program(world);
+
+        world.insert(ShaderPrograms { default: program })
     }
 
     fn run(&mut self, (): Self::SystemData) {
@@ -23,16 +26,22 @@ impl<'a> System<'a> for Program {
     }
 }
 
-fn default_program(world: &World) -> WebGlProgram {
+fn default_program(world: &World) -> ShaderProgram {
     let context = world.fetch::<WebGlContext>();
 
-    let verts = world.fetch::<VertexShaders>();
-    let frags = world.fetch::<FragmentShaders>();
+    let vert = &world.fetch::<VertexShaders>().default;
+    let frag = &world.fetch::<FragmentShaders>().default;
 
-    link(&context, &verts.default.compiled, &frags.default.compiled)
+    let program = compile(&context, &vert.compiled, &frag.compiled);
+
+    ShaderProgram {
+        attribute_map: attribute_map(&context, &program, vert),
+        uniform_map: uniform_map(&context, &program, vert),
+        compiled: program,
+    }
 }
 
-fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> WebGlProgram {
+fn compile(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> WebGlProgram {
     let program = context.create_program().unwrap();
 
     context.attach_shader(&program, vert);
@@ -40,4 +49,16 @@ fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> WebGlProgram {
     context.link_program(&program);
 
     program
+}
+
+fn attribute_map(context: &GL, program: &WebGlProgram, vert: &VertexShader) -> AttributeMap {
+    vert.attributes.iter().map(|&name| {
+        (name, context.get_attrib_location(&program, name) as AttributeLocation)
+    }).collect()
+}
+
+fn uniform_map(context: &GL, program: &WebGlProgram, vert: &VertexShader) -> UniformMap {
+    vert.uniforms.iter().map(|&name| {
+        (name, context.get_uniform_location(&program, name).unwrap() as UniformLocation)
+    }).collect()
 }

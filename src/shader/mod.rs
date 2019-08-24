@@ -67,7 +67,7 @@ fn vertex_shader(context: &GL, source: &str, attributes: Attributes, uniforms: U
 }
 
 fn fragment_shader(context: &GL, source: &str) -> FragmentShader {
-    FragmentShader { compiled: compile(context, GL::VERTEX_SHADER, source) }
+    FragmentShader { compiled: compile(context, GL::FRAGMENT_SHADER, source) }
 }
 
 fn compile(context: &GL, kind: u32, source: &str) -> WebGlShader {
