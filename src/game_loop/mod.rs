@@ -2,11 +2,11 @@ use specs::prelude::*;
 use wasm_bindgen::{prelude::*, JsCast};
 use super::resources::GameTiming;
 
-pub struct Game {
+pub struct GameLoop {
     pub world: World,
 }
 
-impl Game {
+impl GameLoop {
     pub fn new() -> Self {
         let mut world = World::new();
 
@@ -15,7 +15,7 @@ impl Game {
         Self { world }
     }
 
-    pub fn setup<C: FnMut(&mut World)>(&mut self, mut callback: C) {
+    pub fn before<C: FnMut(&mut World)>(&mut self, mut callback: C) {
         callback(&mut self.world);
     }
 
@@ -57,7 +57,6 @@ fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
 fn game_timing(world: &mut World) -> &mut GameTiming {
     world.get_mut::<GameTiming>().unwrap()
 }
-
 fn request_animation_frame<F: FnOnce() + 'static>(callback: F) {
     let window = web_sys::window().unwrap();
     let closure = Closure::once_into_js(callback);
