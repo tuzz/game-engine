@@ -107,3 +107,55 @@ mod scaling {
         ]);
     }
 }
+
+mod multiplication {
+    use super::*;
+
+    #[test]
+    fn it_multiplies_the_matrices() {
+        let a = Matrix4f([
+            0., 0., 1., 1.,
+            2., 2., 3., 3.,
+            4., 4., 5., 5.,
+            6., 6., 7., 7.,
+        ]);
+
+        let b = Matrix4f([
+            0., 1., 2., 3.,
+            4., 5., 6., 7.,
+            0., 1., 2., 3.,
+            4., 5., 6., 7.,
+        ]);
+
+        let matrix = a * b;
+
+        assert_eq(matrix.0, [
+            4.,   6.,   8.,  10.,
+            20., 30.,  40.,  50.,
+            36., 54.,  72.,  90.,
+            52., 78., 104., 130.,
+        ]);
+    }
+
+    #[test]
+    fn it_works_with_references() {
+        let (a, b, c) = abc();
+        a * b * c;
+
+        let (a, b, c) = abc();
+        &a * &b * &c;
+
+        let (a, b, c) = abc();
+        a * &b * c;
+
+        let (a, b, c) = abc();
+        &a * &b * a * c;
+
+        let (a, b, c) = abc();
+        &a * &b * a * &c * c;
+    }
+
+    fn abc() -> (Matrix4f, Matrix4f, Matrix4f) {
+        (Matrix4f::identity(), Matrix4f::identity(), Matrix4f::identity())
+    }
+}
