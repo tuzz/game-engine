@@ -29,7 +29,7 @@ fn default_program(world: &World) -> WebGlProgram {
     let verts = world.fetch::<VertexShaders>();
     let frags = world.fetch::<FragmentShaders>();
 
-    link(&context, &verts.default, &frags.default)
+    link(&context, &verts.default.compiled, &frags.default.compiled)
 }
 
 fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> WebGlProgram {
