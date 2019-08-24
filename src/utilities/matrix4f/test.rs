@@ -140,19 +140,19 @@ mod multiplication {
     #[test]
     fn it_works_with_references() {
         let (a, b, c) = abc();
-        a * b * c;
+        let _ = a * b * c;
 
         let (a, b, c) = abc();
-        &a * &b * &c;
+        let _ = &a * &b * &c;
 
         let (a, b, c) = abc();
-        a * &b * c;
+        let _ = a * &b * c;
 
         let (a, b, c) = abc();
-        &a * &b * a * c;
+        let _ = &a * &b * a * c;
 
         let (a, b, c) = abc();
-        &a * &b * a * &c * c;
+        let _ = &a * &b * a * &c * c;
     }
 
     fn abc() -> (Matrix4f, Matrix4f, Matrix4f) {
