@@ -3,7 +3,7 @@ use std::ops::Deref;
 
 #[derive(Component)]
 #[storage(HashMapStorage)]
-pub struct BufferData(Vec<f32>);
+pub struct BufferData(pub Vec<f32>);
 
 impl Deref for BufferData {
     type Target = Vec<f32>;

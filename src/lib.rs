@@ -23,6 +23,8 @@ use webgl_program::WebGlProgram;
 use webgl_buffer::WebGlBuffer;
 use render::Render;
 
+use components::*;
+
 #[wasm_bindgen(start)]
 pub fn main() {
     let mut game_loop = GameLoop::new();
@@ -41,6 +43,23 @@ pub fn main() {
         System::setup(&mut webgl_program, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut render, world);
+
+        let geometry_model = world.create_entity().with(BufferData(vec![
+            -1.0, 0.0,
+            -0.5, 0.0,
+            -1.0, 0.5,
+        ])).build();
+
+        let coloring_model = world.create_entity().with(BufferData(vec![
+            1.0, 0.5, 0.5, 1.0,
+            0.5, 1.0, 0.5, 1.0,
+            0.5, 0.5, 1.0, 1.0,
+        ])).build();
+
+        world.create_entity()
+            .with(Geometry { model: geometry_model })
+            .with(Coloring { model: coloring_model })
+            .build();
     });
 
     game_loop.run(move |_world| {

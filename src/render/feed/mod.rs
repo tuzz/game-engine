@@ -1,11 +1,11 @@
-use super::{GL, Buffer};
+use super::{GL, WebGlBuffer};
 use crate::resources::shader_types::*;
 
-pub fn feed_attribute(context: &GL, program: &ShaderProgram, name: &str, buffer: &Buffer, size: i32) {
+pub fn feed_attribute(context: &GL, program: &ShaderProgram, name: &str, buffer: &WebGlBuffer, size: i32) {
     let location = program.attribute_location(name);
 
     context.enable_vertex_attrib_array(location);
-    buffer.bind(context);
+    context.bind_buffer(GL::ARRAY_BUFFER, Some(&buffer));
     context.vertex_attrib_pointer_with_i32(location, size, GL::FLOAT, false, 0, 0);
 }
 

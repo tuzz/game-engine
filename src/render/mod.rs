@@ -1,77 +1,46 @@
 use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
 use crate::resources::{*, WebGlContext};
+use crate::components::*;
 
-mod buffer;
 mod feed;
 
-use buffer::Buffer;
 use feed::*;
 
 #[derive(Default)]
-pub struct Render {
-    positions: Option<Buffer>,
-    colors: Option<Buffer>,
-
-    offset: f32,
-}
+pub struct Render;
 
 impl<'a> System<'a> for Render {
     type SystemData = (
         ReadExpect<'a, WebGlContext>,
         ReadExpect<'a, ShaderPrograms>,
+
+        ReadStorage<'a, Geometry>,
+        ReadStorage<'a, Coloring>,
+        ReadStorage<'a, WebGlBuffer>,
     );
 
-    fn setup(&mut self, world: &mut World) {
-        Self::SystemData::setup(world);
+    fn run(&mut self, system_data: Self::SystemData) {
+        let (context, programs, geometries, colorings, webgl_buffers) = system_data;
 
-        let context = world.get_mut::<WebGlContext>().unwrap();
-
-        self.positions = Some(Buffer::new(context, &[
-            -1.0, 0.0,
-            -0.5, 0.0,
-            -1.0, 0.5,
-        ]));
-
-        self.colors = Some(Buffer::new(context, &[
-            1.0, 0.5, 0.5, 1.0,
-            0.5, 1.0, 0.5, 1.0,
-            0.5, 0.5, 1.0, 1.0,
-        ]));
-    }
-
-    fn run(&mut self, (context, programs): Self::SystemData) {
         let program = &programs.default;
-        let positions = self.positions.as_ref().unwrap();
-        let colors = self.colors.as_ref().unwrap();
-
         context.use_program(Some(&program.compiled));
 
-        feed_attribute(&context, program, "a_position", &positions, 2);
-        feed_attribute(&context, program, "a_color", &colors, 4);
+        for (geometry, coloring) in (&geometries, &colorings).join() {
+            let geometry = webgl_buffers.get(geometry.model).unwrap();
+            let coloring = webgl_buffers.get(coloring.model).unwrap();
 
-        feed_uniform(&context, program, "u_matrix", &[
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            self.offset / 2.0, 0.0, 0.0, 1.0,
-        ]);
+            feed_attribute(&context, program, "a_position", &geometry, 2); // TODO
+            feed_attribute(&context, program, "a_color", &coloring, 4); // TODO
 
-        context.draw_arrays(GL::TRIANGLES, 0, positions.len(2));
+            feed_uniform(&context, program, "u_matrix", &[
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0,
+            ]);
 
-        feed_uniform(&context, &program, "u_matrix", &[
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            self.offset, 0.0, 0.5, 1.0,
-        ]);
-
-        context.draw_arrays(GL::TRIANGLES, 0, positions.len(2));
-
-        self.offset += 0.002;
-
-        if self.offset > 1.5 {
-            self.offset = 0.0;
+            context.draw_arrays(GL::TRIANGLES, 0, 3); // TODO
         }
     }
 }

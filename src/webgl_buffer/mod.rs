@@ -11,7 +11,9 @@ pub struct WebGlBuffer;
 impl<'a> System<'a> for WebGlBuffer {
     type SystemData = (
         Entities<'a>,
+
         ReadExpect<'a, WebGlContext>,
+
         WriteStorage<'a, BufferData>,
         WriteStorage<'a, Buffer>,
     );
