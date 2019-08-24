@@ -2,9 +2,9 @@ use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
 use crate::resources::*;
 
-pub struct Viewport;
+pub struct WebGlViewport;
 
-impl<'a> System<'a> for Viewport {
+impl<'a> System<'a> for WebGlViewport {
     type SystemData = (
         Read<'a, ClearColor>,
         ReadExpect<'a, HtmlCanvas>,

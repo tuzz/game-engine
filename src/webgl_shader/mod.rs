@@ -1,11 +1,11 @@
-use specs::*;
+use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
-use web_sys::WebGlShader;
+use web_sys::WebGlShader as Shader;
 use crate::resources::{*, shader_types::*};
 
-pub struct Shader;
+pub struct WebGlShader;
 
-impl<'a> System<'a> for Shader {
+impl<'a> System<'a> for WebGlShader {
     type SystemData = ();
 
     fn setup(&mut self, world: &mut World) {
@@ -67,7 +67,7 @@ fn fragment_shader(context: &GL, source: &str) -> FragmentShader {
     FragmentShader { compiled: compile(context, GL::FRAGMENT_SHADER, source) }
 }
 
-fn compile(context: &GL, kind: u32, source: &str) -> WebGlShader {
+fn compile(context: &GL, kind: u32, source: &str) -> Shader {
     let shader = context.create_shader(kind).unwrap();
 
     context.shader_source(&shader, source);
