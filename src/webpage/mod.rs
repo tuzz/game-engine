@@ -1,13 +1,9 @@
 use specs::prelude::*;
 use wasm_bindgen::JsCast;
-
-use super::resources::BrowserWindow;
-use super::resources::HtmlCanvas;
-use super::resources::WebGlContext;
-
 use web_sys::{Document, Element, Window};
 use web_sys::HtmlCanvasElement as Canvas;
 use web_sys::WebGlRenderingContext as GL;
+use crate::resources::*;
 
 pub struct Webpage;
 

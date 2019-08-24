@@ -1,21 +1,15 @@
 use specs::prelude::*;
-use super::resources::WebGlContext;
-
 use web_sys::WebGlRenderingContext as GL;
+use crate::resources::{*, WebGlContext};
 
 mod buffer;
 mod feed;
-mod shader;
-mod program;
 
-use program::Program;
 use buffer::Buffer;
 use feed::*;
 
 #[derive(Default)]
 pub struct Render {
-    program: Option<Program>,
-
     positions: Option<Buffer>,
     colors: Option<Buffer>,
 
@@ -23,14 +17,15 @@ pub struct Render {
 }
 
 impl<'a> System<'a> for Render {
-    type SystemData = ReadExpect<'a, WebGlContext>;
+    type SystemData = (
+        ReadExpect<'a, WebGlContext>,
+        ReadExpect<'a, ShaderPrograms>,
+    );
 
     fn setup(&mut self, world: &mut World) {
         Self::SystemData::setup(world);
 
         let context = world.get_mut::<WebGlContext>().unwrap();
-
-        self.program = Some(Program::default(context));
 
         self.positions = Some(Buffer::new(context, &[
             -1.0, 0.0,
@@ -45,17 +40,17 @@ impl<'a> System<'a> for Render {
         ]));
     }
 
-    fn run(&mut self, context: Self::SystemData) {
-        let program = self.program.as_ref().unwrap();
+    fn run(&mut self, (context, programs): Self::SystemData) {
+        let program = &programs.default;
         let positions = self.positions.as_ref().unwrap();
         let colors = self.colors.as_ref().unwrap();
 
-        program.enable(&context);
+        context.use_program(Some(&program.compiled));
 
         feed_attribute(&context, program, "a_position", &positions, 2);
         feed_attribute(&context, program, "a_color", &colors, 4);
 
-        feed_uniform(&context, &program, "u_matrix", &[
+        feed_uniform(&context, program, "u_matrix", &[
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,

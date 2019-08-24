@@ -1,10 +1,7 @@
 use specs::*;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlShader;
-
-use super::resources::*;
-use super::resources::vertex_shaders::*;
-use super::resources::fragment_shaders::*;
+use crate::resources::{*, shader_types::*};
 
 pub struct Shader;
 

@@ -15,3 +15,9 @@ pub use clear_color::ClearColor;
 pub use vertex_shaders::VertexShaders;
 pub use fragment_shaders::FragmentShaders;
 pub use shader_programs::ShaderPrograms;
+
+pub mod shader_types {
+    pub use super::vertex_shaders::*;
+    pub use super::fragment_shaders::*;
+    pub use super::shader_programs::*;
+}

@@ -1,6 +1,6 @@
 use specs::prelude::*;
 use wasm_bindgen::{prelude::*, JsCast};
-use super::resources::GameTiming;
+use crate::resources::GameTiming;
 
 pub struct GameLoop {
     pub world: World,

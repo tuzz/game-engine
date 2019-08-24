@@ -1,6 +1,6 @@
 use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
-use super::resources::*;
+use crate::resources::*;
 
 pub struct Viewport;
 
