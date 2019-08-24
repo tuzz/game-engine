@@ -5,9 +5,9 @@ use super::resources::BrowserWindow;
 use super::resources::HtmlCanvas;
 use super::resources::WebGlContext;
 
-use web_sys::{Document, Element, Window as Win};
+use web_sys::{Document, Element, Window};
 use web_sys::HtmlCanvasElement as Canvas;
-use web_sys::WebGlRenderingContext as Context;
+use web_sys::WebGlRenderingContext as GL;
 
 pub struct Webpage;
 
@@ -34,7 +34,7 @@ impl<'a> System<'a> for Webpage {
     }
 
     fn run(&mut self, (): Self::SystemData) {
-
+        unimplemented!()
     }
 }
 
@@ -42,8 +42,8 @@ fn create_canvas(document: &Document) -> Canvas {
     document.create_element("canvas").unwrap().dyn_into::<Canvas>().unwrap()
 }
 
-fn get_context(canvas: &Canvas) -> Context {
-    canvas.get_context("webgl").unwrap().unwrap().dyn_into::<Context>().unwrap()
+fn get_context(canvas: &Canvas) -> GL {
+    canvas.get_context("webgl").unwrap().unwrap().dyn_into::<GL>().unwrap()
 }
 
 fn create_style(document: &Document) -> Element {
@@ -66,7 +66,7 @@ fn add_to_page(document: &Document, element: &Element) {
     document.body().unwrap().append_child(element).unwrap();
 }
 
-fn resize_canvas(window: &Win, document: &Document, canvas: &Canvas) {
+fn resize_canvas(window: &Window, document: &Document, canvas: &Canvas) {
     let pixel_ratio = window.device_pixel_ratio();
 
     let body = document.body().unwrap();
