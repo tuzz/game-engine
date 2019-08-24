@@ -1,15 +1,15 @@
 #[macro_use]
 extern crate specs_derive;
 
-mod game_loop;
 mod components;
 mod resources;
 mod systems;
+mod utilities;
 
 use specs::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use game_loop::GameLoop;
+use utilities::GameLoop;
 use components::*;
 use systems::*;
 
