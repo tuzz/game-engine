@@ -1,11 +1,11 @@
-pub mod game_timing;
-pub mod browser_window;
-pub mod html_canvas;
-pub mod webgl_context;
-pub mod clear_color;
-pub mod vertex_shaders;
-pub mod fragment_shaders;
-pub mod shader_programs;
+mod game_timing;
+mod browser_window;
+mod html_canvas;
+mod webgl_context;
+mod clear_color;
+mod vertex_shaders;
+mod fragment_shaders;
+mod shader_programs;
 
 pub use game_timing::GameTiming;
 pub use browser_window::BrowserWindow;
