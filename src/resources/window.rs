@@ -1,16 +1,14 @@
 use std::ops::Deref;
 
 use web_sys::Window as Win;
-use web_sys::HtmlCanvasElement as Canvas;
 
 pub struct Window {
     pub window: Win,
-    pub canvas: Canvas,
 }
 
 impl Window {
-    pub fn new(window: Win, canvas: Canvas) -> Self {
-        Self { window, canvas }
+    pub fn new(window: Win) -> Self {
+        Self { window }
     }
 }
 
