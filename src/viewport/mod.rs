@@ -1,17 +1,19 @@
+use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
-use web_sys::HtmlCanvasElement as Canvas;
 
-pub struct Viewport {
-    clear_color: (f32, f32, f32, f32),
-}
+use super::resources::ClearColor;
+use super::resources::Window;
 
-impl Viewport {
-    pub fn new(red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        Self { clear_color: (red, green, blue, alpha) }
-    }
+pub struct Viewport;
 
-    pub fn clear(&self, canvas: &Canvas, context: &GL) {
-        let (r, g, b, a) = self.clear_color;
+impl<'a> System<'a> for Viewport {
+    type SystemData = (Read<'a, ClearColor>, ReadExpect<'a, Window>);
+
+    fn run(&mut self, (clear_color, window): Self::SystemData) {
+        let ClearColor(r, g, b, a) = *clear_color;
+
+        let canvas = &window.canvas;
+        let context = &window.context;
 
         context.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
 
