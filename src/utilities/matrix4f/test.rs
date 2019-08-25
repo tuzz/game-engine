@@ -108,6 +108,23 @@ mod scaling {
     }
 }
 
+mod orthographic {
+    use super::*;
+
+    #[test]
+    fn it_returns_an_orthographic_matrix() {
+        let (left, right, bottom, top, near, far) = (0., 4., 0., 2., 0., 5.);
+        let matrix = Matrix4f::orthographic(left, right, bottom, top, near, far);
+
+        assert_eq(matrix.0, [
+             0.5, 0.,  0.,  0.,
+             0.,  1.,  0.,  0.,
+             0.,  0., -0.4, 0.,
+            -1., -1., -1.,  1.,
+        ]);
+    }
+}
+
 mod multiplication {
     use super::*;
 

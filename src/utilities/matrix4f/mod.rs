@@ -79,6 +79,23 @@ impl Matrix4f {
         ])
     }
 
+    pub fn orthographic(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Self {
+        let sx = 2.0 / (right - left);
+        let sy = 2.0 / (top - bottom);
+        let sz = 2.0 / (near - far);
+
+        let tx = (left + right) / (left - right);
+        let ty = (bottom + top) / (bottom - top);
+        let tz = (near + far) / (near - far);
+
+        Matrix4f([
+            sx, 0., 0., 0.,
+            0., sy, 0., 0.,
+            0., 0., sz, 0.,
+            tx, ty, tz, 1.,
+        ])
+    }
+
     // Immutable functions for chaining:
     pub fn translate(&self, tx: f32, ty: f32, tz: f32) -> Self {
         self * Matrix4f::translation(tx, ty, tz)
