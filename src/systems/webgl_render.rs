@@ -13,17 +13,18 @@ impl<'a> System<'a> for WebGlRender {
 
         ReadStorage<'a, Geometry>,
         ReadStorage<'a, Coloring>,
+        ReadStorage<'a, Transform>,
         ReadStorage<'a, WebGlBuffer>,
         ReadStorage<'a, Dimensions>,
     );
 
     fn run(&mut self, system_data: Self::SystemData) {
-        let (context, programs, geometries, colorings, webgl_buffers, dimensions) = system_data;
+        let (context, programs, geometries, colorings, transforms, webgl_buffers, dimensions) = system_data;
 
         let program = &programs.default;
         context.use_program(Some(&program.compiled));
 
-        for (geometry, coloring) in (&geometries, &colorings).join() {
+        for (geometry, coloring, transform) in (&geometries, &colorings, &transforms).join() {
             let geometry_buffer = webgl_buffers.get(geometry.model).unwrap();
             let coloring_buffer = webgl_buffers.get(coloring.model).unwrap();
 
@@ -32,13 +33,7 @@ impl<'a> System<'a> for WebGlRender {
 
             feed_attribute(&context, program, "a_position", geometry_buffer, **geometry_dimensions as i32);
             feed_attribute(&context, program, "a_color", coloring_buffer, **coloring_dimensions as i32);
-
-            feed_uniform(&context, program, "u_matrix", &[
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0,
-            ]);
+            feed_uniform(&context, program, "u_matrix", transform);
 
             let elements = geometry_buffer.len / **geometry_dimensions as usize;
             context.draw_arrays(GL::TRIANGLES, 0, elements as i32);
@@ -54,7 +49,7 @@ pub fn feed_attribute(context: &GL, program: &ShaderProgram, name: &str, buffer:
     context.vertex_attrib_pointer_with_i32(location, size, GL::FLOAT, false, 0, 0);
 }
 
-pub fn feed_uniform(context: &GL, program: &ShaderProgram, name: &str, matrix: &[f32]) {
+pub fn feed_uniform(context: &GL, program: &ShaderProgram, name: &str, matrix: &[f32; 16]) {
     let location = program.uniform_map.get(name).unwrap().to_owned();
 
     context.uniform_matrix4fv_with_f32_array(Some(&location), false, matrix);

@@ -1,6 +1,15 @@
 use std::ops;
+use std::ops::Deref;
 
 pub struct Matrix4f(pub [f32; 16]);
+
+impl Deref for Matrix4f {
+    type Target = [f32; 16];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl Matrix4f {
     pub fn new(array: [f32; 16]) -> Self {

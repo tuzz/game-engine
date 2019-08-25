@@ -16,6 +16,7 @@ use specs::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use utilities::GameLoop;
+use utilities::Matrix4f;
 use components::*;
 use systems::*;
 
@@ -39,9 +40,9 @@ pub fn main() {
         System::setup(&mut webgl_render, world);
 
         let geometry_model = world.create_entity().with(BufferData(vec![
-            -1.0, 0.0,
-            -0.5, 0.0,
-            -1.0, 0.5,
+            -0.3, 0.0,
+            -0.0, 0.0,
+            -0.3, 0.3,
         ])).with(Dimensions(2)).build();
 
         let coloring_model = world.create_entity().with(BufferData(vec![
@@ -53,6 +54,7 @@ pub fn main() {
         world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
+            .with(Transform(Matrix4f::identity()))
             .build();
     });
 
