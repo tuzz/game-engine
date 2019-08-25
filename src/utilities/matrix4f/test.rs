@@ -176,3 +176,33 @@ mod multiplication {
         (Matrix4f::identity(), Matrix4f::identity(), Matrix4f::identity())
     }
 }
+
+mod chaining {
+    use super::*;
+
+    #[test]
+    fn it_has_immutable_functions_for_chaining() {
+        let matrix = Matrix4f::identity();
+
+        let result = matrix.x_rotate(PI / 2.)
+              .translate(1., 2., 3.)
+              .y_rotate(-PI / 2.)
+              .scale(4., 5., 6.)
+              .z_rotate(PI);
+
+        assert_approx_eq!(result.0[2], 6.0);
+    }
+
+    #[test]
+    fn it_has_mutable_functions_for_chaining() {
+        let mut matrix = Matrix4f::identity();
+
+        matrix.x_rotate_mut(PI / 2.)
+              .translate_mut(1., 2., 3.)
+              .y_rotate_mut(-PI / 2.)
+              .scale_mut(4., 5., 6.)
+              .z_rotate_mut(PI);
+
+        assert_approx_eq!(matrix.0[2], 6.0);
+    }
+}
