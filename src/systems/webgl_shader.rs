@@ -35,7 +35,7 @@ fn default_vertex_shader(context: &GL) -> VertexShader {
         uniform mat4 u_matrix;
 
         void main() {
-          gl_Position = u_matrix * a_position;
+          gl_Position = a_position * u_matrix;
           v_color = a_color;
         }
     ", vec![

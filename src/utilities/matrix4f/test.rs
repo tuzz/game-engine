@@ -32,10 +32,10 @@ mod translation {
         let matrix = Matrix4f::translation(tx, ty, tz);
 
         assert_eq(matrix.0, [
-            1., 0., 0., 0.,
-            0., 1., 0., 0.,
-            0., 0., 1., 0.,
-            tx, ty, tz, 1.,
+            1., 0., 0., tx,
+            0., 1., 0., ty,
+            0., 0., 1., tz,
+            0., 0., 0., 1.,
         ]);
     }
 }
@@ -49,10 +49,10 @@ mod x_rotation {
         let matrix = Matrix4f::x_rotation(radians);
 
         assert_eq(matrix.0, [
-            1.,  0., 0., 0.,
-            0.,  0., 1., 0.,
-            0., -1., 0., 0.,
-            0.,  0., 0., 1.,
+            1., 0.,  0., 0.,
+            0., 0., -1., 0.,
+            0., 1.,  0., 0.,
+            0., 0.,  0., 1.,
         ]);
     }
 }
@@ -66,10 +66,10 @@ mod y_rotation {
         let matrix = Matrix4f::y_rotation(radians);
 
         assert_eq(matrix.0, [
-            0., 0., -1., 0.,
-            0., 1.,  0., 0.,
-            1., 0.,  0., 0.,
-            0., 0.,  0., 1.,
+            0., 0., 1., 0.,
+            0., 1., 0., 0.,
+           -1., 0., 0., 0.,
+            0., 0., 0., 1.,
         ]);
     }
 }
@@ -83,10 +83,10 @@ mod z_rotation {
         let matrix = Matrix4f::z_rotation(radians);
 
         assert_eq(matrix.0, [
-            0., 1., 0., 0.,
-           -1., 0., 0., 0.,
-            0., 0., 1., 0.,
-            0., 0., 0., 1.,
+            0., -1., 0., 0.,
+            1.,  0., 0., 0.,
+            0.,  0., 1., 0.,
+            0.,  0., 0., 1.,
         ]);
     }
 }
@@ -117,10 +117,10 @@ mod orthographic {
         let matrix = Matrix4f::orthographic(left, right, bottom, top, near, far);
 
         assert_eq(matrix.0, [
-             0.5, 0.,  0.,  0.,
-             0.,  1.,  0.,  0.,
-             0.,  0., -0.4, 0.,
-            -1., -1., -1.,  1.,
+             0.5, 0.,  0.,  -1.,
+             0.,  1.,  0.,  -1.,
+             0.,  0., -0.4, -1.,
+             0.,  0.,  0.,   1.,
         ]);
     }
 }
@@ -207,7 +207,7 @@ mod chaining {
               .scale(4., 5., 6.)
               .z_rotate(PI);
 
-        assert_approx_eq!(result.0[2], 6.0);
+        assert_approx_eq!(result.0[2], -6.0);
     }
 
     #[test]
@@ -220,6 +220,6 @@ mod chaining {
               .scale_mut(4., 5., 6.)
               .z_rotate_mut(PI);
 
-        assert_approx_eq!(matrix.0[2], 6.0);
+        assert_approx_eq!(matrix.0[2], -6.0);
     }
 }
