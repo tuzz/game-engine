@@ -3,7 +3,11 @@ use std::ops;
 pub struct Matrix4f(pub [f32; 16]);
 
 impl Matrix4f {
-    fn identity() -> Self {
+    pub fn new(array: [f32; 16]) -> Self {
+        Matrix4f(array)
+    }
+
+    pub fn identity() -> Self {
         Matrix4f([
             1., 0., 0., 0.,
             0., 1., 0., 0.,
@@ -12,7 +16,7 @@ impl Matrix4f {
         ])
     }
 
-    fn translation(tx: f32, ty: f32, tz: f32) -> Self {
+    pub fn translation(tx: f32, ty: f32, tz: f32) -> Self {
         Matrix4f([
             1., 0., 0., 0.,
             0., 1., 0., 0.,
@@ -21,7 +25,7 @@ impl Matrix4f {
         ])
     }
 
-    fn x_rotation(radians: f32) -> Self {
+    pub fn x_rotation(radians: f32) -> Self {
         let c = radians.cos();
         let s = radians.sin();
 
@@ -33,7 +37,7 @@ impl Matrix4f {
         ])
     }
 
-    fn y_rotation(radians: f32) -> Self {
+    pub fn y_rotation(radians: f32) -> Self {
         let c = radians.cos();
         let s = radians.sin();
 
@@ -45,7 +49,7 @@ impl Matrix4f {
         ])
     }
 
-    fn z_rotation(radians: f32) -> Self {
+    pub fn z_rotation(radians: f32) -> Self {
         let c = radians.cos();
         let s = radians.sin();
 
@@ -57,7 +61,7 @@ impl Matrix4f {
         ])
     }
 
-    fn scaling(sx: f32, sy: f32, sz: f32) -> Self {
+    pub fn scaling(sx: f32, sy: f32, sz: f32) -> Self {
         Matrix4f([
             sx, 0., 0., 0.,
             0., sy, 0., 0.,
@@ -67,44 +71,44 @@ impl Matrix4f {
     }
 
     // Immutable functions for chaining:
-    fn translate(&self, tx: f32, ty: f32, tz: f32) -> Self {
+    pub fn translate(&self, tx: f32, ty: f32, tz: f32) -> Self {
         self * Matrix4f::translation(tx, ty, tz)
     }
 
-    fn x_rotate(&self, radians: f32) -> Self {
+    pub fn x_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::x_rotation(radians)
     }
 
-    fn y_rotate(&self, radians: f32) -> Self {
+    pub fn y_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::y_rotation(radians)
     }
 
-    fn z_rotate(&self, radians: f32) -> Self {
+    pub fn z_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::z_rotation(radians)
     }
 
-    fn scale(&self, sx: f32, sy: f32, sz: f32) -> Self {
+    pub fn scale(&self, sx: f32, sy: f32, sz: f32) -> Self {
         self * Matrix4f::scaling(sx, sy, sz)
     }
 
     // Mutable functions for chaining:
-    fn translate_mut(&mut self, tx: f32, ty: f32, tz: f32) -> &mut Self {
+    pub fn translate_mut(&mut self, tx: f32, ty: f32, tz: f32) -> &mut Self {
         *self *= Matrix4f::translation(tx, ty, tz); self
     }
 
-    fn x_rotate_mut(&mut self, radians: f32) -> &mut Self {
+    pub fn x_rotate_mut(&mut self, radians: f32) -> &mut Self {
         *self *= Matrix4f::x_rotation(radians); self
     }
 
-    fn y_rotate_mut(&mut self, radians: f32) -> &mut Self {
+    pub fn y_rotate_mut(&mut self, radians: f32) -> &mut Self {
         *self *= Matrix4f::y_rotation(radians); self
     }
 
-    fn z_rotate_mut(&mut self, radians: f32) -> &mut Self {
+    pub fn z_rotate_mut(&mut self, radians: f32) -> &mut Self {
         *self *= Matrix4f::z_rotation(radians); self
     }
 
-    fn scale_mut(&mut self, sx: f32, sy: f32, sz: f32) -> &mut Self {
+    pub fn scale_mut(&mut self, sx: f32, sy: f32, sz: f32) -> &mut Self {
         *self *= Matrix4f::scaling(sx, sy, sz); self
     }
 }
