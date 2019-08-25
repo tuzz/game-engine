@@ -155,6 +155,23 @@ mod multiplication {
         let _ = &a * &b * a * &c * c;
     }
 
+    #[test]
+    fn it_can_multiply_and_assign() {
+        let mut matrix = Matrix4f::identity();
+        let scaling = Matrix4f::scaling(1., 2., 3.);
+
+        matrix *= &scaling;
+        matrix *= &scaling;
+        matrix *=  scaling;
+
+        assert_eq(matrix.0, [
+            1., 0., 0.,  0.,
+            0., 8., 0.,  0.,
+            0., 0., 27., 0.,
+            0., 0., 0.,  1.,
+        ]);
+    }
+
     fn abc() -> (Matrix4f, Matrix4f, Matrix4f) {
         (Matrix4f::identity(), Matrix4f::identity(), Matrix4f::identity())
     }
