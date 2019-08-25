@@ -13,7 +13,7 @@ impl GameTiming {
 impl Default for GameTiming {
     fn default() -> Self {
         Self {
-            updates_per_second: 5,
+            updates_per_second: 60,
             pause_updates_after: 1.0,
             time_since_update: 0.0,
         }

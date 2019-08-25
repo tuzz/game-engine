@@ -30,6 +30,7 @@ pub fn main() {
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
     let mut webgl_render = WebGlRender;
+    let mut animation = Animation;
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
@@ -38,17 +39,26 @@ pub fn main() {
         System::setup(&mut webgl_program, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut webgl_render, world);
+        System::setup(&mut animation, world);
 
         let geometry_model = world.create_entity().with(BufferData(vec![
-            -0.3, 0.0,
-            -0.0, 0.0,
-            -0.3, 0.3,
+            0.0, 0.0,
+            0.4, 0.0,
+            0.4, 0.4,
+
+            0.0, 0.0,
+            0.4, 0.4,
+            0.0, 0.4,
         ])).with(Dimensions(2)).build();
 
         let coloring_model = world.create_entity().with(BufferData(vec![
             1.0, 0.5, 0.5, 1.0,
             0.5, 1.0, 0.5, 1.0,
             0.5, 0.5, 1.0, 1.0,
+
+            0.0, 0.8, 0.0, 1.0,
+            0.8, 0.0, 0.0, 1.0,
+            0.0, 0.0, 0.8, 1.0,
         ])).with(Dimensions(4)).build();
 
         world.create_entity()
@@ -58,8 +68,8 @@ pub fn main() {
             .build();
     });
 
-    game_loop.run(move |_world| {
-        // update
+    game_loop.run(move |world| {
+        animation.run_now(world);
     }, move |world| {
         webgl_viewport.run_now(world);
         webgl_buffer.run_now(world);

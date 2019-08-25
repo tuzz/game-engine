@@ -1,5 +1,5 @@
 use specs::prelude::*;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use crate::utilities::Matrix4f;
 
 #[derive(Component)]
@@ -11,5 +11,11 @@ impl Deref for Transform {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl DerefMut for Transform {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
