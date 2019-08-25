@@ -8,11 +8,7 @@ impl<'a> System<'a> for Animation {
 
     fn run(&mut self, mut transforms: Self::SystemData) {
         for transform in (&mut transforms).join() {
-            //transform.translate_mut(0.001, 0., 0.);
-            //
-            transform.translate_mut(-0.2, -0.2, 0.0)
-                     .z_rotate_mut(0.005)
-                     .translate_mut(0.2, 0.2, 0.0);
+            transform.x_rotate_mut(0.01).y_rotate_mut(0.02);
         }
     }
 }
