@@ -1,6 +1,8 @@
 use std::ops::Deref;
 use super::*;
 
+pub type Tuple = (f32, f32, f32);
+
 impl From<Tuple> for Vector3f {
     fn from(t: Tuple) -> Self {
         Self([t.0,  t.1,  t.2])

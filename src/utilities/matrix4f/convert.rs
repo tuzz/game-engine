@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use super::*;
 
-type Tuple = (
+pub type Tuple = (
     f32, f32, f32, f32,
     f32, f32, f32, f32,
     f32, f32, f32, f32,

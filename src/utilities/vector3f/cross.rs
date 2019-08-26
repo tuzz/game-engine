@@ -21,18 +21,13 @@ fn cross(a: &[f32; 3], b: &[f32; 3]) -> Tuple {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    fn assert_eq(actual: &[f32; 3], expected: &[f32; 3]) {
-        for (a, b) in actual.iter().zip(expected.iter()) {
-            assert_approx_eq!(a, b);
-        }
-    }
+    use crate::utilities::test_helpers::*;
 
     #[test]
     fn it_calculates_the_cross_product() {
         let a = Vector3f::new(1., 2., 3.);
         let b = Vector3f::new(3., 0., 1.);
 
-        assert_eq(&a.cross(&b), &[2., 8., -6.]);
+        assert_approx_eq_slice(&a.cross(&b).0, &[2., 8., -6.]);
     }
 }

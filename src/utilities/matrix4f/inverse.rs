@@ -1,12 +1,20 @@
+use super::*;
+
+impl Matrix4f {
+    #[must_use]
+    pub fn inverse(&self) -> Self {
+        inverse::inverse(self).into()
+    }
+
+    pub fn inverse_mut(&mut self) -> &mut Self {
+        self.assign_tuple(inverse::inverse(self)); self
+    }
+}
+
 // The inverse function is adapted from this answer:
 // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix#answer-44446912
 
-pub fn inverse(x: &[f32; 16]) -> (
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-) {
+pub fn inverse(x: &[f32; 16]) -> Tuple {
     let (a, b, c, d) = ( x[0],  x[1],  x[2],  x[3]);
     let (e, f, g, h) = ( x[4],  x[5],  x[6],  x[7]);
     let (i, j, k, l) = ( x[8],  x[9], x[10], x[11]);
@@ -32,4 +40,25 @@ pub fn inverse(x: &[f32; 16]) -> (
      det *   (a *  t7 - b * u2 + d * u6), det * - (a * u0 - b * u4 + d * u7),
      det * - (e *  t2 - f * t4 + g * t5), det *   (a * t2 - b * t4 + c * t5),
      det * - (a *  t8 - b * u3 + c * u6), det *   (a * u1 - b * u5 + c * u7))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::utilities::test_helpers::*;
+
+    #[test]
+    fn it_returns_a_matrix_that_reverses_the_transforms() {
+        let matrix = Matrix4f::identity()
+            .translate(1., 2., 3.)
+            .x_rotate(PI / 3.)
+            .scale(2., -5., 10.);
+
+        let expected_inverse = Matrix4f::identity()
+            .scale(0.5, -0.2, 0.1)
+            .x_rotate(-PI / 3.)
+            .translate(-1., -2., -3.);
+
+        assert_approx_eq_slice(&matrix.inverse().0, &expected_inverse.0);
+    }
 }

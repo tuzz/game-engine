@@ -1,9 +1,15 @@
-pub fn multiply(a: &[f32; 16], b: &[f32; 16]) -> (
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-    f32, f32, f32, f32,
-) {
+use std::ops;
+use super::*;
+
+impl_op_ex!(* |left: &Matrix4f, right: &Matrix4f| -> Matrix4f {
+    multiply::multiply(left, right).into()
+});
+
+impl_op_ex!(*= |left: &mut Matrix4f, right: &Matrix4f| {
+    left.assign_tuple(multiply::multiply(left, right));
+});
+
+pub fn multiply(a: &[f32; 16], b: &[f32; 16]) -> Tuple {
     let (a00, a01, a02, a03) = ( a[0],  a[1],  a[2],  a[3]);
     let (a10, a11, a12, a13) = ( a[4],  a[5],  a[6],  a[7]);
     let (a20, a21, a22, a23) = ( a[8],  a[9], a[10], a[11]);
@@ -35,4 +41,75 @@ pub fn multiply(a: &[f32; 16], b: &[f32; 16]) -> (
         a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32,
         a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33,
     )
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::utilities::test_helpers::*;
+
+    #[test]
+    fn it_multiplies_the_matrices() {
+        let a = Matrix4f([
+            0., 0., 1., 1.,
+            2., 2., 3., 3.,
+            4., 4., 5., 5.,
+            6., 6., 7., 7.,
+        ]);
+
+        let b = Matrix4f([
+            0., 1., 2., 3.,
+            4., 5., 6., 7.,
+            0., 1., 2., 3.,
+            4., 5., 6., 7.,
+        ]);
+
+        let matrix = a * b;
+
+        assert_approx_eq_slice(&matrix.0, &[
+            4.,   6.,   8.,  10.,
+            20., 30.,  40.,  50.,
+            36., 54.,  72.,  90.,
+            52., 78., 104., 130.,
+        ]);
+    }
+
+    #[test]
+    fn it_works_with_references() {
+        let (a, b, c) = abc();
+        let _ = a * b * c;
+
+        let (a, b, c) = abc();
+        let _ = &a * &b * &c;
+
+        let (a, b, c) = abc();
+        let _ = a * &b * c;
+
+        let (a, b, c) = abc();
+        let _ = &a * &b * a * c;
+
+        let (a, b, c) = abc();
+        let _ = &a * &b * a * &c * c;
+    }
+
+    #[test]
+    fn it_can_multiply_and_assign() {
+        let mut matrix = Matrix4f::identity();
+        let scaling = Matrix4f::scaling(1., 2., 3.);
+
+        matrix *= &scaling;
+        matrix *= &scaling;
+        matrix *=  scaling;
+
+        assert_approx_eq_slice(&matrix.0, &[
+            1., 0., 0.,  0.,
+            0., 8., 0.,  0.,
+            0., 0., 27., 0.,
+            0., 0., 0.,  1.,
+        ]);
+    }
+
+    fn abc() -> (Matrix4f, Matrix4f, Matrix4f) {
+        (Matrix4f::identity(), Matrix4f::identity(), Matrix4f::identity())
+    }
 }
