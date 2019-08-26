@@ -21,7 +21,6 @@ fn cross(a: &Vector3f, b: &Vector3f) -> Tuple {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::utilities::test_helpers::*;
 
     #[test]
     fn it_calculates_the_cross_product() {

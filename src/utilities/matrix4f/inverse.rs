@@ -3,18 +3,18 @@ use super::*;
 impl Matrix4f {
     #[must_use]
     pub fn inverse(&self) -> Self {
-        inverse::inverse(self).into()
+        inverse(self).into()
     }
 
     pub fn inverse_mut(&mut self) -> &mut Self {
-        self.assign_tuple(inverse::inverse(self)); self
+        self.assign_tuple(inverse(self)); self
     }
 }
 
 // The inverse function is adapted from this answer:
 // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix#answer-44446912
 
-pub fn inverse(x: &[f32; 16]) -> Tuple {
+fn inverse(x: &[f32; 16]) -> Tuple {
     let (a, b, c, d) = ( x[0],  x[1],  x[2],  x[3]);
     let (e, f, g, h) = ( x[4],  x[5],  x[6],  x[7]);
     let (i, j, k, l) = ( x[8],  x[9], x[10], x[11]);

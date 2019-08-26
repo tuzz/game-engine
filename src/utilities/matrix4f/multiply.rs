@@ -2,14 +2,14 @@ use std::ops;
 use super::*;
 
 impl_op_ex!(* |left: &Matrix4f, right: &Matrix4f| -> Matrix4f {
-    multiply::multiply(left, right).into()
+    multiply(left, right).into()
 });
 
 impl_op_ex!(*= |left: &mut Matrix4f, right: &Matrix4f| {
-    left.assign_tuple(multiply::multiply(left, right));
+    left.assign_tuple(multiply(left, right));
 });
 
-pub fn multiply(a: &[f32; 16], b: &[f32; 16]) -> Tuple {
+fn multiply(a: &[f32; 16], b: &[f32; 16]) -> Tuple {
     let (a00, a01, a02, a03) = ( a[0],  a[1],  a[2],  a[3]);
     let (a10, a11, a12, a13) = ( a[4],  a[5],  a[6],  a[7]);
     let (a20, a21, a22, a23) = ( a[8],  a[9], a[10], a[11]);
