@@ -3,6 +3,7 @@ mod add;
 mod subtract;
 mod scale;
 mod cross;
+mod normalize;
 
 use convert::Tuple;
 
@@ -35,7 +36,8 @@ mod test {
               .add(&Vector3f::new(1., 2., 3.))
               .subtract(&Vector3f::new(1., 2., 3.))
               .cross(&Vector3f::new(1., 2., 3.))
-              .scale(1.);
+              .scale(1.)
+              .normalize();
     }
 
     #[test]
@@ -51,6 +53,7 @@ mod test {
             .add_mut(&Vector3f::new(1., 2., 3.))
             .subtract_mut(&Vector3f::new(1., 2., 3.))
             .cross_mut(&Vector3f::new(1., 2., 3.))
-            .scale_mut(1.);
+            .scale_mut(1.)
+            .normalize_mut();
     }
 }
