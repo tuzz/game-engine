@@ -6,8 +6,10 @@ mod orthographic;
 mod perspective;
 mod multiply;
 mod inverse;
+mod look_at;
 
 use convert::Tuple;
+use super::Vector3f;
 
 pub struct Matrix4f(pub [f32; 16]);
 
