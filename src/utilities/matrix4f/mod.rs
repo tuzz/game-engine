@@ -111,26 +111,32 @@ impl Matrix4f {
     }
 
     // Immutable functions for chaining:
+    #[must_use]
     pub fn translate(&self, tx: f32, ty: f32, tz: f32) -> Self {
         self * Matrix4f::translation(tx, ty, tz)
     }
 
+    #[must_use]
     pub fn x_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::x_rotation(radians)
     }
 
+    #[must_use]
     pub fn y_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::y_rotation(radians)
     }
 
+    #[must_use]
     pub fn z_rotate(&self, radians: f32) -> Self {
         self * Matrix4f::z_rotation(radians)
     }
 
+    #[must_use]
     pub fn scale(&self, sx: f32, sy: f32, sz: f32) -> Self {
         self * Matrix4f::scaling(sx, sy, sz)
     }
 
+    #[must_use]
     pub fn inverse(&self) -> Self {
         inverse::inverse(self).into()
     }

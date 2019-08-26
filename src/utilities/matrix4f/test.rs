@@ -220,7 +220,7 @@ mod chaining {
     fn it_has_immutable_functions_for_chaining() {
         let matrix = Matrix4f::identity();
 
-        let result = matrix.x_rotate(PI / 2.)
+        let _ = matrix.x_rotate(PI / 2.)
               .translate(1., 2., 3.)
               .y_rotate(-PI / 2.)
               .scale(4., 5., 6.)
