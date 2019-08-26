@@ -10,10 +10,10 @@ impl Vector3f {
     }
 }
 
-fn cross(a: &[f32; 3], b: &[f32; 3]) -> Tuple {
-    let x = a[1] * b[2] - a[2] * b[1];
-    let y = a[2] * b[0] - a[0] * b[2];
-    let z = a[0] * b[1] - a[1] * b[0];
+fn cross(a: &Vector3f, b: &Vector3f) -> Tuple {
+    let x = a.y * b.z - a.z * b.y;
+    let y = a.z * b.x - a.x * b.z;
+    let z = a.x * b.y - a.y * b.x;
 
     (x, y, z)
 }
@@ -28,6 +28,11 @@ mod test {
         let a = Vector3f::new(1., 2., 3.);
         let b = Vector3f::new(3., 0., 1.);
 
-        assert_approx_eq_slice(&a.cross(&b).0, &[2., 8., -6.]);
+        let expected = Vector3f::new(2., 8., -6.);
+        let actual = a.cross(&b);
+
+        assert_approx_eq!(actual.x, expected.x);
+        assert_approx_eq!(actual.y, expected.y);
+        assert_approx_eq!(actual.z, expected.z);
     }
 }
