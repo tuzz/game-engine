@@ -1,6 +1,16 @@
+use std::ops;
 use super::*;
 
+impl_op_ex!(* |left: &Vector3f, right: &Vector3f| -> Vector3f {
+    left.cross(right)
+});
+
+impl_op_ex!(*= |left: &mut Vector3f, right: &Vector3f| {
+    left.cross_mut(right);
+});
+
 impl Vector3f {
+    #[must_use]
     pub fn cross(&self, other: &Self) -> Self {
         cross(self, other).into()
     }
@@ -27,8 +37,8 @@ mod test {
         let a = Vector3f::new(1., 2., 3.);
         let b = Vector3f::new(3., 0., 1.);
 
+        let actual = a * b;
         let expected = Vector3f::new(2., 8., -6.);
-        let actual = a.cross(&b);
 
         assert_approx_eq!(actual.x, expected.x);
         assert_approx_eq!(actual.y, expected.y);

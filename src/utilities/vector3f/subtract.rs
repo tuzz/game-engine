@@ -2,12 +2,23 @@ use std::ops;
 use super::*;
 
 impl_op_ex!(- |left: &Vector3f, right: &Vector3f| -> Vector3f {
-    subtract(left, right).into()
+    left.subtract(right)
 });
 
 impl_op_ex!(-= |left: &mut Vector3f, right: &Vector3f| {
-    left.assign_tuple(subtract(left, right));
+    left.subtract_mut(right);
 });
+
+impl Vector3f {
+    #[must_use]
+    pub fn subtract(&self, other: &Self) -> Self {
+        subtract(self, other).into()
+    }
+
+    pub fn subtract_mut(&mut self, other: &Self) -> &mut Self {
+        self.assign_tuple(subtract(self, other)); self
+    }
+}
 
 fn subtract(left: &Vector3f, right: &Vector3f) -> Tuple {
     (

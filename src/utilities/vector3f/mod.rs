@@ -18,3 +18,39 @@ impl Vector3f {
         Self { x, y, z }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn it_has_immutable_functions_for_chaining() {
+        let _ = Vector3f::new(1., 2., 3.)
+              + Vector3f::new(1., 2., 3.)
+              - Vector3f::new(1., 2., 3.)
+              * Vector3f::new(1., 2., 3.)
+              * 1.;
+
+        let _ = Vector3f::new(1., 2., 3.)
+              .add(&Vector3f::new(1., 2., 3.))
+              .subtract(&Vector3f::new(1., 2., 3.))
+              .cross(&Vector3f::new(1., 2., 3.))
+              .scale(1.);
+    }
+
+    #[test]
+    fn it_has_mutable_functions_for_chaining() {
+        let mut vector = Vector3f::new(1., 2., 3.);
+
+        vector += Vector3f::new(1., 2., 3.);
+        vector -= Vector3f::new(1., 2., 3.);
+        vector *= Vector3f::new(1., 2., 3.);
+        vector *= 1.;
+
+        Vector3f::new(1., 2., 3.)
+            .add_mut(&Vector3f::new(1., 2., 3.))
+            .subtract_mut(&Vector3f::new(1., 2., 3.))
+            .cross_mut(&Vector3f::new(1., 2., 3.))
+            .scale_mut(1.);
+    }
+}
