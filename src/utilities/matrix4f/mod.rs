@@ -39,17 +39,26 @@ mod test {
             .y_rotate(-PI / 2.)
             .scale(4., 5., 6.)
             .z_rotate(PI)
-            .inverse();
+            .inverse()
+            .multiply(&Matrix4f::identity())
+            * Matrix4f::identity()
+            * &Matrix4f::identity();
     }
 
     #[test]
     fn it_has_mutable_functions_for_chaining() {
+        let mut matrix = Matrix4f::identity();
+
+        matrix *= Matrix4f::identity();
+        matrix *= &Matrix4f::identity();
+
         Matrix4f::identity()
             .x_rotate_mut(PI / 2.)
             .translate_mut(1., 2., 3.)
             .y_rotate_mut(-PI / 2.)
             .scale_mut(4., 5., 6.)
             .z_rotate_mut(PI)
-            .inverse_mut();
+            .inverse_mut()
+            .multiply_mut(&Matrix4f::identity());
     }
 }

@@ -2,12 +2,23 @@ use std::ops;
 use super::*;
 
 impl_op_ex!(* |left: &Matrix4f, right: &Matrix4f| -> Matrix4f {
-    multiply(left, right).into()
+    left.multiply(right)
 });
 
 impl_op_ex!(*= |left: &mut Matrix4f, right: &Matrix4f| {
-    left.assign_tuple(multiply(left, right));
+    left.multiply_mut(right);
 });
+
+impl Matrix4f {
+    #[must_use]
+    pub fn multiply(&self, other: &Self) -> Self {
+        multiply(self, other).into()
+    }
+
+    pub fn multiply_mut(&mut self, other: &Self) -> &mut Self {
+        self.assign_tuple(multiply(self, other)); self
+    }
+}
 
 fn multiply(a: &[f32; 16], b: &[f32; 16]) -> Tuple {
     let (a00, a01, a02, a03) = ( a[0],  a[1],  a[2],  a[3]);
@@ -50,50 +61,6 @@ mod test {
 
     #[test]
     fn it_multiplies_the_matrices() {
-        let a = Matrix4f([
-            0., 0., 1., 1.,
-            2., 2., 3., 3.,
-            4., 4., 5., 5.,
-            6., 6., 7., 7.,
-        ]);
-
-        let b = Matrix4f([
-            0., 1., 2., 3.,
-            4., 5., 6., 7.,
-            0., 1., 2., 3.,
-            4., 5., 6., 7.,
-        ]);
-
-        let matrix = a * b;
-
-        assert_approx_eq_slice(&matrix.0, &[
-            4.,   6.,   8.,  10.,
-            20., 30.,  40.,  50.,
-            36., 54.,  72.,  90.,
-            52., 78., 104., 130.,
-        ]);
-    }
-
-    #[test]
-    fn it_works_with_references() {
-        let (a, b, c) = abc();
-        let _ = a * b * c;
-
-        let (a, b, c) = abc();
-        let _ = &a * &b * &c;
-
-        let (a, b, c) = abc();
-        let _ = a * &b * c;
-
-        let (a, b, c) = abc();
-        let _ = &a * &b * a * c;
-
-        let (a, b, c) = abc();
-        let _ = &a * &b * a * &c * c;
-    }
-
-    #[test]
-    fn it_can_multiply_and_assign() {
         let mut matrix = Matrix4f::identity();
         let scaling = Matrix4f::scaling(1., 2., 3.);
 
@@ -107,9 +74,5 @@ mod test {
             0., 0., 27., 0.,
             0., 0., 0.,  1.,
         ]);
-    }
-
-    fn abc() -> (Matrix4f, Matrix4f, Matrix4f) {
-        (Matrix4f::identity(), Matrix4f::identity(), Matrix4f::identity())
     }
 }
