@@ -17,6 +17,7 @@ use wasm_bindgen::prelude::*;
 
 use utilities::GameLoop;
 use utilities::Matrix4f;
+use utilities::Vector3f;
 use components::*;
 use systems::*;
 

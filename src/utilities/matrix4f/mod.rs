@@ -8,11 +8,11 @@ pub struct Matrix4f(pub [f32; 16]);
 
 impl Matrix4f {
     pub fn new(array: [f32; 16]) -> Self {
-        Matrix4f(array)
+        Self(array)
     }
 
     pub fn identity() -> Self {
-        Matrix4f([
+        Self([
             1., 0., 0., 0.,
             0., 1., 0., 0.,
             0., 0., 1., 0.,
@@ -21,7 +21,7 @@ impl Matrix4f {
     }
 
     pub fn translation(tx: f32, ty: f32, tz: f32) -> Self {
-        Matrix4f([
+        Self([
             1., 0., 0., tx,
             0., 1., 0., ty,
             0., 0., 1., tz,
@@ -33,7 +33,7 @@ impl Matrix4f {
         let c = radians.cos();
         let s = radians.sin();
 
-        Matrix4f([
+        Self([
             1., 0., 0., 0.,
             0.,  c, -s, 0.,
             0.,  s,  c, 0.,
@@ -45,7 +45,7 @@ impl Matrix4f {
         let c = radians.cos();
         let s = radians.sin();
 
-        Matrix4f([
+        Self([
              c, 0.,  s, 0.,
             0., 1., 0., 0.,
             -s, 0.,  c, 0.,
@@ -57,7 +57,7 @@ impl Matrix4f {
         let c = radians.cos();
         let s = radians.sin();
 
-        Matrix4f([
+        Self([
              c, -s, 0., 0.,
              s,  c, 0., 0.,
             0., 0., 1., 0.,
@@ -66,7 +66,7 @@ impl Matrix4f {
     }
 
     pub fn scaling(sx: f32, sy: f32, sz: f32) -> Self {
-        Matrix4f([
+        Self([
             sx, 0., 0., 0.,
             0., sy, 0., 0.,
             0., 0., sz, 0.,
@@ -83,7 +83,7 @@ impl Matrix4f {
         let ty = (bottom + top) / (bottom - top);
         let tz = (near + far) / (near - far);
 
-        Matrix4f([
+        Self([
             sx, 0., 0., tx,
             0., sy, 0., ty,
             0., 0., sz, tz,
@@ -102,7 +102,7 @@ impl Matrix4f {
 
         let tz = near * far * depth_inv * 2.0;
 
-        Matrix4f([
+        Self([
             sx, 0., 0., 0.,
             0., sy, 0., 0.,
             0., 0., sz, tz,
@@ -113,27 +113,27 @@ impl Matrix4f {
     // Immutable functions for chaining:
     #[must_use]
     pub fn translate(&self, tx: f32, ty: f32, tz: f32) -> Self {
-        self * Matrix4f::translation(tx, ty, tz)
+        self * Self::translation(tx, ty, tz)
     }
 
     #[must_use]
     pub fn x_rotate(&self, radians: f32) -> Self {
-        self * Matrix4f::x_rotation(radians)
+        self * Self::x_rotation(radians)
     }
 
     #[must_use]
     pub fn y_rotate(&self, radians: f32) -> Self {
-        self * Matrix4f::y_rotation(radians)
+        self * Self::y_rotation(radians)
     }
 
     #[must_use]
     pub fn z_rotate(&self, radians: f32) -> Self {
-        self * Matrix4f::z_rotation(radians)
+        self * Self::z_rotation(radians)
     }
 
     #[must_use]
     pub fn scale(&self, sx: f32, sy: f32, sz: f32) -> Self {
-        self * Matrix4f::scaling(sx, sy, sz)
+        self * Self::scaling(sx, sy, sz)
     }
 
     #[must_use]
@@ -143,23 +143,23 @@ impl Matrix4f {
 
     // Mutable functions for chaining:
     pub fn translate_mut(&mut self, tx: f32, ty: f32, tz: f32) -> &mut Self {
-        *self *= Matrix4f::translation(tx, ty, tz); self
+        *self *= Self::translation(tx, ty, tz); self
     }
 
     pub fn x_rotate_mut(&mut self, radians: f32) -> &mut Self {
-        *self *= Matrix4f::x_rotation(radians); self
+        *self *= Self::x_rotation(radians); self
     }
 
     pub fn y_rotate_mut(&mut self, radians: f32) -> &mut Self {
-        *self *= Matrix4f::y_rotation(radians); self
+        *self *= Self::y_rotation(radians); self
     }
 
     pub fn z_rotate_mut(&mut self, radians: f32) -> &mut Self {
-        *self *= Matrix4f::z_rotation(radians); self
+        *self *= Self::z_rotation(radians); self
     }
 
     pub fn scale_mut(&mut self, sx: f32, sy: f32, sz: f32) -> &mut Self {
-        *self *= Matrix4f::scaling(sx, sy, sz); self
+        *self *= Self::scaling(sx, sy, sz); self
     }
 
     pub fn inverse_mut(&mut self) -> &mut Self {
