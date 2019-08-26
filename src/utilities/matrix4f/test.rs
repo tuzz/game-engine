@@ -125,6 +125,25 @@ mod orthographic {
     }
 }
 
+mod inverse {
+    use super::*;
+
+    #[test]
+    fn it_returns_a_matrix_that_reverses_the_transforms() {
+        let matrix = Matrix4f::identity()
+            .translate(1., 2., 3.)
+            .x_rotate(PI / 3.)
+            .scale(2., -5., 10.);
+
+        let expected_inverse = Matrix4f::identity()
+            .scale(0.5, -0.2, 0.1)
+            .x_rotate(-PI / 3.)
+            .translate(-1., -2., -3.);
+
+        assert_eq(matrix.inverse().0, expected_inverse.0);
+    }
+}
+
 mod multiplication {
     use super::*;
 
@@ -205,9 +224,8 @@ mod chaining {
               .translate(1., 2., 3.)
               .y_rotate(-PI / 2.)
               .scale(4., 5., 6.)
-              .z_rotate(PI);
-
-        assert_approx_eq!(result.0[2], -6.0);
+              .z_rotate(PI)
+              .inverse();
     }
 
     #[test]
@@ -218,8 +236,7 @@ mod chaining {
               .translate_mut(1., 2., 3.)
               .y_rotate_mut(-PI / 2.)
               .scale_mut(4., 5., 6.)
-              .z_rotate_mut(PI);
-
-        assert_approx_eq!(matrix.0[2], -6.0);
+              .z_rotate_mut(PI)
+              .inverse_mut();
     }
 }

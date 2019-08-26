@@ -1,7 +1,8 @@
 mod convert;
 mod multiply;
+mod inverse;
+
 use std::ops;
-use std::f32::consts::PI;
 
 pub struct Matrix4f(pub [f32; 16]);
 
@@ -91,7 +92,7 @@ impl Matrix4f {
     }
 
     pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Self {
-        let theta = (PI - fovy) / 2.0;
+        let theta = (std::f32::consts::PI - fovy) / 2.0;
         let tangent = theta.tan();
         let depth_inv = 1.0 / (near - far);
 
@@ -130,6 +131,10 @@ impl Matrix4f {
         self * Matrix4f::scaling(sx, sy, sz)
     }
 
+    pub fn inverse(&self) -> Self {
+        inverse::inverse(self).into()
+    }
+
     // Mutable functions for chaining:
     pub fn translate_mut(&mut self, tx: f32, ty: f32, tz: f32) -> &mut Self {
         *self *= Matrix4f::translation(tx, ty, tz); self
@@ -149,6 +154,10 @@ impl Matrix4f {
 
     pub fn scale_mut(&mut self, sx: f32, sy: f32, sz: f32) -> &mut Self {
         *self *= Matrix4f::scaling(sx, sy, sz); self
+    }
+
+    pub fn inverse_mut(&mut self) -> &mut Self {
+        self.assign_tuple(inverse::inverse(self)); self
     }
 }
 
