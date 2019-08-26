@@ -1,16 +1,8 @@
+mod convert;
 use std::ops;
-use std::ops::Deref;
 use std::f32::consts::PI;
 
 pub struct Matrix4f(pub [f32; 16]);
-
-impl Deref for Matrix4f {
-    type Target = [f32; 16];
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 impl Matrix4f {
     pub fn new(array: [f32; 16]) -> Self {
@@ -160,18 +152,11 @@ impl Matrix4f {
 }
 
 impl_op_ex!(* |left: &Matrix4f, right: &Matrix4f| -> Matrix4f {
-    let (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) = multiply(left, right);
-    Matrix4f([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p])
+    multiply::multiply(left, right).into()
 });
 
 impl_op_ex!(*= |left: &mut Matrix4f, right: &Matrix4f| {
-    let (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) = multiply(left, right);
-    let x = &mut left.0;
-
-     x[0] = a;    x[1] = b;    x[2] = c;    x[3] = d;
-     x[4] = e;    x[5] = f;    x[6] = g;    x[7] = h;
-     x[8] = i;    x[9] = j;   x[10] = k;   x[11] = l;
-    x[12] = m;   x[13] = n;   x[14] = o;   x[15] = p;
+    left.assign_tuple(multiply::multiply(left, right));
 });
 
 #[inline]
