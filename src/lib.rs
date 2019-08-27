@@ -177,7 +177,7 @@ pub fn main() {
                     &Vector3f::new(0., 0., -1.),
                     &Vector3f::new(0., 1., 0.),
                 )
-            )).with(viewport).with(ClearColor::default())
+            )).with(viewport).with(ClearColor::white())
             .build();
 
         world.create_entity()
@@ -190,7 +190,7 @@ pub fn main() {
                     &Vector3f::new(0., 0., -1.),
                     &Vector3f::new(0., 1., 0.),
                 )
-            )).with(viewport2).with(ClearColor(0., 0., 0., 1.))
+            )).with(viewport2).with(ClearColor::black())
             .build();
     });
 
