@@ -13,10 +13,13 @@ pub struct SysData<'a> {
 
     cameras: ReadStorage<'a, Camera>,
     projections: ReadStorage<'a, ProjectionTransform>,
+    viewports: ReadStorage<'a, Viewport>,
+    clear_colors: ReadStorage<'a, ClearColor>,
 
     transforms: ReadStorage<'a, Transform>,
     geometries: ReadStorage<'a, Geometry>,
     colorings: ReadStorage<'a, Coloring>,
+
     buffers: ReadStorage<'a, WebGlBuffer>,
     dimensions: ReadStorage<'a, Dimensions>,
 }
@@ -24,13 +27,33 @@ pub struct SysData<'a> {
 impl<'a> System<'a> for WebGlRender {
     type SystemData = SysData<'a>;
 
+    fn setup(&mut self, world: &mut World) {
+        Self::SystemData::setup(world);
+
+        let context = world.fetch::<WebGlContext>();
+
+        context.enable(GL::BLEND);
+        context.blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
+
+        context.enable(GL::CULL_FACE);
+        context.enable(GL::DEPTH_TEST);
+        context.enable(GL::SCISSOR_TEST);
+    }
+
     fn run(&mut self, s: Self::SystemData) {
         let program = &s.programs.default;
         s.context.use_program(Some(&program.compiled));
 
-        for (_camera, transform, projection) in (&s.cameras, &s.transforms, &s.projections).join() {
+        for (_camera, viewport, clear_color, transform, projection) in (&s.cameras, &s.viewports, &s.clear_colors, &s.transforms, &s.projections).join() {
             let view = transform.inverse();
             let view_projection = projection.multiply(&view);
+
+            s.context.viewport(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);
+            s.context.scissor(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);
+
+            let ClearColor(r, g, b, a) = clear_color;
+            s.context.clear_color(*r, *g, *b, *a);
+            s.context.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
             for (geometry, coloring, transform) in (&s.geometries, &s.colorings, &s.transforms).join() {
                 let model_view_projection = view_projection.multiply(&transform);
