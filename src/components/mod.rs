@@ -5,6 +5,7 @@ mod coloring;
 mod dimensions;
 mod transform;
 mod projection_transform;
+mod camera;
 
 pub use buffer_data::BufferData;
 pub use webgl_buffer::WebGlBuffer;
@@ -13,3 +14,4 @@ pub use coloring::Coloring;
 pub use dimensions::Dimensions;
 pub use transform::Transform;
 pub use projection_transform::ProjectionTransform;
+pub use camera::Camera;
