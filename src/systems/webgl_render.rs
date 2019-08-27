@@ -74,10 +74,6 @@ impl<'a> System<'a> for WebGlRender {
     }
 }
 
-fn foo() {
-
-}
-
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
     context.viewport(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);
     context.scissor(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);

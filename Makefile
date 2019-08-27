@@ -11,13 +11,13 @@ build-dev:
 	mv target/index_bg.wasm target/index.wasm
 
 build-watch:
-	cargo watch -s 'make build-dev' --delay 0
+	cargo watch -s 'clear && make build-dev' --delay 0
 
 test:
 	cargo test
 
 test-watch:
-	cargo watch -s 'make test' --delay 0
+	cargo watch -s 'clear && make test' --delay 0
 
 server:
 	live-server --watch=target/index.wasm
