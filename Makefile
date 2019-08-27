@@ -6,14 +6,18 @@ build:
 	wasm-pack build --target no-modules --out-dir target --out-name index
 	wasm-opt -O3 -o target/index.wasm target/index_bg.wasm
 
+build-dev:
+	wasm-pack build --dev --target no-modules --out-dir target --out-name index
+	mv target/index_bg.wasm target/index.wasm
+
 build-watch:
-	cargo watch -s 'make build'
+	cargo watch -s 'make build-dev' --delay 0
 
 test:
 	cargo test
 
 test-watch:
-	cargo watch -s 'make test'
+	cargo watch -s 'make test' --delay 0
 
 server:
 	python -m SimpleHTTPServer
