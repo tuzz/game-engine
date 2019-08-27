@@ -162,10 +162,15 @@ pub fn main() {
             1., 0.5, 0.,
         ])).with(Dimensions(3)).build();
 
-        world.create_entity()
+        let root = world.create_entity()
+            .with(WorldTransform(Matrix4f::translation(0., 0., -4.)))
+            .build();
+
+        let cube = world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
-            .with(WorldTransform(Matrix4f::translation(0., 0., -4.)))
+            .with(SceneParent(root))
+            .with(LocalTransform(Matrix4f::identity()))
             .build();
 
         let canvas = world.fetch::<HtmlCanvas>();
@@ -197,6 +202,24 @@ pub fn main() {
                     &Vector3f::new(0., 1., 0.),
                 )
             )).with(viewport2).with(ClearColor::black())
+            .build();
+
+        let cube2 = world.create_entity()
+            .with(Geometry { model: geometry_model })
+            .with(Coloring { model: coloring_model })
+            .with(SceneParent(cube))
+            .with(LocalTransform(
+                Matrix4f::scaling(0.5, 0.5, 0.5).translate(4., 0., 0.)
+            ))
+            .build();
+
+        world.create_entity()
+            .with(Geometry { model: geometry_model })
+            .with(Coloring { model: coloring_model })
+            .with(SceneParent(cube2))
+            .with(LocalTransform(
+                Matrix4f::scaling(0.5, 0.5, 0.5).translate(0., 4., 0.)
+            ))
             .build();
     });
 
