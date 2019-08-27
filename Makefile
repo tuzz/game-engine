@@ -20,13 +20,11 @@ test-watch:
 	cargo watch -s 'make test' --delay 0
 
 server:
-	python -m SimpleHTTPServer
-
-open:
-	open http://localhost:8000
+	live-server --watch=target/index.wasm
 
 setup:
 	rustup target add wasm32-unknown-unknown
 	which wasm-pack || cargo install wasm-pack
 	which cargo-watch || cargo install cargo-watch
 	brew install binaryen
+	yarn global add live-server
