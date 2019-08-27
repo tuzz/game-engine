@@ -2,6 +2,9 @@
 extern crate specs_derive;
 
 #[macro_use]
+extern crate shred_derive;
+
+#[macro_use]
 extern crate impl_ops;
 
 #[macro_use] #[cfg(test)]
@@ -157,19 +160,19 @@ pub fn main() {
         world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
-            .with(Transform(
+            .with(Transform(Matrix4f::translation(0., 0., -4.)))
+            .build();
 
-                //Matrix4f::orthographic(-10., 10., -10., 10., -10., 10.)
+        world.create_entity()
+            .with(Camera)
+            .with(ProjectionTransform(
                 Matrix4f::perspective(std::f32::consts::PI / 2., 1.0, 0.1, 100.0)
-                *
+            )).with(Transform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
                     &Vector3f::new(0., 0., -1.),
                     &Vector3f::new(0., 1., 0.),
-                ).inverse()
-                *
-                Matrix4f::translation(0., 0., -4.)
-
+                )
             ))
             .build();
     });

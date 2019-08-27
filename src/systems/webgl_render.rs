@@ -6,37 +6,48 @@ use crate::components::*;
 
 pub struct WebGlRender;
 
+#[derive(SystemData)]
+pub struct SysData<'a> {
+    context: ReadExpect<'a, WebGlContext>,
+    programs: ReadExpect<'a, ShaderPrograms>,
+
+    cameras: ReadStorage<'a, Camera>,
+    projections: ReadStorage<'a, ProjectionTransform>,
+
+    transforms: ReadStorage<'a, Transform>,
+    geometries: ReadStorage<'a, Geometry>,
+    colorings: ReadStorage<'a, Coloring>,
+    buffers: ReadStorage<'a, WebGlBuffer>,
+    dimensions: ReadStorage<'a, Dimensions>,
+}
+
 impl<'a> System<'a> for WebGlRender {
-    type SystemData = (
-        ReadExpect<'a, WebGlContext>,
-        ReadExpect<'a, ShaderPrograms>,
+    type SystemData = SysData<'a>;
 
-        ReadStorage<'a, Geometry>,
-        ReadStorage<'a, Coloring>,
-        ReadStorage<'a, Transform>,
-        ReadStorage<'a, WebGlBuffer>,
-        ReadStorage<'a, Dimensions>,
-    );
+    fn run(&mut self, s: Self::SystemData) {
+        let program = &s.programs.default;
+        s.context.use_program(Some(&program.compiled));
 
-    fn run(&mut self, system_data: Self::SystemData) {
-        let (context, programs, geometries, colorings, transforms, webgl_buffers, dimensions) = system_data;
+        for (_camera, transform, projection) in (&s.cameras, &s.transforms, &s.projections).join() {
+            let view = transform.inverse();
+            let view_projection = projection.multiply(&view);
 
-        let program = &programs.default;
-        context.use_program(Some(&program.compiled));
+            for (geometry, coloring, transform) in (&s.geometries, &s.colorings, &s.transforms).join() {
+                let model_view_projection = view_projection.multiply(&transform);
 
-        for (geometry, coloring, transform) in (&geometries, &colorings, &transforms).join() {
-            let geometry_buffer = webgl_buffers.get(geometry.model).unwrap();
-            let coloring_buffer = webgl_buffers.get(coloring.model).unwrap();
+                let geometry_buffer = s.buffers.get(geometry.model).unwrap();
+                let coloring_buffer = s.buffers.get(coloring.model).unwrap();
 
-            let geometry_dimensions = dimensions.get(geometry.model).unwrap();
-            let coloring_dimensions = dimensions.get(coloring.model).unwrap();
+                let geometry_dimensions = s.dimensions.get(geometry.model).unwrap();
+                let coloring_dimensions = s.dimensions.get(coloring.model).unwrap();
 
-            feed_attribute(&context, program, "a_position", geometry_buffer, **geometry_dimensions as i32);
-            feed_attribute(&context, program, "a_color", coloring_buffer, **coloring_dimensions as i32);
-            feed_uniform(&context, program, "u_matrix", transform);
+                feed_attribute(&s.context, program, "a_position", geometry_buffer, **geometry_dimensions as i32);
+                feed_attribute(&s.context, program, "a_color", coloring_buffer, **coloring_dimensions as i32);
+                feed_uniform(&s.context, program, "u_matrix", &model_view_projection);
 
-            let elements = geometry_buffer.len / **geometry_dimensions as usize;
-            context.draw_arrays(GL::TRIANGLES, 0, elements as i32);
+                let elements = geometry_buffer.len / **geometry_dimensions as usize;
+                s.context.draw_arrays(GL::TRIANGLES, 0, elements as i32);
+            }
         }
     }
 }
