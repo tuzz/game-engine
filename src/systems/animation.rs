@@ -6,7 +6,7 @@ pub struct Animation;
 impl<'a> System<'a> for Animation {
     type SystemData = (
         ReadStorage<'a, Camera>,
-        WriteStorage<'a, Transform>,
+        WriteStorage<'a, WorldTransform>,
     );
 
     fn run(&mut self, (cameras, mut transforms): Self::SystemData) {

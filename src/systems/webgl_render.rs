@@ -16,7 +16,7 @@ pub struct SysData<'a> {
     viewports: ReadStorage<'a, Viewport>,
     clear_colors: ReadStorage<'a, ClearColor>,
 
-    transforms: ReadStorage<'a, Transform>,
+    transforms: ReadStorage<'a, WorldTransform>,
     geometries: ReadStorage<'a, Geometry>,
     colorings: ReadStorage<'a, Coloring>,
 

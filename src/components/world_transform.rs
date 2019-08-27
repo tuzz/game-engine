@@ -4,9 +4,9 @@ use crate::utilities::Matrix4f;
 
 #[derive(Component)]
 #[storage(VecStorage)]
-pub struct Transform(pub Matrix4f);
+pub struct WorldTransform(pub Matrix4f);
 
-impl Deref for Transform {
+impl Deref for WorldTransform {
     type Target = Matrix4f;
 
     fn deref(&self) -> &Self::Target {
@@ -14,7 +14,7 @@ impl Deref for Transform {
     }
 }
 
-impl DerefMut for Transform {
+impl DerefMut for WorldTransform {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

@@ -159,7 +159,7 @@ pub fn main() {
         world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
-            .with(Transform(Matrix4f::translation(0., 0., -4.)))
+            .with(WorldTransform(Matrix4f::translation(0., 0., -4.)))
             .build();
 
         let canvas = world.fetch::<HtmlCanvas>();
@@ -171,7 +171,7 @@ pub fn main() {
             .with(Camera)
             .with(ProjectionTransform(
                 Matrix4f::perspective(std::f32::consts::PI / 2., 1.0, 0.1, 100.0)
-            )).with(Transform(
+            )).with(WorldTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
                     &Vector3f::new(0., 0., -1.),
@@ -184,7 +184,7 @@ pub fn main() {
             .with(Camera)
             .with(ProjectionTransform(
                 Matrix4f::orthographic(-5., 5., -5., 5., -5., 5.)
-            )).with(Transform(
+            )).with(WorldTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
                     &Vector3f::new(0., 0., -1.),
