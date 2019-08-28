@@ -16,7 +16,6 @@ mod systems;
 mod utilities;
 
 use specs::prelude::*;
-use specs_hierarchy::HierarchySystem;
 use wasm_bindgen::prelude::*;
 
 use utilities::GameLoop;
@@ -35,10 +34,9 @@ pub fn main() {
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
     let mut webgl_render = WebGlRender;
+    let mut hierarchy = Hierarchy::new(&mut game_loop.world);
     let mut scene_graph = SceneGraph::default();
     let mut animation = Animation;
-
-    let mut hierarchy = HierarchySystem::<SceneParent>::new(&mut game_loop.world);
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
@@ -48,7 +46,6 @@ pub fn main() {
         System::setup(&mut webgl_render, world);
         System::setup(&mut scene_graph, world);
         System::setup(&mut animation, world);
-        System::setup(&mut hierarchy, world);
 
         let geometry_model = world.create_entity().with(BufferData(vec![
             // Front

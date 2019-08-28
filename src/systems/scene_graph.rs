@@ -37,7 +37,7 @@ impl<'a> System<'a> for SceneGraph {
 
     fn run(&mut self, (hierarchy, mut s): Self::SystemData) {
         self.mark_entities_that_have_moved_as_dirty(&mut s);
-        self.mark_entities_that_have_changed_parent_as_dirty(&hierarchy, &mut s);
+        self.mark_entities_that_have_changed_parent_as_dirty(&hierarchy);
 
         self.remove_world_transforms_from_entities_without_locals(&mut s);
         self.ensure_root_entities_have_up_to_date_world_transforms(&mut s);
@@ -62,40 +62,14 @@ impl<'a> SceneGraph {
         }
     }
 
-    fn mark_entities_that_have_changed_parent_as_dirty(&mut self, hierarchy: &Hier, s: &mut SysData) {
-        let mut removed = BitSet::new();
-
+    fn mark_entities_that_have_changed_parent_as_dirty(&mut self, hierarchy: &Hier) {
         let reader_id = self.scene_parent_reader.as_mut().unwrap();
         for event in hierarchy.changed().read(reader_id) {
             match event {
                 HierarchyEvent::Modified(entity) => { self.dirty.add(entity.id()); },
-                HierarchyEvent::Removed(entity)  => {
-                    self.dirty.add(entity.id());
-                    removed.add(entity.id());
-                },
+                HierarchyEvent::Removed(entity)  => { self.dirty.add(entity.id()); },
             }
         }
-
-        // From the specs-hierarchy docs:
-        //
-        // When an Entity that is a parent gets removed from the hierarchy, the
-        // full tree of children below it will also be removed from the hierarchy.
-        //
-        // This doesn't seem right, so re-add these entities to the hierarchy by
-        // adding and removing the SceneParent component.
-        //
-        // Related: https://github.com/amethyst/amethyst/issues/1549
-        //
-        (&s.parents, &s.entities).join()
-            .filter(|(parent, _)| removed.contains(parent.id()))
-            .map(|(_, child)| child).collect::<Vec<_>>().iter()
-            .for_each(|child| {
-                let p = s.parents.remove(*child).unwrap();
-                s.parents.insert(*child, p).unwrap();
-            });
-
-
-        // TODO: manually retrigger the hierarchy system again
     }
 
     fn remove_world_transforms_from_entities_without_locals(&mut self, s: &mut SysData) {
@@ -140,16 +114,15 @@ impl<'a> SceneGraph {
 #[cfg(test)]
 mod test {
     use super::*;
-    use specs_hierarchy::HierarchySystem;
+    use crate::systems::Hierarchy;
     use crate::utilities::Matrix4f;
 
-    fn setup() -> (World, HierarchySystem<SceneParent>, SceneGraph) {
+    fn setup() -> (World, Hierarchy, SceneGraph) {
         let mut world = World::new();
 
-        let mut hierarchy = HierarchySystem::<SceneParent>::new(&mut world);
+        let hierarchy = Hierarchy::new(&mut world);
         let mut scene_graph = SceneGraph::default();
 
-        System::setup(&mut hierarchy, &mut world);
         System::setup(&mut scene_graph, &mut world);
 
         (world, hierarchy, scene_graph)
@@ -314,7 +287,6 @@ mod test {
 
     #[test]
     fn it_updates_world_transforms_when_scene_parents_change() {
-        // TODO: make this test pass
         let (mut world, mut hierarchy, mut scene_graph) = setup();
 
         let grandparent = world.create_entity()
@@ -340,8 +312,6 @@ mod test {
         drop(write);
 
         hierarchy.run_now(&mut world);
-        scene_graph.run_now(&mut world);
-        hierarchy.run_now(&mut world); // TODO: Get the test to pass without having to run the system twice.
         scene_graph.run_now(&mut world);
 
         let read = world.read_storage::<WorldTransform>();
@@ -370,8 +340,6 @@ mod test {
         world.maintain();
 
         hierarchy.run_now(&mut world);
-        scene_graph.run_now(&mut world);
-        hierarchy.run_now(&mut world); // TODO: Get the test to pass without having to run the system twice.
         scene_graph.run_now(&mut world);
 
         let read = world.read_storage::<WorldTransform>();
