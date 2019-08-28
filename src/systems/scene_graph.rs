@@ -95,3 +95,39 @@ impl<'a> SceneGraph {
         Some(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use specs_hierarchy::HierarchySystem;
+    use crate::utilities::Matrix4f;
+
+    fn setup() -> (World, HierarchySystem<SceneParent>, SceneGraph) {
+        let mut world = World::new();
+
+        let mut hierarchy = HierarchySystem::<SceneParent>::new(&mut world);
+        let mut scene_graph = SceneGraph::default();
+
+        System::setup(&mut hierarchy, &mut world);
+        System::setup(&mut scene_graph, &mut world);
+
+        (world, hierarchy, scene_graph)
+    }
+
+    #[test]
+    fn it_adds_a_world_transform_component_to_nodes_with_local_transforms() {
+        let (mut world, mut hierarchy, mut scene_graph) = setup();
+
+        let entity = world.create_entity()
+            .with(LocalTransform(Matrix4f::identity()))
+            .build();
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let storage = world.read_storage::<WorldTransform>();
+        let transform = storage.get(entity).unwrap();
+
+        assert_eq!(*transform, WorldTransform(Matrix4f::identity()));
+    }
+}

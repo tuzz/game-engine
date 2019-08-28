@@ -2,7 +2,7 @@ use specs::prelude::*;
 use std::ops::{Deref, DerefMut};
 use crate::utilities::Matrix4f;
 
-#[derive(Component)]
+#[derive(Component, Debug, PartialEq)]
 #[storage(VecStorage)]
 pub struct WorldTransform(pub Matrix4f);
 

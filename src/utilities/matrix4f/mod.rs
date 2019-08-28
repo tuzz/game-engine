@@ -11,7 +11,7 @@ mod look_at;
 use convert::Tuple;
 use super::Vector3f;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Matrix4f(pub [f32; 16]);
 
 impl Matrix4f {
