@@ -40,10 +40,12 @@ impl Hierarchy {
         let (entities, hierarchy, mut parents) = world.system_data::<SystemData>();
 
         let mut removed = BitSet::new();
+        let mut stale = false;
 
         for event in hierarchy.changed().read(&mut self.reader_id) {
             if let HierarchyEvent::Removed(entity) = event {
                 removed.add(entity.id());
+                stale = true;
             }
         }
 
@@ -56,6 +58,9 @@ impl Hierarchy {
             });
 
         drop(entities); drop(hierarchy); drop(parents);
-        self.hierarchy_system.run_now(world); // ...and after
+
+        if stale {
+            self.hierarchy_system.run_now(world); // ...and after
+        }
     }
 }
