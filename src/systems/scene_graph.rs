@@ -42,8 +42,6 @@ impl<'a> System<'a> for SceneGraph {
     }
 }
 
-// TODO: what if scene parent is removed?
-
 impl<'a> SceneGraph {
     fn mark_entities_that_have_moved_as_dirty(&mut self, s: &SysData) {
         self.dirty.clear();
@@ -84,7 +82,7 @@ impl<'a> SceneGraph {
         let world = match s.worlds.get(**parent) {
             Some(w) => w,
             None => {
-                s.worlds.remove(*child).unwrap();
+                s.worlds.remove(*child);
                 return None;
             }
         };
@@ -115,19 +113,212 @@ mod test {
     }
 
     #[test]
-    fn it_adds_a_world_transform_component_to_nodes_with_local_transforms() {
+    fn it_sets_the_world_transforms_by_recursing_down_the_hierarchy() {
         let (mut world, mut hierarchy, mut scene_graph) = setup();
 
-        let entity = world.create_entity()
-            .with(LocalTransform(Matrix4f::identity()))
+        let grandparent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(1., 2., 3.)))
+            .build();
+
+        let parent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(4., 5., 6.)))
+            .with(SceneParent(grandparent))
+            .build();
+
+        let child = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(7., 8., 9.)))
+            .with(SceneParent(parent))
             .build();
 
         hierarchy.run_now(&mut world);
         scene_graph.run_now(&mut world);
 
-        let storage = world.read_storage::<WorldTransform>();
-        let transform = storage.get(entity).unwrap();
+        let read = world.read_storage::<WorldTransform>();
 
-        assert_eq!(*transform, WorldTransform(Matrix4f::identity()));
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::translation(1., 2., 3.)));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::translation(5., 7., 9.)));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::translation(12., 15., 18.)));
     }
+
+    #[test]
+    fn it_updates_the_world_transforms_when_local_transforms_change() {
+        let (mut world, mut hierarchy, mut scene_graph) = setup();
+
+        let grandparent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(1., 2., 3.)))
+            .build();
+
+        let parent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(4., 5., 6.)))
+            .with(SceneParent(grandparent))
+            .build();
+
+        let child = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(7., 8., 9.)))
+            .with(SceneParent(parent))
+            .build();
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let mut write = world.write_storage::<LocalTransform>();
+        *write.get_mut(grandparent).unwrap() = LocalTransform(Matrix4f::identity());
+
+        drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::identity()));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::translation(4., 5., 6.)));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::translation(11., 13., 15.)));
+
+        let mut write = world.write_storage::<LocalTransform>();
+        *write.get_mut(child).unwrap() = LocalTransform(Matrix4f::identity());
+
+        drop(read); drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::identity()));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::translation(4., 5., 6.)));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::translation(4., 5., 6.)));
+
+        let mut write = world.write_storage::<LocalTransform>();
+        *write.get_mut(parent).unwrap() = LocalTransform(Matrix4f::identity());
+
+        drop(read); drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::identity()));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::identity()));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::identity()));
+    }
+
+    #[test]
+    fn it_removes_world_transforms_when_local_transforms_are_removed() {
+        let (mut world, mut hierarchy, mut scene_graph) = setup();
+
+        let grandparent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(1., 2., 3.)))
+            .build();
+
+        let parent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(4., 5., 6.)))
+            .with(SceneParent(grandparent))
+            .build();
+
+        let child = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(7., 8., 9.)))
+            .with(SceneParent(parent))
+            .build();
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let mut write = world.write_storage::<LocalTransform>();
+        write.remove(grandparent).unwrap();
+
+        drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(read.get(grandparent), None);
+        assert_eq!(read.get(parent), None);
+        assert_eq!(read.get(child), None);
+    }
+
+    #[test]
+    fn it_does_not_add_world_transforms_if_the_parent_doesnt_have_one() {
+        let (mut world, mut hierarchy, mut scene_graph) = setup();
+
+        let parent = world.create_entity()
+            .build();
+
+        let child = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(4., 5., 6.)))
+            .with(SceneParent(parent))
+            .build();
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let mut write = world.write_storage::<LocalTransform>();
+        *write.get_mut(child).unwrap() = LocalTransform(Matrix4f::identity());
+
+        drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(read.get(parent), None);
+        assert_eq!(read.get(child), None);
+    }
+
+    #[test]
+    fn it_updates_world_transforms_when_scene_parents_change() {
+        // TODO: make this test pass
+        let (mut world, mut hierarchy, mut scene_graph) = setup();
+
+        let grandparent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(1., 2., 3.)))
+            .build();
+
+        let parent = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(4., 5., 6.)))
+            .with(SceneParent(grandparent))
+            .build();
+
+        let child = world.create_entity()
+            .with(LocalTransform(Matrix4f::translation(7., 8., 9.)))
+            .with(SceneParent(parent))
+            .build();
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let mut write = world.write_storage::<SceneParent>();
+        write.remove(parent).unwrap();
+
+        drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::translation(1., 2., 3.)));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::translation(4., 5., 6.)));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::translation(11., 13., 15.)));
+
+        let mut write = world.write_storage::<SceneParent>();
+        *write.get_mut(child).unwrap() = SceneParent(grandparent);
+
+        drop(read); drop(write);
+
+        hierarchy.run_now(&mut world);
+        scene_graph.run_now(&mut world);
+
+        let read = world.read_storage::<WorldTransform>();
+
+        assert_eq!(*read.get(grandparent).unwrap(), WorldTransform(Matrix4f::translation(1., 2., 3.)));
+        assert_eq!(*read.get(parent).unwrap(), WorldTransform(Matrix4f::translation(4., 5., 6.)));
+        assert_eq!(*read.get(child).unwrap(), WorldTransform(Matrix4f::translation(8., 10., 12.)));
+    }
+
+    // TODO: remove the parent entity
 }
