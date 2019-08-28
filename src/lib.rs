@@ -174,35 +174,35 @@ pub fn main() {
             .build();
 
         let canvas = world.fetch::<HtmlCanvas>();
-        let viewport = Viewport::new(0, 0, canvas.width() / 2, canvas.height());
-        let viewport2 = Viewport::new(canvas.width() / 2, 0, canvas.width() / 2, canvas.height());
+        let viewport = Viewport::new(0, 0, canvas.width() , canvas.height());
+        //let viewport2 = Viewport::new(canvas.width() / 2, 0, canvas.width() / 2, canvas.height());
         drop(canvas);
 
         world.create_entity()
             .with(Camera)
             .with(ProjectionTransform(
-                Matrix4f::perspective(std::f32::consts::PI / 2., 1.0, 0.1, 100.0)
+                Matrix4f::perspective(std::f32::consts::PI / 2., 16. / 9., 0.1, 100.0)
             )).with(WorldTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
-                    &Vector3f::new(0., 0., -1.),
+                    &Vector3f::new(0.5, 0.1, -1.),
                     &Vector3f::new(0., 1., 0.),
                 )
             )).with(viewport).with(ClearColor::white())
             .build();
 
-        world.create_entity()
-            .with(Camera)
-            .with(ProjectionTransform(
-                Matrix4f::orthographic(-5., 5., -5., 5., -5., 5.)
-            )).with(WorldTransform(
-                Matrix4f::look_at(
-                    &Vector3f::new(0., 0., 0.),
-                    &Vector3f::new(0., 0., -1.),
-                    &Vector3f::new(0., 1., 0.),
-                )
-            )).with(viewport2).with(ClearColor::black())
-            .build();
+//        world.create_entity()
+//            .with(Camera)
+//            .with(ProjectionTransform(
+//                Matrix4f::orthographic(-5., 5., -5., 5., -5., 5.)
+//            )).with(WorldTransform(
+//                Matrix4f::look_at(
+//                    &Vector3f::new(0., 0., 0.),
+//                    &Vector3f::new(0., 0., -1.),
+//                    &Vector3f::new(0., 1., 0.),
+//                )
+//            )).with(viewport2).with(ClearColor::black())
+//            .build();
 
         let cube2 = world.create_entity()
             .with(Geometry { model: geometry_model })
@@ -213,7 +213,7 @@ pub fn main() {
             ))
             .build();
 
-        world.create_entity()
+        let mut prev =world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
             .with(SceneParent(cube2))
@@ -221,6 +221,17 @@ pub fn main() {
                 Matrix4f::scaling(0.5, 0.5, 0.5).translate(0., 4., 0.)
             ))
             .build();
+
+        for i in 1..200 {
+            prev = world.create_entity()
+                .with(Geometry { model: geometry_model })
+                .with(Coloring { model: coloring_model })
+                .with(SceneParent(prev))
+                .with(LocalTransform(
+                    Matrix4f::identity().scale(0.95, 0.95, 0.95).translate(i as f32 * -0.01, 5., 1.)
+                ))
+                .build();
+        }
     });
 
     game_loop.run(move |_world| {

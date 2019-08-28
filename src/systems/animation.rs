@@ -11,7 +11,7 @@ impl<'a> System<'a> for Animation {
 
     fn run(&mut self, (cameras, mut transforms): Self::SystemData) {
         for ((), transform) in (!&cameras, &mut transforms).join() {
-            transform.x_rotate_mut(0.02);
+            transform.x_rotate_mut(0.02).y_rotate_mut(0.01);
         }
     }
 }
