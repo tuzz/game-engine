@@ -35,7 +35,7 @@ pub fn main() {
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
     let mut webgl_render = WebGlRender;
-    let mut scene_graph = SceneGraph;
+    let mut scene_graph = SceneGraph::default();
     let mut animation = Animation;
 
     let mut hierarchy = HierarchySystem::<SceneParent>::new(&mut game_loop.world);
@@ -162,15 +162,10 @@ pub fn main() {
             1., 0.5, 0.,
         ])).with(Dimensions(3)).build();
 
-        let root = world.create_entity()
-            .with(WorldTransform(Matrix4f::translation(0., 0., -4.)))
-            .build();
-
         let cube = world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
-            .with(SceneParent(root))
-            .with(LocalTransform(Matrix4f::identity()))
+            .with(LocalTransform(Matrix4f::translation(0., 0., -4.)))
             .build();
 
         let canvas = world.fetch::<HtmlCanvas>();
@@ -182,7 +177,7 @@ pub fn main() {
             .with(Camera)
             .with(ProjectionTransform(
                 Matrix4f::perspective(std::f32::consts::PI / 2., 16. / 9., 0.1, 100.0)
-            )).with(WorldTransform(
+            )).with(LocalTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
                     &Vector3f::new(0.5, 0.1, -1.),
@@ -195,7 +190,7 @@ pub fn main() {
 //            .with(Camera)
 //            .with(ProjectionTransform(
 //                Matrix4f::orthographic(-5., 5., -5., 5., -5., 5.)
-//            )).with(WorldTransform(
+//            )).with(LocalTransform(
 //                Matrix4f::look_at(
 //                    &Vector3f::new(0., 0., 0.),
 //                    &Vector3f::new(0., 0., -1.),
@@ -237,10 +232,10 @@ pub fn main() {
     game_loop.run(move |_world| {
         // update
     }, move |world| {
+        webgl_buffer.run_now(world);
+        animation.run_now(world);
         hierarchy.run_now(world);
         scene_graph.run_now(world);
-        animation.run_now(world);
-        webgl_buffer.run_now(world);
         webgl_render.run_now(world);
     });
 }

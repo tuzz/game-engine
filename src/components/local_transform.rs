@@ -2,9 +2,11 @@ use specs::prelude::*;
 use std::ops::{Deref, DerefMut};
 use crate::utilities::Matrix4f;
 
-#[derive(Component)]
-#[storage(VecStorage)]
 pub struct LocalTransform(pub Matrix4f);
+
+impl<'a> Component for LocalTransform {
+    type Storage = FlaggedStorage<Self, VecStorage<Self>>;
+}
 
 impl Deref for LocalTransform {
     type Target = Matrix4f;
