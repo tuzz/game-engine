@@ -37,6 +37,7 @@ pub fn main() {
     let mut hierarchy = Hierarchy::new(&mut game_loop.world);
     let mut scene_graph = SceneGraph::default();
     let mut animation = Animation;
+    let mut keyboard_input = KeyboardInput;
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
@@ -46,6 +47,7 @@ pub fn main() {
         System::setup(&mut webgl_render, world);
         System::setup(&mut scene_graph, world);
         System::setup(&mut animation, world);
+        System::setup(&mut keyboard_input, world);
 
         let geometry_model = world.create_entity().with(BufferData(vec![
             // Front

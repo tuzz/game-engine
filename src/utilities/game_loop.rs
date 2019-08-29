@@ -1,6 +1,6 @@
 use specs::prelude::*;
-use wasm_bindgen::{prelude::*, JsCast};
 use crate::resources::GameTiming;
+use crate::utilities::*;
 
 pub struct GameLoop {
     pub world: World,
@@ -49,20 +49,15 @@ fn frame<U, R>(mut world: World, previous: f64, mut update: U, mut render: R)
     }
     render(&mut world);
 
-    request_animation_frame(move || {
-        frame(world, current, update, render);
+    let next_frame = move |_| frame(world, current, update, render);
+
+    single_use_handler(next_frame, |c| {
+        web_sys::window().unwrap().request_animation_frame(c).unwrap();
     });
 }
 
 fn game_timing(world: &mut World) -> &mut GameTiming {
     world.get_mut::<GameTiming>().unwrap()
-}
-fn request_animation_frame<F: FnOnce() + 'static>(callback: F) {
-    let window = web_sys::window().unwrap();
-    let closure = Closure::once_into_js(callback);
-    let js_func = closure.as_ref().unchecked_ref();
-
-    window.request_animation_frame(js_func).unwrap();
 }
 
 fn current_time() -> f64 {
