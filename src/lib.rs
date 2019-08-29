@@ -228,8 +228,8 @@ pub fn main() {
         }
     });
 
-    game_loop.run(move |_world| {
-        // update
+    game_loop.run(move |world| {
+        keyboard_input.run_now(world);
     }, move |world| {
         webgl_buffer.run_now(world);
         animation.run_now(world);

@@ -1,13 +1,20 @@
 use specs::prelude::*;
-use wasm_bindgen::prelude::*;
 use web_sys::KeyboardEvent;
+use std::cell::RefCell;
 use crate::resources::*;
 use crate::utilities::*;
+
+thread_local! {
+    static KEY_EVENTS: RefCell<Vec<(Key, bool)>> = RefCell::new(vec![]);
+}
+
+const DOWN: bool = false;
+const UP: bool = true;
 
 pub struct KeyboardInput;
 
 impl<'a> System<'a> for KeyboardInput {
-    type SystemData = ();
+    type SystemData = Write<'a, Keyboard>;
 
     fn setup(&mut self, world: &mut World) {
         Self::SystemData::setup(world);
@@ -23,25 +30,47 @@ impl<'a> System<'a> for KeyboardInput {
         });
     }
 
-    fn run(&mut self, (): Self::SystemData) {
-        unimplemented!()
+    fn run(&mut self, mut keyboard: Self::SystemData) {
+        keyboard.just_pressed.clear();
+        keyboard.just_released.clear();
+
+        KEY_EVENTS.with(|v| {
+            for (key, event) in v.borrow().iter() {
+                match *event {
+                    DOWN => {
+                        keyboard.pressing.add(*key as u32);
+                        keyboard.just_pressed.add(*key as u32);
+                    },
+                    UP => {
+                        keyboard.pressing.remove(*key as u32);
+                        keyboard.just_released.add(*key as u32);
+                    },
+                }
+            }
+
+            v.borrow_mut().clear();
+        });
     }
 }
 
 fn handle_keydown<E: Into<KeyboardEvent>>(event: E) {
-    let key = event.into().key();
+    let event = event.into();
 
-    log(&format!("pressed {:?}", key));
+    if event.repeat() {
+        return;
+    }
+
+    let code = event.key_code();
+
+    if let Some(key) = Key::lookup(code) {
+        KEY_EVENTS.with(|v| v.borrow_mut().push((key, DOWN)))
+    }
 }
 
 fn handle_keyup<E: Into<KeyboardEvent>>(event: E) {
-    let key = event.into().key();
+    let code = event.into().key_code();
 
-    log(&format!("unpressed {:?}", key));
-}
-
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
+    if let Some(key) = Key::lookup(code) {
+        KEY_EVENTS.with(|v| v.borrow_mut().push((key, UP)))
+    }
 }
