@@ -28,21 +28,31 @@ impl<'a> System<'a> for WebGlShader {
 fn default_vertex_shader(context: &GL) -> VertexShader {
     vertex_shader(context, "
         attribute vec4 a_position;
-
+        attribute vec3 a_normal;
         attribute vec4 a_color;
-        varying vec4 v_color;
 
-        uniform mat4 u_matrix;
+        uniform mat4 u_world_view_projection;
+        uniform mat4 u_inverse_world;
+
+        varying vec4 v_color;
+        varying vec3 v_normal;
 
         void main() {
-          gl_Position = a_position * u_matrix;
+          // I'm post-multiplying instead of pre-multiplying the matrices
+          // because they're in row-major form which is more natural to me.
+
+          gl_Position = a_position * u_world_view_projection;
+
           v_color = a_color;
+          v_normal = a_normal * mat3(u_inverse_world);
         }
     ", vec![
         "a_position",
+        "a_normal",
         "a_color",
     ], vec![
-        "u_matrix",
+        "u_world_view_projection",
+        "u_inverse_world",
     ])
 }
 
@@ -50,10 +60,15 @@ fn default_fragment_shader(context: &GL) -> FragmentShader {
     fragment_shader(context, "
         precision mediump float;
 
+        varying vec3 v_normal;
         varying vec4 v_color;
 
         void main() {
+          vec3 normal = normalize(v_normal);
+          float light = dot(normal, vec3(0, -1, 0)); // TODO
+
           gl_FragColor = v_color;
+          gl_FragColor.rgb *= light;
         }
     ")
 }
