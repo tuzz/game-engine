@@ -13,7 +13,7 @@ impl Vector3f {
 
 fn normalize(vector: &Vector3f) -> Tuple {
     let (x, y, z) = (vector.x, vector.y, vector.z);
-    let length = (x * x + y * y + z * z).sqrt();
+    let length = vector.length();
 
     if length <= 0.00001 {
         (0., 0., 0.)

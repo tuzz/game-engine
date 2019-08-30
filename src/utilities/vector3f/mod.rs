@@ -3,11 +3,13 @@ mod add;
 mod subtract;
 mod scale;
 mod cross;
+mod length;
 mod normalize;
+mod surface_normal;
 
 use convert::Tuple;
 
-#[derive(Default)]
+#[derive(Default, PartialEq, Debug)]
 pub struct Vector3f {
     pub x: f32,
     pub y: f32,
