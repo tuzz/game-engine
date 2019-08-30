@@ -8,6 +8,8 @@ pub struct WebGlRender;
 
 #[derive(SystemData)]
 pub struct SysData<'a> {
+    entities: Entities<'a>,
+
     context: ReadExpect<'a, WebGlContext>,
     programs: ReadExpect<'a, ShaderPrograms>,
 
@@ -16,7 +18,8 @@ pub struct SysData<'a> {
     viewports: ReadStorage<'a, Viewport>,
     clear_colors: ReadStorage<'a, ClearColor>,
 
-    transforms: ReadStorage<'a, WorldTransform>,
+    world_transforms: ReadStorage<'a, WorldTransform>,
+    inverse_transforms: ReadStorage<'a, InverseWorldTransform>,
     geometries: ReadStorage<'a, Geometry>,
     colorings: ReadStorage<'a, Coloring>,
 
@@ -47,14 +50,18 @@ impl<'a> System<'a> for WebGlRender {
 
         s.context.use_program(Some(&program.compiled));
 
-        for (_camera, viewport, clear_color, transform, projection) in (&s.cameras, &s.viewports, &s.clear_colors, &s.transforms, &s.projections).join() {
-            let view = transform.inverse();
+        for (entity, _camera, viewport, clear_color, projection) in (
+            &s.entities, &s.cameras, &s.viewports, &s.clear_colors, &s.projections
+        ).join() {
+            let view = s.inverse_transforms.get(entity).unwrap();
             let view_projection = projection.multiply(&view);
 
             clear_viewport(&s.context, viewport, clear_color);
 
-            for (geometry, coloring, transform) in (&s.geometries, &s.colorings, &s.transforms).join() {
-                let model_view_projection = view_projection.multiply(&transform);
+            for (geometry, coloring, world_transform) in (
+                &s.geometries, &s.colorings, &s.world_transforms
+            ).join() {
+                let model_view_projection = view_projection.multiply(&world_transform);
                 set_uniform(&s.context, &u_matrix, &model_view_projection);
 
                 let geometry_buffer = s.buffers.get(geometry.model).unwrap();
