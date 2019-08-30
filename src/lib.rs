@@ -30,6 +30,7 @@ pub fn main() {
     let mut game_loop = GameLoop::new();
 
     let mut webpage = Webpage;
+    let mut vertex_normals = VertexNormals;
     let mut webgl_shader = WebGlShader;
     let mut webgl_program = WebGlProgram;
     let mut webgl_buffer = WebGlBuffer;
@@ -42,6 +43,7 @@ pub fn main() {
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
+        System::setup(&mut vertex_normals, world);
         System::setup(&mut webgl_shader, world);
         System::setup(&mut webgl_program, world);
         System::setup(&mut webgl_buffer, world);
@@ -233,6 +235,7 @@ pub fn main() {
     game_loop.run(move |world| {
         keyboard_input.run_now(world);
     }, move |world| {
+        vertex_normals.run_now(world);
         webgl_buffer.run_now(world);
         animation.run_now(world);
         hierarchy.run_now(world);

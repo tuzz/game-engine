@@ -1,6 +1,6 @@
 use specs::prelude::*;
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Eq, PartialEq, Debug)]
 #[storage(VecStorage)]
 pub struct Normals {
     pub model: Entity,
