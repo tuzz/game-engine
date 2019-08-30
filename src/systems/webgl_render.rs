@@ -46,8 +46,7 @@ impl<'a> System<'a> for WebGlRender {
 
     fn run(&mut self, s: Self::SystemData) {
         let program = &s.programs.default;
-
-        let (a_position, a_normal, a_color, u_world_view_projection, u_inverse_world) = lookup_locations(&program);
+        let locations = shader_program_locations(&program);
 
         s.context.use_program(Some(&program.compiled));
 
@@ -64,26 +63,37 @@ impl<'a> System<'a> for WebGlRender {
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
-                set_uniform(&s.context, &u_world_view_projection, &world_view_projection);
-                set_uniform(&s.context, &u_inverse_world, &inverse_world);
+                set_uniform(&s.context, &locations.u_world_view_projection, &world_view_projection);
+                set_uniform(&s.context, &locations.u_inverse_world, &inverse_world);
 
-                let geometry_buffer = s.buffers.get(geometry.model).unwrap();
-                let normals_buffer = s.buffers.get(normals.model).unwrap();
-                let coloring_buffer = s.buffers.get(coloring.model).unwrap();
+                set_attribute_from_model(&s, locations.a_position, geometry.model);
+                set_attribute_from_model(&s, locations.a_normal, normals.model);
+                set_attribute_from_model(&s, locations.a_color, coloring.model);
 
-                let geometry_dimensions = s.dimensions.get(geometry.model).unwrap();
-                let normals_dimensions = s.dimensions.get(normals.model).unwrap();
-                let coloring_dimensions = s.dimensions.get(coloring.model).unwrap();
-
-                feed_attribute(&s.context, a_position, geometry_buffer, **geometry_dimensions as i32);
-                feed_attribute(&s.context, a_normal, normals_buffer, **normals_dimensions as i32);
-                feed_attribute(&s.context, a_color, coloring_buffer, **coloring_dimensions as i32);
-
-                let elements = geometry_buffer.len / **geometry_dimensions as usize;
-                s.context.draw_arrays(GL::TRIANGLES, 0, elements as i32);
+                s.context.draw_arrays(GL::TRIANGLES, 0, number_of_elements(&s, geometry.model));
             }
         }
     }
+}
+
+fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
+    let a_position = *program.attribute_map.get("a_position").unwrap();
+    let a_normal = *program.attribute_map.get("a_normal").unwrap();
+    let a_color = *program.attribute_map.get("a_color").unwrap();
+
+    let u_world_view_projection = program.uniform_map.get("u_world_view_projection").unwrap().to_owned();
+    let u_inverse_world = program.uniform_map.get("u_inverse_world").unwrap().to_owned();
+
+    ShaderProgramLocations { a_position, a_normal, a_color, u_world_view_projection, u_inverse_world }
+}
+
+struct ShaderProgramLocations {
+    a_position: AttributeLocation,
+    a_normal: AttributeLocation,
+    a_color: AttributeLocation,
+
+    u_world_view_projection: UniformLocation,
+    u_inverse_world: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
@@ -94,17 +104,14 @@ fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
     context.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 }
 
-fn lookup_locations(program: &ShaderProgram) -> (AttributeLocation, AttributeLocation, AttributeLocation, UniformLocation, UniformLocation) {
-    let a_position = *program.attribute_map.get("a_position").unwrap();
-    let a_normal = *program.attribute_map.get("a_normal").unwrap();
-    let a_color = *program.attribute_map.get("a_color").unwrap();
-    let u_world_view_projection = program.uniform_map.get("u_world_view_projection").unwrap().to_owned();
-    let u_inverse_world = program.uniform_map.get("u_inverse_world").unwrap().to_owned();
+fn set_attribute_from_model(s: &SysData, location: AttributeLocation, model: Entity) {
+    let buffer = s.buffers.get(model).unwrap();
+    let dimensions = s.dimensions.get(model).unwrap();
 
-    (a_position, a_normal, a_color, u_world_view_projection, u_inverse_world)
+    set_attribute_from_buffer(&s.context, location, buffer, **dimensions as i32);
 }
 
-fn feed_attribute(context: &GL, location: AttributeLocation, buffer: &WebGlBuffer, size: i32) {
+fn set_attribute_from_buffer(context: &GL, location: AttributeLocation, buffer: &WebGlBuffer, size: i32) {
     context.enable_vertex_attrib_array(location);
     context.bind_buffer(GL::ARRAY_BUFFER, Some(&buffer));
     context.vertex_attrib_pointer_with_i32(location, size, GL::FLOAT, false, 0, 0);
@@ -112,4 +119,11 @@ fn feed_attribute(context: &GL, location: AttributeLocation, buffer: &WebGlBuffe
 
 fn set_uniform(context: &GL, location: &UniformLocation, matrix: &[f32; 16]) {
     context.uniform_matrix4fv_with_f32_array(Some(location), false, matrix);
+}
+
+fn number_of_elements(s: &SysData, model: Entity) -> i32 {
+    let buffer = s.buffers.get(model).unwrap();
+    let dimensions = s.dimensions.get(model).unwrap();
+
+    (buffer.len / **dimensions as usize) as i32
 }
