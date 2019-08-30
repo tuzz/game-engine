@@ -1,4 +1,5 @@
 mod webpage;
+mod vertex_normals;
 mod webgl_buffer;
 mod webgl_program;
 mod webgl_render;
@@ -10,6 +11,7 @@ mod inverse_world;
 mod keyboard_input;
 
 pub use webpage::Webpage;
+pub use vertex_normals::VertexNormals;
 pub use webgl_buffer::WebGlBuffer;
 pub use webgl_program::WebGlProgram;
 pub use webgl_render::WebGlRender;

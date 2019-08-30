@@ -9,7 +9,7 @@ mod surface_normal;
 
 use convert::Tuple;
 
-#[derive(Default, PartialEq, Debug)]
+#[derive(Default, Clone, PartialEq, Debug)]
 pub struct Vector3f {
     pub x: f32,
     pub y: f32,
