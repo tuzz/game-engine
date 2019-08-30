@@ -2,14 +2,11 @@ use specs::prelude::*;
 use std::ops::{Deref, DerefMut};
 use crate::utilities::Matrix4f;
 
-#[derive(Debug, PartialEq)]
-pub struct WorldTransform(pub Matrix4f);
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+pub struct InverseWorldTransform(pub Matrix4f);
 
-impl Component for WorldTransform {
-    type Storage = FlaggedStorage<Self, VecStorage<Self>>;
-}
-
-impl Deref for WorldTransform {
+impl Deref for InverseWorldTransform {
     type Target = Matrix4f;
 
     fn deref(&self) -> &Self::Target {
@@ -17,7 +14,7 @@ impl Deref for WorldTransform {
     }
 }
 
-impl DerefMut for WorldTransform {
+impl DerefMut for InverseWorldTransform {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

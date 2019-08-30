@@ -36,6 +36,7 @@ pub fn main() {
     let mut webgl_render = WebGlRender;
     let mut hierarchy = Hierarchy::new(&mut game_loop.world);
     let mut scene_graph = SceneGraph::default();
+    let mut inverse_world = InverseWorld::default();
     let mut animation = Animation;
     let mut keyboard_input = KeyboardInput;
 
@@ -46,6 +47,7 @@ pub fn main() {
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut webgl_render, world);
         System::setup(&mut scene_graph, world);
+        System::setup(&mut inverse_world, world);
         System::setup(&mut animation, world);
         System::setup(&mut keyboard_input, world);
 
@@ -235,6 +237,7 @@ pub fn main() {
         animation.run_now(world);
         hierarchy.run_now(world);
         scene_graph.run_now(world);
+        inverse_world.run_now(world);
         webgl_render.run_now(world);
     });
 }
