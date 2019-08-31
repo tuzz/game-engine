@@ -7,7 +7,7 @@ mod event_handlers;
 pub use game_loop::GameLoop;
 pub use vector3f::Vector3f;
 pub use matrix4f::Matrix4f;
-pub use triangle::*;
+pub use triangle::Triangle;
 pub use event_handlers::*;
 
 #[cfg(test)]
