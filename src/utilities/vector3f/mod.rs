@@ -2,9 +2,11 @@ mod convert;
 mod add;
 mod subtract;
 mod scale;
+mod dot;
 mod cross;
 mod length;
 mod normalize;
+mod angle;
 
 use convert::Tuple;
 
