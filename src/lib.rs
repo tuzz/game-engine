@@ -231,7 +231,7 @@ pub fn main() {
                 .build();
         }
 
-        world.create_entity().with(DirectionalLight::new(0., 0., 1.)).build();
+        world.create_entity().with(DirectionalLight::new(-1., 2., 0.)).build();
     });
 
     game_loop.run(move |world| {

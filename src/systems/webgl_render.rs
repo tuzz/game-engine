@@ -75,9 +75,15 @@ impl<'a> System<'a> for WebGlRender {
                 set_uniform_from_matrix(&s.context, &locations.u_world, &world_transform);
                 set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
                 set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
-                set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
 
-                set_uniform_from_vector(&s.context, &locations.u_point_light_position, &Vector3f::new(2., 3., -2.));
+                set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
+                set_uniform_from_vector(&s.context, &locations.u_camera_position, &Vector3f::new(0., 0., 0.));
+                set_uniform_from_vector(&s.context, &locations.u_point_light_position, &Vector3f::new(2., 4., 6.));
+
+                set_uniform_from_vector(&s.context, &locations.u_directional_light_color, &Vector3f::new(1., 1., 1.));
+                set_uniform_from_vector(&s.context, &locations.u_point_light_color, &Vector3f::new(1., 1., 1.));
+                set_uniform_from_vector(&s.context, &locations.u_specular_light_color, &Vector3f::new(1., 1., 1.));
+                set_uniform_from_float(&s.context, &locations.u_shininess, 300.0);
 
                 s.context.draw_arrays(GL::TRIANGLES, 0, number_of_elements(&s, geometry.model));
             }
@@ -94,9 +100,15 @@ fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
         u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
         u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
         u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
-        u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
 
+        u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
+        u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
         u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),
+
+        u_directional_light_color: program.uniform_map.get("u_directional_light_color").unwrap().to_owned(),
+        u_point_light_color: program.uniform_map.get("u_point_light_color").unwrap().to_owned(),
+        u_specular_light_color: program.uniform_map.get("u_specular_light_color").unwrap().to_owned(),
+        u_shininess: program.uniform_map.get("u_shininess").unwrap().to_owned(),
     }
 }
 
@@ -108,9 +120,15 @@ struct ShaderProgramLocations {
     u_world: UniformLocation,
     u_world_view_projection: UniformLocation,
     u_inverse_world: UniformLocation,
-    u_point_light_position: UniformLocation,
 
+    u_camera_position: UniformLocation,
+    u_point_light_position: UniformLocation,
     u_to_directional_light: UniformLocation,
+
+    u_directional_light_color: UniformLocation,
+    u_point_light_color: UniformLocation,
+    u_specular_light_color: UniformLocation,
+    u_shininess: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
@@ -140,6 +158,10 @@ fn set_uniform_from_matrix(context: &GL, location: &UniformLocation, matrix: &[f
 
 fn set_uniform_from_vector(context: &GL, location: &UniformLocation, vector: &Vector3f) {
     context.uniform3fv_with_f32_array(Some(location), &[vector.x, vector.y, vector.z]);
+}
+
+fn set_uniform_from_float(context: &GL, location: &UniformLocation, float: f32) {
+    context.uniform1f(Some(location), float);
 }
 
 fn number_of_elements(s: &SysData, model: Entity) -> i32 {
