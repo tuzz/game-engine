@@ -32,7 +32,7 @@ fn default_program(world: &World) -> ShaderProgram {
 
     ShaderProgram {
         attribute_map: attribute_map(&context, &program, vert),
-        uniform_map: uniform_map(&context, &program, vert),
+        uniform_map: uniform_map(&context, &program, vert, frag),
         compiled: program,
     }
 }
@@ -53,8 +53,11 @@ fn attribute_map(context: &GL, program: &Program, vert: &VertexShader) -> Attrib
     }).collect()
 }
 
-fn uniform_map(context: &GL, program: &Program, vert: &VertexShader) -> UniformMap {
-    vert.uniforms.iter().map(|&name| {
+fn uniform_map(context: &GL, program: &Program, vert: &VertexShader, frag: &FragmentShader) -> UniformMap {
+    let vert_uniforms = vert.uniforms.iter();
+    let frag_uniforms = frag.uniforms.iter();
+
+    vert_uniforms.chain(frag_uniforms).map(|&name| {
         (name, context.get_uniform_location(&program, name).unwrap() as UniformLocation)
     }).collect()
 }

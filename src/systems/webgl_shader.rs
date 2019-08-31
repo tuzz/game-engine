@@ -31,11 +31,11 @@ fn default_vertex_shader(context: &GL) -> VertexShader {
         attribute vec3 a_normal;
         attribute vec4 a_color;
 
-        uniform mat4 u_world_view_projection;
-        uniform mat4 u_inverse_world;
-
         varying vec4 v_color;
         varying vec3 v_normal;
+
+        uniform mat4 u_world_view_projection;
+        uniform mat4 u_inverse_world;
 
         void main() {
           // I'm post-multiplying instead of pre-multiplying the matrices
@@ -63,14 +63,18 @@ fn default_fragment_shader(context: &GL) -> FragmentShader {
         varying vec3 v_normal;
         varying vec4 v_color;
 
+        uniform vec3 u_reverse_light_direction;
+
         void main() {
           vec3 normal = normalize(v_normal);
-          float light = dot(normal, vec3(0, -1, 0)); // TODO
+          float light = dot(normal, u_reverse_light_direction); // TODO
 
           gl_FragColor = v_color;
           gl_FragColor.rgb *= light;
         }
-    ")
+    ", vec![
+        "u_reverse_light_direction",
+    ])
 }
 
 fn vertex_shader(context: &GL, source: &str, attributes: Attributes, uniforms: Uniforms) -> VertexShader {
@@ -78,8 +82,9 @@ fn vertex_shader(context: &GL, source: &str, attributes: Attributes, uniforms: U
     VertexShader { compiled, attributes, uniforms }
 }
 
-fn fragment_shader(context: &GL, source: &str) -> FragmentShader {
-    FragmentShader { compiled: compile(context, GL::FRAGMENT_SHADER, source) }
+fn fragment_shader(context: &GL, source: &str, uniforms: Uniforms) -> FragmentShader {
+    let compiled = compile(context, GL::FRAGMENT_SHADER, source);
+    FragmentShader { compiled, uniforms  }
 }
 
 fn compile(context: &GL, kind: u32, source: &str) -> Shader {

@@ -3,6 +3,7 @@ use web_sys::WebGlRenderingContext as GL;
 
 use crate::resources::{*, shader_types::*};
 use crate::components::*;
+use crate::utilities::*;
 
 pub struct WebGlRender;
 
@@ -23,6 +24,8 @@ pub struct SysData<'a> {
     geometries: ReadStorage<'a, Geometry>,
     normals: ReadStorage<'a, Normals>,
     colorings: ReadStorage<'a, Coloring>,
+
+    directional_light: ReadStorage<'a, DirectionalLight>,
 
     buffers: ReadStorage<'a, WebGlBuffer>,
     dimensions: ReadStorage<'a, Dimensions>,
@@ -50,6 +53,8 @@ impl<'a> System<'a> for WebGlRender {
 
         s.context.use_program(Some(&program.compiled));
 
+        let directional_light = s.directional_light.join().next().unwrap();
+
         for (entity, _camera, viewport, clear_color, projection) in (
             &s.entities, &s.cameras, &s.viewports, &s.clear_colors, &s.projections
         ).join() {
@@ -63,8 +68,9 @@ impl<'a> System<'a> for WebGlRender {
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
-                set_uniform(&s.context, &locations.u_world_view_projection, &world_view_projection);
-                set_uniform(&s.context, &locations.u_inverse_world, &inverse_world);
+                set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
+                set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
+                set_uniform_from_vector(&s.context, &locations.u_reverse_light_direction, &directional_light.reverse_light_direction);
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_normal, normals.model);
@@ -77,14 +83,15 @@ impl<'a> System<'a> for WebGlRender {
 }
 
 fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
-    let a_position = *program.attribute_map.get("a_position").unwrap();
-    let a_normal = *program.attribute_map.get("a_normal").unwrap();
-    let a_color = *program.attribute_map.get("a_color").unwrap();
+    ShaderProgramLocations {
+        a_position: *program.attribute_map.get("a_position").unwrap(),
+        a_normal: *program.attribute_map.get("a_normal").unwrap(),
+        a_color: *program.attribute_map.get("a_color").unwrap(),
 
-    let u_world_view_projection = program.uniform_map.get("u_world_view_projection").unwrap().to_owned();
-    let u_inverse_world = program.uniform_map.get("u_inverse_world").unwrap().to_owned();
-
-    ShaderProgramLocations { a_position, a_normal, a_color, u_world_view_projection, u_inverse_world }
+        u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
+        u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
+        u_reverse_light_direction: program.uniform_map.get("u_reverse_light_direction").unwrap().to_owned(),
+    }
 }
 
 struct ShaderProgramLocations {
@@ -94,6 +101,7 @@ struct ShaderProgramLocations {
 
     u_world_view_projection: UniformLocation,
     u_inverse_world: UniformLocation,
+    u_reverse_light_direction: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
@@ -117,8 +125,12 @@ fn set_attribute_from_buffer(context: &GL, location: AttributeLocation, buffer: 
     context.vertex_attrib_pointer_with_i32(location, size, GL::FLOAT, false, 0, 0);
 }
 
-fn set_uniform(context: &GL, location: &UniformLocation, matrix: &[f32; 16]) {
+fn set_uniform_from_matrix(context: &GL, location: &UniformLocation, matrix: &[f32; 16]) {
     context.uniform_matrix4fv_with_f32_array(Some(location), false, matrix);
+}
+
+fn set_uniform_from_vector(context: &GL, location: &UniformLocation, vector: &Vector3f) {
+    context.uniform3fv_with_f32_array(Some(location), &[vector.x, vector.y, vector.z]);
 }
 
 fn number_of_elements(s: &SysData, model: Entity) -> i32 {

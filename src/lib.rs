@@ -230,6 +230,10 @@ pub fn main() {
                 ))
                 .build();
         }
+
+        world.create_entity()
+            .with(DirectionalLight { reverse_light_direction: Vector3f::new(0., 1., 0.) })
+            .build();
     });
 
     game_loop.run(move |world| {
