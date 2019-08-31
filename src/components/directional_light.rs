@@ -4,5 +4,5 @@ use crate::utilities::Vector3f;
 #[derive(Component)]
 #[storage(HashMapStorage)]
 pub struct DirectionalLight {
-    pub reverse_light_direction: Vector3f,
+    pub direction_to_light: Vector3f,
 }

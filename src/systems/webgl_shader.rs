@@ -63,17 +63,17 @@ fn default_fragment_shader(context: &GL) -> FragmentShader {
         varying vec3 v_normal;
         varying vec4 v_color;
 
-        uniform vec3 u_reverse_light_direction;
+        uniform vec3 u_direction_to_light;
 
         void main() {
           vec3 normal = normalize(v_normal);
-          float light = dot(normal, u_reverse_light_direction); // TODO
+          float light = dot(normal, u_direction_to_light);
 
           gl_FragColor = v_color;
           gl_FragColor.rgb *= light;
         }
     ", vec![
-        "u_reverse_light_direction",
+        "u_direction_to_light",
     ])
 }
 

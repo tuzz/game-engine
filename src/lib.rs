@@ -232,7 +232,7 @@ pub fn main() {
         }
 
         world.create_entity()
-            .with(DirectionalLight { reverse_light_direction: Vector3f::new(0., 1., 0.) })
+            .with(DirectionalLight { direction_to_light: Vector3f::new(0., 0., 1.) })
             .build();
     });
 

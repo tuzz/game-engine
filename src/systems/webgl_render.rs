@@ -70,7 +70,7 @@ impl<'a> System<'a> for WebGlRender {
 
                 set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
                 set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
-                set_uniform_from_vector(&s.context, &locations.u_reverse_light_direction, &directional_light.reverse_light_direction);
+                set_uniform_from_vector(&s.context, &locations.u_direction_to_light, &directional_light.direction_to_light);
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_normal, normals.model);
@@ -90,7 +90,7 @@ fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
 
         u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
         u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
-        u_reverse_light_direction: program.uniform_map.get("u_reverse_light_direction").unwrap().to_owned(),
+        u_direction_to_light: program.uniform_map.get("u_direction_to_light").unwrap().to_owned(),
     }
 }
 
@@ -101,7 +101,7 @@ struct ShaderProgramLocations {
 
     u_world_view_projection: UniformLocation,
     u_inverse_world: UniformLocation,
-    u_reverse_light_direction: UniformLocation,
+    u_direction_to_light: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
