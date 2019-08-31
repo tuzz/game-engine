@@ -231,9 +231,7 @@ pub fn main() {
                 .build();
         }
 
-        world.create_entity()
-            .with(DirectionalLight { direction_to_light: Vector3f::new(0., 0., 1.) })
-            .build();
+        world.create_entity().with(DirectionalLight::new(0., 0., 1.)).build();
     });
 
     game_loop.run(move |world| {
