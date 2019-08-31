@@ -1,15 +1,15 @@
 use super::*;
 
-impl Vector3f {
-    pub fn surface_normal(p1: Self, p2: Self, p3: Self) -> Self {
-        let u = p2 - &p1;
-        let v = p3 - p1;
+impl Triangle {
+    pub fn surface_normal(&self) -> Vector3f {
+        let u = &self.p2 - &self.p1;
+        let v = &self.p3 - &self.p1;
 
         let x = (u.y * v.z) - (u.z * v.y);
         let y = (u.z * v.x) - (u.x * v.z);
         let z = (u.x * v.y) - (u.y * v.x);
 
-        Self { x, y, z }
+        Vector3f { x, y, z }
     }
 }
 
@@ -23,7 +23,7 @@ mod test {
         let p2 = Vector3f::new(1., 0., 0.);
         let p3 = Vector3f::new(0., 1., 0.);
 
-        let actual = Vector3f::surface_normal(p1, p2, p3);
+        let actual = Triangle::new(p1, p2, p3).surface_normal();
         let expected = Vector3f::new(0., 0., 1.);
 
         assert_eq!(actual, expected);
@@ -35,7 +35,7 @@ mod test {
         let p2 = Vector3f::new(0., 1., 0.); // swapped
         let p3 = Vector3f::new(1., 0., 0.); // swapped
 
-        let actual = Vector3f::surface_normal(p1, p2, p3);
+        let actual = Triangle::new(p1, p2, p3).surface_normal();
         let expected = Vector3f::new(0., 0., -1.);
 
         assert_eq!(actual, expected);
@@ -47,7 +47,7 @@ mod test {
         let p2 = Vector3f::new(2., 3., 4.);
         let p3 = Vector3f::new(5., 5., 5.);
 
-        let normal = Vector3f::surface_normal(p1, p2, p3);
+        let normal = Triangle::new(p1, p2, p3).surface_normal();
 
         assert!(normal.length() > 9.0);
     }
@@ -58,7 +58,7 @@ mod test {
         let p2 = Vector3f::new(1., -3., 5.);
         let p3 = Vector3f::new(2., -3., 5.);
 
-        let actual = Vector3f::surface_normal(p1, p2, p3);
+        let actual = Triangle::new(p1, p2, p3).surface_normal();
         let expected = Vector3f::default();
 
         assert_eq!(actual, expected);

@@ -5,7 +5,6 @@ mod scale;
 mod cross;
 mod length;
 mod normalize;
-mod surface_normal;
 
 use convert::Tuple;
 

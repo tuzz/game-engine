@@ -1,6 +1,6 @@
 use specs::prelude::*;
 use crate::components::*;
-use crate::utilities::Vector3f;
+use crate::utilities::Triangle;
 use std::collections::VecDeque;
 use std::iter::once;
 
@@ -47,11 +47,11 @@ impl<'a> System<'a> for VertexNormals {
 
 fn vertex_normals(buffer_data: &BufferData) -> BufferData {
     BufferData(buffer_data.chunks(9).flat_map(|chunk| {
-        let point1 = (chunk[0], chunk[1], chunk[2]).into();
-        let point2 = (chunk[3], chunk[4], chunk[5]).into();
-        let point3 = (chunk[6], chunk[7], chunk[8]).into();
+        let p1 = (chunk[0], chunk[1], chunk[2]).into();
+        let p2 = (chunk[3], chunk[4], chunk[5]).into();
+        let p3 = (chunk[6], chunk[7], chunk[8]).into();
 
-        let normal = Vector3f::surface_normal(point1, point2, point3);
+        let normal = Triangle { p1, p2, p3 }.surface_normal();
         let (x, y, z) = (once(normal.x), once(normal.y), once(normal.z));
 
         x.chain(y).chain(z).cycle().take(9)
