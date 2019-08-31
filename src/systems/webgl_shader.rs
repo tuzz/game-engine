@@ -33,9 +33,12 @@ fn default_vertex_shader(context: &GL) -> VertexShader {
 
         varying vec4 v_color;
         varying vec3 v_normal;
+        varying vec3 v_to_point_light;
 
+        uniform mat4 u_world;
         uniform mat4 u_world_view_projection;
         uniform mat4 u_inverse_world;
+        uniform vec3 u_point_light_position;
 
         void main() {
           // I'm post-multiplying instead of pre-multiplying the matrices
@@ -45,14 +48,19 @@ fn default_vertex_shader(context: &GL) -> VertexShader {
 
           v_color = a_color;
           v_normal = a_normal * mat3(u_inverse_world);
+
+          vec3 world_position = (a_position * u_world).xyz;
+          v_to_point_light = u_point_light_position - world_position;
         }
     ", vec![
         "a_position",
         "a_normal",
         "a_color",
     ], vec![
+        "u_world",
         "u_world_view_projection",
         "u_inverse_world",
+        "u_point_light_position",
     ])
 }
 
@@ -62,18 +70,21 @@ fn default_fragment_shader(context: &GL) -> FragmentShader {
 
         varying vec3 v_normal;
         varying vec4 v_color;
+        varying vec3 v_to_point_light;
 
-        uniform vec3 u_direction_to_light;
+        uniform vec3 u_to_directional_light;
 
         void main() {
           vec3 normal = normalize(v_normal);
-          float light = dot(normal, u_direction_to_light);
+
+          float light2 = dot(normal, u_to_directional_light); // TODO: combine lights
+          float light = dot(normal, normalize(v_to_point_light));
 
           gl_FragColor = v_color;
           gl_FragColor.rgb *= light;
         }
     ", vec![
-        "u_direction_to_light",
+        "u_to_directional_light",
     ])
 }
 
