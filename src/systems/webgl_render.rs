@@ -27,6 +27,7 @@ pub struct SysData<'a> {
     colorings: ReadStorage<'a, Coloring>,
 
     directional_lights: ReadStorage<'a, DirectionalLight>,
+    point_lights: ReadStorage<'a, PointLight>,
 
     buffers: ReadStorage<'a, WebGlBuffer>,
     dimensions: ReadStorage<'a, Dimensions>,
@@ -69,6 +70,11 @@ impl<'a> System<'a> for WebGlRender {
                 set_uniform_from_vector(&s.context, &locations.u_directional_light_vector[index], &light.direction_to_light);
             }
 
+            for (index, (_light, _position)) in (&s.point_lights, &s.world_transforms).join().enumerate() {
+                                                                                              // TODO
+                set_uniform_from_vector(&s.context, &locations.u_point_light_position[index], &Vector3f::new(0., 5., 0.));
+            }
+
             for (geometry, normals, coloring, world_transform, inverse_world) in (
                 &s.geometries, &s.normals, &s.colorings, &s.world_transforms, &s.inverse_transforms
             ).join() {
@@ -87,11 +93,9 @@ impl<'a> System<'a> for WebGlRender {
                     set_uniform_from_matrix(&s.context, u_inverse_world, &inverse_world);
                 }
 
-                //set_uniform_from_matrix(&s.context, &locations.u_world, &world_transform);
-
-                //set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
-                //set_uniform_from_vector(&s.context, &locations.u_camera_position, &Vector3f::new(0., 0., 0.));
-                //set_uniform_from_vector(&s.context, &locations.u_point_light_position, &Vector3f::new(2., 4., 6.));
+                if let Some(u_world) = &locations.u_world {
+                    set_uniform_from_matrix(&s.context, &u_world, &world_transform);
+                }
 
                 //set_uniform_from_vector(&s.context, &locations.u_directional_light_color, &Vector3f::new(1., 1., 1.));
                 //set_uniform_from_vector(&s.context, &locations.u_point_light_color, &Vector3f::new(1., 1., 1.));
@@ -105,7 +109,7 @@ impl<'a> System<'a> for WebGlRender {
 }
 
 fn shader_config(s: &SysData) -> ShaderConfig {
-    let point_lights = 0;
+    let point_lights = s.point_lights.join().count() as u32;
     let directional_lights = s.directional_lights.join().count() as u32;
     let spot_lights = 0;
 

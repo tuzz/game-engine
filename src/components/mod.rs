@@ -13,6 +13,7 @@ mod camera;
 mod viewport;
 mod clear_color;
 mod directional_light;
+mod point_light;
 
 pub use buffer_data::BufferData;
 pub use webgl_buffer::WebGlBuffer;
@@ -29,3 +30,4 @@ pub use camera::Camera;
 pub use viewport::Viewport;
 pub use clear_color::ClearColor;
 pub use directional_light::DirectionalLight;
+pub use point_light::PointLight;

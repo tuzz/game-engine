@@ -51,7 +51,7 @@ fn vertex_normals(buffer_data: &BufferData) -> BufferData {
         let p2 = (chunk[3], chunk[4], chunk[5]).into();
         let p3 = (chunk[6], chunk[7], chunk[8]).into();
 
-        let normal = Triangle { p1, p2, p3 }.surface_normal().normalize();
+        let normal = Triangle { p1, p2, p3 }.surface_normal();
         let (x, y, z) = (once(normal.x), once(normal.y), once(normal.z));
 
         x.chain(y).chain(z).cycle().take(9)
@@ -105,9 +105,9 @@ mod test {
             0., 0., 1.,
             0., 0., 1.,
 
-           -1., 0., 0., // Normal faces in the X = -1 direction
-           -1., 0., 0.,
-           -1., 0., 0.,
+           -2., 0., 0., // Normal faces in the X = -1 direction
+           -2., 0., 0.,
+           -2., 0., 0.,
         ]);
     }
 }

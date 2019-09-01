@@ -42,30 +42,36 @@ impl Shader {
     }
 
     pub fn source(&self) -> String {
-        let mut source = String::new();
+        self.lines().join("\n")
+    }
+
+    pub fn lines(&self) -> Vec<String> {
+        let mut lines = vec![];
 
         for header in &self.headers {
-            source += &format!("{};\n", header);
+            lines.push(format!("{};", header));
         }
 
         for var in &self.attributes {
-            source += &format!("attribute {} {};\n", var.kind, var.name);
+            lines.push(format!("attribute {} {};", var.kind, var.name));
         }
 
         for var in &self.uniforms {
-            source += &format!("uniform {} {};\n", var.kind, var.name);
+            lines.push(format!("uniform {} {};", var.kind, var.name));
         }
 
         for var in &self.varyings {
-            source += &format!("varying {} {};\n", var.kind, var.name);
+            lines.push(format!("varying {} {};", var.kind, var.name));
         }
 
-        source += "void main() {\n";
+        lines.push("void main() {".to_string());
 
         for statement in &self.statements {
-            source += &format!("    {};\n", statement);
+            lines.push(format!("    {};", statement));
         }
 
-        source + "}\n"
+        lines.push("}".to_string());
+
+        lines
     }
 }

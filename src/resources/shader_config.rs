@@ -21,8 +21,26 @@ impl ShaderConfig {
     }
 }
 
+impl ShaderConfig {
+    pub fn no_lights() -> Self {
+        ShaderConfig { point_lights: 0, directional_lights: 0, spot_lights: 0 }
+    }
+
+    pub fn one_of_each_light() -> Self {
+        ShaderConfig { point_lights: 1, directional_lights: 1, spot_lights: 1 }
+    }
+
+    pub fn a_few_lights() -> Self {
+        ShaderConfig { point_lights: 3, directional_lights: 2, spot_lights: 3 }
+    }
+
+    pub fn lots_of_lights() -> Self {
+        ShaderConfig { point_lights: 8, directional_lights: 3, spot_lights: 5 }
+    }
+}
+
 impl Default for ShaderConfig {
     fn default() -> Self {
-        ShaderConfig { point_lights: 0, directional_lights: 3, spot_lights: 0 }
+        Self::a_few_lights()
     }
 }

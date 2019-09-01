@@ -232,8 +232,10 @@ pub fn main() {
         }
 
         world.create_entity().with(DirectionalLight::new(0., 1., 0.)).build();
-        world.create_entity().with(DirectionalLight::new(1., 0., 0.)).build();
-        world.create_entity().with(DirectionalLight::new(0., 0., 1.)).build();
+
+        world.create_entity().with(PointLight).with(LocalTransform(
+            Matrix4f::translation(0., 1., 1.)
+        )).build();
     });
 
     game_loop.run(move |world| {

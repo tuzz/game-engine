@@ -34,13 +34,13 @@ fn shader_location(config: &ShaderConfig, program: &ShaderProgram) -> ShaderLoca
         a_normal: optional_attribute(program, "a_normal"),
         a_color: attribute(program, "a_color"),
 
-        //u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
+        u_world: optional_uniform(program, "u_world"),
         u_world_view_projection: uniform(program, "u_world_view_projection"),
         u_inverse_world: optional_uniform(program, "u_inverse_world"),
-        u_directional_light_vector: uniform_array(program, "u_directional_light_vector", config.directional_lights),
+        u_camera_position: optional_uniform(program, "u_camera_position"),
 
-        //u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
-        //u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
+        u_directional_light_vector: uniform_array(program, "u_directional_light_vector", config.directional_lights),
+        u_point_light_position: uniform_array(program, "u_point_light_position", config.point_lights),
         //u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),
 
         //u_directional_light_color: program.uniform_map.get("u_directional_light_color").unwrap().to_owned(),
