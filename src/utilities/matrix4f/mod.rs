@@ -7,6 +7,7 @@ mod perspective;
 mod multiply;
 mod inverse;
 mod look_at;
+mod position;
 
 use convert::Tuple;
 use super::Vector3f;

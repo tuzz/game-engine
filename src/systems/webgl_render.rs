@@ -60,13 +60,12 @@ impl<'a> System<'a> for WebGlRender {
 
             clear_viewport(&s.context, viewport, clear_color);
 
-            for (index, light) in s.directional_lights.join().enumerate() {
-                set_uniform_from_vector(&s.context, &locations.u_directional_light_vector[index], &light.direction_to_light);
+            for (i, (_, world)) in (&s.directional_lights, &s.world_transforms).join().enumerate() {
+                set_uniform_from_vector(&s.context, &locations.u_directional_light_vector[i], &world.position().normalize());
             }
 
-            for (index, (_light, _position)) in (&s.point_lights, &s.world_transforms).join().enumerate() {
-                                                                                              // TODO
-                set_uniform_from_vector(&s.context, &locations.u_point_light_position[index], &Vector3f::new(0., 5., 0.));
+            for (i, (_, world)) in (&s.point_lights, &s.world_transforms).join().enumerate() {
+                set_uniform_from_vector(&s.context, &locations.u_point_light_position[i], &world.position());
             }
 
             for (geometry, normals, coloring, world_transform, inverse_world) in (

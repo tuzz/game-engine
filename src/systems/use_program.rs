@@ -11,6 +11,7 @@ pub struct SysData<'a> {
 
     directional_lights: ReadStorage<'a, DirectionalLight>,
     point_lights: ReadStorage<'a, PointLight>,
+    transforms: ReadStorage<'a, WorldTransform>,
 
     active_config: Write<'a, ActiveConfig>,
 }
@@ -34,8 +35,8 @@ impl<'a> System<'a> for UseProgram {
 
 impl UseProgram {
     fn shader_config_for_number_of_lights(s: &SysData) -> ShaderConfig {
-        let point_lights = s.point_lights.join().count() as u32;
-        let directional_lights = s.directional_lights.join().count() as u32;
+        let point_lights = (&s.point_lights, &s.transforms).join().count() as u32;
+        let directional_lights = (&s.directional_lights, &s.transforms).join().count() as u32;
         let spot_lights = 0;
 
         ShaderConfig { point_lights, directional_lights, spot_lights }

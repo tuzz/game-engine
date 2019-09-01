@@ -233,10 +233,12 @@ pub fn main() {
                 .build();
         }
 
-        world.create_entity().with(DirectionalLight::new(0., 1., 0.)).build();
+        world.create_entity().with(DirectionalLight).with(LocalTransform(
+            Matrix4f::translation(0., 1., 0.)
+        )).build();
 
         world.create_entity().with(PointLight).with(LocalTransform(
-            Matrix4f::translation(0., 1., 1.)
+            Matrix4f::translation(0., 0., -2.)
         )).build();
     });
 
