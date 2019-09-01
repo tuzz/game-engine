@@ -105,9 +105,9 @@ mod test {
             0., 0., 1.,
             0., 0., 1.,
 
-           -2., 0., 0., // Normal faces in the X = -2 direction
-           -2., 0., 0.,
-           -2., 0., 0.,
+           -1., 0., 0., // Normal faces in the X = -1 direction
+           -1., 0., 0.,
+           -1., 0., 0.,
         ]);
     }
 }
