@@ -1,7 +1,7 @@
 mod webpage;
 mod vertex_normals;
 mod webgl_buffer;
-mod webgl_program;
+mod shader_compiler;
 mod webgl_render;
 mod webgl_shader;
 mod animation;
@@ -13,7 +13,7 @@ mod keyboard_input;
 pub use webpage::Webpage;
 pub use vertex_normals::VertexNormals;
 pub use webgl_buffer::WebGlBuffer;
-pub use webgl_program::WebGlProgram;
+pub use shader_compiler::ShaderCompiler;
 pub use webgl_render::WebGlRender;
 pub use webgl_shader::WebGlShader;
 pub use hierarchy::Hierarchy;

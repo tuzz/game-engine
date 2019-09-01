@@ -1,13 +1,11 @@
 use specs::prelude::*;
-use web_sys::WebGlRenderingContext as GL;
-use web_sys::WebGlShader;
-use web_sys::WebGlProgram as Program;
+use web_sys::{WebGlShader, WebGlProgram, WebGlRenderingContext as GL};
 use crate::resources::{*, shader_types::*};
 use crate::utilities::Shader;
 
-pub struct WebGlProgram;
+pub struct ShaderCompiler;
 
-impl<'a> System<'a> for WebGlProgram {
+impl<'a> System<'a> for ShaderCompiler {
     type SystemData = ();
 
     fn setup(&mut self, world: &mut World) {
@@ -58,7 +56,7 @@ fn compile(context: &GL, kind: u32, source: &str) -> WebGlShader {
     shader
 }
 
-fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> Program {
+fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> WebGlProgram {
     let program = context.create_program().unwrap();
 
     context.attach_shader(&program, vert);
@@ -68,7 +66,7 @@ fn link(context: &GL, vert: &WebGlShader, frag: &WebGlShader) -> Program {
     program
 }
 
-fn attribute_map(context: &GL, program: &Program, vert: &Shader) -> AttributeMap {
+fn attribute_map(context: &GL, program: &WebGlProgram, vert: &Shader) -> AttributeMap {
     let vert_names = vert.attributes.iter().map(|a| &a.name);
 
     vert_names.map(|name| {
@@ -76,7 +74,7 @@ fn attribute_map(context: &GL, program: &Program, vert: &Shader) -> AttributeMap
     }).collect()
 }
 
-fn uniform_map(context: &GL, program: &Program, vert: &Shader, frag: &Shader) -> UniformMap {
+fn uniform_map(context: &GL, program: &WebGlProgram, vert: &Shader, frag: &Shader) -> UniformMap {
     let vert_names = vert.uniforms.iter().map(|u| &u.name);
     let frag_names = frag.uniforms.iter().map(|u| &u.name);
 
