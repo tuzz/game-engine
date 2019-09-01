@@ -124,7 +124,6 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
 
                 shader.varying("vec3", &varying);
                 shader.statement(&format!("vec3 {} = normalize({})", local, varying));
-                shader.statement(&format!("vec3 half_vector_{} = normalize(to_camera + {})", i, local));
 
                 // TODO: add to an accumulation local variable
                 shader.statement(&format!("gl_FragColor.rgb += dot(normal, {})", local));
@@ -177,7 +176,7 @@ mod test {
     }
 
     #[test]
-    fn it_accumulates_light_from_the_directional_lights() {
+    fn it_accumulates_diffuse_light_from_the_directional_lights() {
         let config = ShaderConfig::a_few_lights();
         let (vert, frag) = Shader::generate_pair(&config);
 
@@ -235,14 +234,36 @@ mod test {
     }
 
     #[test]
-    fn it() {
+    fn it_accumulates_diffuse_light_from_the_point_lights() {
         let config = ShaderConfig::a_few_lights();
         let (vert, frag) = Shader::generate_pair(&config);
 
         assert_contains(&frag, &[
-                        // TODO
+            "varying vec3 v_surface_to_camera;",
+
+            "varying vec3 v_surface_to_point_light_0;",
+            "varying vec3 v_surface_to_point_light_1;",
+
+            "void main() {",
+            "    vec3 to_point_light_0 = normalize(v_surface_to_point_light_0);",
+            "    vec3 to_point_light_1 = normalize(v_surface_to_point_light_1);",
+
+            "    gl_FragColor.rgb += dot(normal, to_point_light_0);",
+            "    gl_FragColor.rgb += dot(normal, to_point_light_1);",
+            "}",
         ]);
     }
+
+    // TODO: point lights - specular
+    // TODO: spot lights - diffuse
+    // TODO: spot lights - specular
+    // TODO: directional lights - specular (needs investigation)
+    // TODO: proper accumulation of light (needs investigation)
+    //  - ensure all light contributions are between 0 and 1
+    //  - sum light contributions together
+    //  - use terms like 'irradiance' and 'intensity' (component?)
+    // TODO: investigate whether to enable gamma setting for GL
+    // TODO: delete webgl_shader and consider renames
 
     fn assert_contains(shader: &Shader, expected: &'static [&str]) {
         let lines = shader.lines();
