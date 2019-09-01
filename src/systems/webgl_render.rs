@@ -1,7 +1,7 @@
 use specs::prelude::*;
 use web_sys::WebGlRenderingContext as GL;
 
-use crate::resources::{*, shader_types::*};
+use crate::resources::*;
 use crate::components::*;
 use crate::utilities::*;
 
@@ -13,6 +13,7 @@ pub struct SysData<'a> {
 
     context: ReadExpect<'a, WebGlContext>,
     programs: ReadExpect<'a, ShaderPrograms>,
+    locations: ReadExpect<'a, ShaderLocations>,
 
     cameras: ReadStorage<'a, Camera>,
     projections: ReadStorage<'a, ProjectionTransform>,
@@ -25,7 +26,7 @@ pub struct SysData<'a> {
     normals: ReadStorage<'a, Normals>,
     colorings: ReadStorage<'a, Coloring>,
 
-    directional_light: ReadStorage<'a, DirectionalLight>,
+    directional_lights: ReadStorage<'a, DirectionalLight>,
 
     buffers: ReadStorage<'a, WebGlBuffer>,
     dimensions: ReadStorage<'a, Dimensions>,
@@ -50,13 +51,12 @@ impl<'a> System<'a> for WebGlRender {
     fn run(&mut self, s: Self::SystemData) {
         // TODO: lookup the config for the current number of lights
         let config = ShaderConfig::default();
+
         let program = s.programs.map.get(&config).unwrap();
+        let locations = s.locations.map.get(&config).unwrap();
 
-        let locations = shader_program_locations(&program);
-
+        // TODO: only use program if it has changed from previously
         s.context.use_program(Some(&program.compiled));
-
-        let directional_light = s.directional_light.join().next().unwrap();
 
         for (entity, _camera, viewport, clear_color, projection) in (
             &s.entities, &s.cameras, &s.viewports, &s.clear_colors, &s.projections
@@ -65,6 +65,10 @@ impl<'a> System<'a> for WebGlRender {
             let view_projection = projection.multiply(&view);
 
             clear_viewport(&s.context, viewport, clear_color);
+
+            for (index, light) in s.directional_lights.join().enumerate() {
+                //set_uniform_from_vector(&s, &locations.u_something[index], &light.direction_to_light);
+            }
 
             for (geometry, normals, coloring, world_transform, inverse_world) in (
                 &s.geometries, &s.normals, &s.colorings, &s.world_transforms, &s.inverse_transforms
@@ -92,46 +96,6 @@ impl<'a> System<'a> for WebGlRender {
             }
         }
     }
-}
-
-fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
-    ShaderProgramLocations {
-        a_position: *program.attribute_map.get("a_position").unwrap(),
-        //a_normal: *program.attribute_map.get("a_normal").unwrap(),
-        a_color: *program.attribute_map.get("a_color").unwrap(),
-
-        //u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
-        u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
-        //u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
-
-        //u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
-        //u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
-        //u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),
-
-        //u_directional_light_color: program.uniform_map.get("u_directional_light_color").unwrap().to_owned(),
-        //u_point_light_color: program.uniform_map.get("u_point_light_color").unwrap().to_owned(),
-        //u_specular_light_color: program.uniform_map.get("u_specular_light_color").unwrap().to_owned(),
-        //u_shininess: program.uniform_map.get("u_shininess").unwrap().to_owned(),
-    }
-}
-
-struct ShaderProgramLocations {
-    a_position: AttributeLocation,
-    //a_normal: AttributeLocation,
-    a_color: AttributeLocation,
-
-    //u_world: UniformLocation,
-    u_world_view_projection: UniformLocation,
-    //u_inverse_world: UniformLocation,
-
-    //u_camera_position: UniformLocation,
-    //u_point_light_position: UniformLocation,
-    //u_to_directional_light: UniformLocation,
-
-    //u_directional_light_color: UniformLocation,
-    //u_point_light_color: UniformLocation,
-    //u_specular_light_color: UniformLocation,
-    //u_shininess: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {

@@ -6,6 +6,7 @@ mod vertex_shaders;
 mod fragment_shaders;
 mod shader_config;
 mod shader_programs;
+mod shader_locations;
 mod keyboard;
 
 pub use game_timing::GameTiming;
@@ -15,11 +16,6 @@ pub use webgl_context::WebGlContext;
 pub use vertex_shaders::VertexShaders;
 pub use fragment_shaders::FragmentShaders;
 pub use shader_config::ShaderConfig;
-pub use shader_programs::ShaderPrograms;
+pub use shader_programs::*;
+pub use shader_locations::*;
 pub use keyboard::{Keyboard, Key};
-
-pub mod shader_types {
-    pub use super::vertex_shaders::*;
-    pub use super::fragment_shaders::*;
-    pub use super::shader_programs::*;
-}

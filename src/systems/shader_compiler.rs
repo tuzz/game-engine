@@ -1,6 +1,6 @@
 use specs::prelude::*;
 use web_sys::{WebGlShader, WebGlProgram, WebGlRenderingContext as GL};
-use crate::resources::{*, shader_types::*};
+use crate::resources::*;
 use crate::utilities::Shader;
 
 pub struct ShaderCompiler;

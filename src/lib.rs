@@ -31,8 +31,8 @@ pub fn main() {
 
     let mut webpage = Webpage;
     let mut vertex_normals = VertexNormals;
-    let mut webgl_shader = WebGlShader;
     let mut shader_compiler = ShaderCompiler;
+    let mut location_lookup = LocationLookup;
     let mut webgl_buffer = WebGlBuffer;
     let mut webgl_render = WebGlRender;
     let mut hierarchy = Hierarchy::new(&mut game_loop.world);
@@ -44,8 +44,8 @@ pub fn main() {
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
         System::setup(&mut vertex_normals, world);
-        System::setup(&mut webgl_shader, world);
         System::setup(&mut shader_compiler, world);
+        System::setup(&mut location_lookup, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut webgl_render, world);
         System::setup(&mut scene_graph, world);

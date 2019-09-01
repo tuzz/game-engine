@@ -1,4 +1,4 @@
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Clone)]
 pub struct ShaderConfig {
     pub point_lights: u32,
     pub directional_lights: u32,
