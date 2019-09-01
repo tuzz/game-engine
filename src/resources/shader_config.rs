@@ -15,10 +15,14 @@ impl ShaderConfig {
             })
         }).collect()
     }
+
+    pub fn total_lights(&self) -> u32 {
+        self.point_lights + self.directional_lights + self.spot_lights
+    }
 }
 
 impl Default for ShaderConfig {
     fn default() -> Self {
-        ShaderConfig { point_lights: 3, directional_lights: 1, spot_lights: 1 }
+        ShaderConfig { point_lights: 0, directional_lights: 3, spot_lights: 0 }
     }
 }

@@ -28,15 +28,16 @@ impl<'a> System<'a> for LocationLookup {
     }
 }
 
-fn shader_location(_config: &ShaderConfig, program: &ShaderProgram) -> ShaderLocation {
+fn shader_location(config: &ShaderConfig, program: &ShaderProgram) -> ShaderLocation {
     ShaderLocation {
-        a_position: *program.attribute_map.get("a_position").unwrap(),
-        //a_normal: *program.attribute_map.get("a_normal").unwrap(),
-        a_color: *program.attribute_map.get("a_color").unwrap(),
+        a_position: attribute(program, "a_position"),
+        a_normal: optional_attribute(program, "a_normal"),
+        a_color: attribute(program, "a_color"),
 
         //u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
-        u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
-        //u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
+        u_world_view_projection: uniform(program, "u_world_view_projection"),
+        u_inverse_world: optional_uniform(program, "u_inverse_world"),
+        u_directional_light_vector: uniform_array(program, "u_directional_light_vector", config.directional_lights),
 
         //u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
         //u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
@@ -47,4 +48,31 @@ fn shader_location(_config: &ShaderConfig, program: &ShaderProgram) -> ShaderLoc
         //u_specular_light_color: program.uniform_map.get("u_specular_light_color").unwrap().to_owned(),
         //u_shininess: program.uniform_map.get("u_shininess").unwrap().to_owned(),
     }
+}
+
+fn attribute(program: &ShaderProgram, name: &str) -> AttributeLocation {
+    *program.attribute_map.get(name).unwrap()
+}
+
+fn optional_attribute(program: &ShaderProgram, name: &str) -> Option<AttributeLocation> {
+    program.attribute_map.get(name).cloned()
+}
+
+fn uniform(program: &ShaderProgram, name: &str) -> UniformLocation {
+    program.uniform_map.get(name).unwrap().to_owned()
+}
+
+fn optional_uniform(program: &ShaderProgram, name: &str) -> Option<UniformLocation> {
+    program.uniform_map.get(name).cloned()
+}
+
+fn uniform_array(program: &ShaderProgram, basename: &str, count: u32) -> Vec<UniformLocation> {
+    (0..count).map(|i| uniform(program, &format!("{}_{}", basename, i))).collect()
+}
+
+use wasm_bindgen::prelude::*;
+#[wasm_bindgen]
+extern {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }

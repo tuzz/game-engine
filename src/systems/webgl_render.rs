@@ -49,8 +49,7 @@ impl<'a> System<'a> for WebGlRender {
     }
 
     fn run(&mut self, s: Self::SystemData) {
-        // TODO: lookup the config for the current number of lights
-        let config = ShaderConfig::default();
+        let config = shader_config(&s);
 
         let program = s.programs.map.get(&config).unwrap();
         let locations = s.locations.map.get(&config).unwrap();
@@ -67,7 +66,7 @@ impl<'a> System<'a> for WebGlRender {
             clear_viewport(&s.context, viewport, clear_color);
 
             for (index, light) in s.directional_lights.join().enumerate() {
-                //set_uniform_from_vector(&s, &locations.u_something[index], &light.direction_to_light);
+                set_uniform_from_vector(&s.context, &locations.u_directional_light_vector[index], &light.direction_to_light);
             }
 
             for (geometry, normals, coloring, world_transform, inverse_world) in (
@@ -75,13 +74,20 @@ impl<'a> System<'a> for WebGlRender {
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
+                set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
+
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
-                //set_attribute_from_model(&s, locations.a_normal, normals.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);
 
+                if let Some(a_normal) = locations.a_normal {
+                    set_attribute_from_model(&s, a_normal, normals.model);
+                }
+
+                if let Some(u_inverse_world) = &locations.u_inverse_world {
+                    set_uniform_from_matrix(&s.context, u_inverse_world, &inverse_world);
+                }
+
                 //set_uniform_from_matrix(&s.context, &locations.u_world, &world_transform);
-                set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
-                //set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
 
                 //set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
                 //set_uniform_from_vector(&s.context, &locations.u_camera_position, &Vector3f::new(0., 0., 0.));
@@ -96,6 +102,14 @@ impl<'a> System<'a> for WebGlRender {
             }
         }
     }
+}
+
+fn shader_config(s: &SysData) -> ShaderConfig {
+    let point_lights = 0;
+    let directional_lights = s.directional_lights.join().count() as u32;
+    let spot_lights = 0;
+
+    ShaderConfig { point_lights, directional_lights, spot_lights }
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {

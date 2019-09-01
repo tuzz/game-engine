@@ -35,6 +35,8 @@ impl<'a> System<'a> for ShaderCompiler {
 fn shader_program(context: &GL, config: &ShaderConfig) -> ShaderProgram {
     let (vert, frag) = Shader::generate_pair(config);
 
+    log(&vert.source());
+    log(&frag.source());
     let program = link(context,
         &compile(context, GL::VERTEX_SHADER, &vert.source()),
         &compile(context, GL::FRAGMENT_SHADER, &frag.source()),
@@ -81,4 +83,11 @@ fn uniform_map(context: &GL, program: &WebGlProgram, vert: &Shader, frag: &Shade
     vert_names.chain(frag_names).map(|name| {
         (name.clone(), context.get_uniform_location(&program, name).unwrap() as UniformLocation)
     }).collect()
+}
+
+use wasm_bindgen::prelude::*;
+#[wasm_bindgen]
+extern {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
