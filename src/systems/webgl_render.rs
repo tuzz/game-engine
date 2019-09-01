@@ -12,7 +12,7 @@ pub struct SysData<'a> {
     entities: Entities<'a>,
 
     context: ReadExpect<'a, WebGlContext>,
-    programs: ReadExpect<'a, ShaderPrograms>,
+    shader_config: ReadExpect<'a, ActiveConfig>,
     locations: ReadExpect<'a, ShaderLocations>,
 
     cameras: ReadStorage<'a, Camera>,
@@ -50,13 +50,7 @@ impl<'a> System<'a> for WebGlRender {
     }
 
     fn run(&mut self, s: Self::SystemData) {
-        let config = shader_config(&s);
-
-        let program = s.programs.map.get(&config).unwrap();
-        let locations = s.locations.map.get(&config).unwrap();
-
-        // TODO: only use program if it has changed from previously
-        s.context.use_program(Some(&program.compiled));
+        let locations = s.locations.map.get(&s.shader_config).unwrap();
 
         for (entity, _camera, viewport, clear_color, projection) in (
             &s.entities, &s.cameras, &s.viewports, &s.clear_colors, &s.projections
@@ -108,14 +102,6 @@ impl<'a> System<'a> for WebGlRender {
     }
 }
 
-fn shader_config(s: &SysData) -> ShaderConfig {
-    let point_lights = s.point_lights.join().count() as u32;
-    let directional_lights = s.directional_lights.join().count() as u32;
-    let spot_lights = 0;
-
-    ShaderConfig { point_lights, directional_lights, spot_lights }
-}
-
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
     context.viewport(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);
     context.scissor(viewport.x as i32, viewport.y as i32, viewport.width as i32, viewport.height as i32);
@@ -154,11 +140,4 @@ fn number_of_elements(s: &SysData, model: Entity) -> i32 {
     let dimensions = s.dimensions.get(model).unwrap();
 
     (buffer.len / **dimensions as usize) as i32
-}
-
-use wasm_bindgen::prelude::*;
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
 }

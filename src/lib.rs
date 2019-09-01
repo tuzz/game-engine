@@ -34,6 +34,7 @@ pub fn main() {
     let mut shader_compiler = ShaderCompiler;
     let mut location_lookup = LocationLookup;
     let mut webgl_buffer = WebGlBuffer;
+    let mut use_program = UseProgram;
     let mut webgl_render = WebGlRender;
     let mut hierarchy = Hierarchy::new(&mut game_loop.world);
     let mut scene_graph = SceneGraph::default();
@@ -47,6 +48,7 @@ pub fn main() {
         System::setup(&mut shader_compiler, world);
         System::setup(&mut location_lookup, world);
         System::setup(&mut webgl_buffer, world);
+        System::setup(&mut use_program, world);
         System::setup(&mut webgl_render, world);
         System::setup(&mut scene_graph, world);
         System::setup(&mut inverse_world, world);
@@ -247,6 +249,7 @@ pub fn main() {
         hierarchy.run_now(world);
         scene_graph.run_now(world);
         inverse_world.run_now(world);
+        use_program.run_now(world);
         webgl_render.run_now(world);
     });
 }
