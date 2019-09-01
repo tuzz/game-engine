@@ -48,7 +48,10 @@ impl<'a> System<'a> for WebGlRender {
     }
 
     fn run(&mut self, s: Self::SystemData) {
-        let program = &s.programs.default;
+        // TODO: lookup the config for the current number of lights
+        let config = ShaderConfig::default();
+        let program = s.programs.map.get(&config).unwrap();
+
         let locations = shader_program_locations(&program);
 
         s.context.use_program(Some(&program.compiled));
@@ -69,21 +72,21 @@ impl<'a> System<'a> for WebGlRender {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
-                set_attribute_from_model(&s, locations.a_normal, normals.model);
+                //set_attribute_from_model(&s, locations.a_normal, normals.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);
 
-                set_uniform_from_matrix(&s.context, &locations.u_world, &world_transform);
+                //set_uniform_from_matrix(&s.context, &locations.u_world, &world_transform);
                 set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
-                set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
+                //set_uniform_from_matrix(&s.context, &locations.u_inverse_world, &inverse_world);
 
-                set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
-                set_uniform_from_vector(&s.context, &locations.u_camera_position, &Vector3f::new(0., 0., 0.));
-                set_uniform_from_vector(&s.context, &locations.u_point_light_position, &Vector3f::new(2., 4., 6.));
+                //set_uniform_from_vector(&s.context, &locations.u_to_directional_light, &directional_light.direction_to_light);
+                //set_uniform_from_vector(&s.context, &locations.u_camera_position, &Vector3f::new(0., 0., 0.));
+                //set_uniform_from_vector(&s.context, &locations.u_point_light_position, &Vector3f::new(2., 4., 6.));
 
-                set_uniform_from_vector(&s.context, &locations.u_directional_light_color, &Vector3f::new(1., 1., 1.));
-                set_uniform_from_vector(&s.context, &locations.u_point_light_color, &Vector3f::new(1., 1., 1.));
-                set_uniform_from_vector(&s.context, &locations.u_specular_light_color, &Vector3f::new(1., 1., 1.));
-                set_uniform_from_float(&s.context, &locations.u_shininess, 300.0);
+                //set_uniform_from_vector(&s.context, &locations.u_directional_light_color, &Vector3f::new(1., 1., 1.));
+                //set_uniform_from_vector(&s.context, &locations.u_point_light_color, &Vector3f::new(1., 1., 1.));
+                //set_uniform_from_vector(&s.context, &locations.u_specular_light_color, &Vector3f::new(1., 1., 1.));
+                //set_uniform_from_float(&s.context, &locations.u_shininess, 300.0);
 
                 s.context.draw_arrays(GL::TRIANGLES, 0, number_of_elements(&s, geometry.model));
             }
@@ -94,41 +97,41 @@ impl<'a> System<'a> for WebGlRender {
 fn shader_program_locations(program: &ShaderProgram) -> ShaderProgramLocations {
     ShaderProgramLocations {
         a_position: *program.attribute_map.get("a_position").unwrap(),
-        a_normal: *program.attribute_map.get("a_normal").unwrap(),
+        //a_normal: *program.attribute_map.get("a_normal").unwrap(),
         a_color: *program.attribute_map.get("a_color").unwrap(),
 
-        u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
+        //u_world: program.uniform_map.get("u_world").unwrap().to_owned(),
         u_world_view_projection: program.uniform_map.get("u_world_view_projection").unwrap().to_owned(),
-        u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
+        //u_inverse_world: program.uniform_map.get("u_inverse_world").unwrap().to_owned(),
 
-        u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
-        u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
-        u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),
+        //u_camera_position: program.uniform_map.get("u_camera_position").unwrap().to_owned(),
+        //u_point_light_position: program.uniform_map.get("u_point_light_position").unwrap().to_owned(),
+        //u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),
 
-        u_directional_light_color: program.uniform_map.get("u_directional_light_color").unwrap().to_owned(),
-        u_point_light_color: program.uniform_map.get("u_point_light_color").unwrap().to_owned(),
-        u_specular_light_color: program.uniform_map.get("u_specular_light_color").unwrap().to_owned(),
-        u_shininess: program.uniform_map.get("u_shininess").unwrap().to_owned(),
+        //u_directional_light_color: program.uniform_map.get("u_directional_light_color").unwrap().to_owned(),
+        //u_point_light_color: program.uniform_map.get("u_point_light_color").unwrap().to_owned(),
+        //u_specular_light_color: program.uniform_map.get("u_specular_light_color").unwrap().to_owned(),
+        //u_shininess: program.uniform_map.get("u_shininess").unwrap().to_owned(),
     }
 }
 
 struct ShaderProgramLocations {
     a_position: AttributeLocation,
-    a_normal: AttributeLocation,
+    //a_normal: AttributeLocation,
     a_color: AttributeLocation,
 
-    u_world: UniformLocation,
+    //u_world: UniformLocation,
     u_world_view_projection: UniformLocation,
-    u_inverse_world: UniformLocation,
+    //u_inverse_world: UniformLocation,
 
-    u_camera_position: UniformLocation,
-    u_point_light_position: UniformLocation,
-    u_to_directional_light: UniformLocation,
+    //u_camera_position: UniformLocation,
+    //u_point_light_position: UniformLocation,
+    //u_to_directional_light: UniformLocation,
 
-    u_directional_light_color: UniformLocation,
-    u_point_light_color: UniformLocation,
-    u_specular_light_color: UniformLocation,
-    u_shininess: UniformLocation,
+    //u_directional_light_color: UniformLocation,
+    //u_point_light_color: UniformLocation,
+    //u_specular_light_color: UniformLocation,
+    //u_shininess: UniformLocation,
 }
 
 fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
@@ -169,4 +172,11 @@ fn number_of_elements(s: &SysData, model: Entity) -> i32 {
     let dimensions = s.dimensions.get(model).unwrap();
 
     (buffer.len / **dimensions as usize) as i32
+}
+
+use wasm_bindgen::prelude::*;
+#[wasm_bindgen]
+extern {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }

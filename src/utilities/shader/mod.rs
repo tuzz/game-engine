@@ -1,10 +1,8 @@
 mod generate;
-mod config;
-
-use config::Config;
 
 #[derive(Default)]
 pub struct Shader {
+    pub headers: Vec<String>,
     pub attributes: Vec<Variable>,
     pub uniforms: Vec<Variable>,
     pub varyings: Vec<Variable>,
@@ -12,8 +10,8 @@ pub struct Shader {
 }
 
 pub struct Variable {
-    kind: String,
-    name: String,
+    pub kind: String,
+    pub name: String,
 }
 
 impl Variable {
@@ -23,6 +21,10 @@ impl Variable {
 }
 
 impl Shader {
+    pub fn header(&mut self, header: &str) {
+        self.headers.push(header.to_string());
+    }
+
     pub fn attribute(&mut self, kind: &str, name: &str) {
         self.attributes.push(Variable::new(kind, name));
     }
@@ -41,6 +43,10 @@ impl Shader {
 
     pub fn source(&self) -> String {
         let mut source = String::new();
+
+        for header in &self.headers {
+            source += &format!("{};\n", header);
+        }
 
         for var in &self.attributes {
             source += &format!("attribute {} {};\n", var.kind, var.name);

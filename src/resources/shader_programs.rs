@@ -1,14 +1,18 @@
 use std::collections::HashMap;
+use super::ShaderConfig;
 
 use web_sys::WebGlProgram;
 pub use web_sys::WebGlUniformLocation as UniformLocation;
 
+#[derive(Default)]
 pub struct ShaderPrograms {
-    pub default: ShaderProgram,
+    pub map: ProgramMap,
 }
 
-unsafe impl Send for ShaderPrograms {}
-unsafe impl Sync for ShaderPrograms {}
+pub type ProgramMap = HashMap<ShaderConfig, ShaderProgram>;
+pub type AttributeMap = HashMap<String, AttributeLocation>;
+pub type UniformMap = HashMap<String, UniformLocation>;
+pub type AttributeLocation = u32;
 
 pub struct ShaderProgram {
     pub compiled: WebGlProgram,
@@ -16,7 +20,5 @@ pub struct ShaderProgram {
     pub uniform_map: UniformMap,
 }
 
-pub type AttributeMap = HashMap<&'static str, AttributeLocation>;
-pub type UniformMap = HashMap<&'static str, UniformLocation>;
-
-pub type AttributeLocation = u32;
+unsafe impl Send for ShaderPrograms {}
+unsafe impl Sync for ShaderPrograms {}
