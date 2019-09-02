@@ -38,19 +38,29 @@ impl Shader {
         shader.header("precision mediump float");
         shader.varying("vec4", "v_color");
 
-        shader.statement("vec3 ambient = vec3(0.0, 0.0, 0.0)");
+        shader.statement("vec3 ambient = vec3(0.1, 0.1, 0.1)");
         shader.statement("vec3 diffuse = vec3(0.0, 0.0, 0.0)");
         shader.statement("vec3 specular = vec3(0.0, 0.0, 0.0)");
+
+        // TODO: move into material attribute/uniform?
+        shader.statement("vec3 material_ambient = v_color.xyz");
+        shader.statement("vec3 material_diffuse = v_color.xyz");
+        shader.statement("vec3 material_specular = vec3(1.0, 1.0, 1.0)");
+        shader.statement("float material_shininess = 10.0");
+
+        // TODO: add uniforms for the color of lights
 
         vertex_normals(config, &mut shader, FRAG);
         directional_lights(config, &mut shader, FRAG);
         point_lights(config, &mut shader, FRAG);
 
-        shader.statement("vec3 total = min(ambient, 1.0)");
-        shader.statement("total += min(diffuse, 1.0)");
-        shader.statement("total += min(specular, 1.0)");
+        shader.statement("vec3 total = ambient");
+        shader.statement("total += diffuse");
+        shader.statement("total += specular");
 
-        shader.statement("gl_FragColor = vec4(v_color.xyz * total, 1.0)");
+        shader.statement("gl_FragColor = vec4(ambient * material_ambient, 1.0)");
+        shader.statement("gl_FragColor.xyz += diffuse * material_diffuse");
+        shader.statement("gl_FragColor.xyz += specular * material_specular");
 
         shader
     }
@@ -121,11 +131,21 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
 
             for i in 0..config.point_lights {
                 let varying = format!("v_surface_to_point_light_{}", i);
-                let local = format!("to_point_light_{}", i);
+                let to_light = format!("to_point_light_{}", i);
+                let half_vec = format!("half_vec_{}", i);
+                let diffuse = format!("diffuse_{}", i);
 
                 shader.varying("vec3", &varying);
-                shader.statement(&format!("vec3 {} = normalize({})", local, varying));
-                shader.statement(&format!("diffuse += max(dot(normal, {}), 0.0)", local));
+                shader.statement(&format!("vec3 {} = normalize({})", to_light, varying));
+                shader.statement(&format!("float {} = dot(normal, {})", diffuse, to_light));
+                shader.statement(&format!("diffuse += max({}, 0.0)", diffuse));
+
+                shader.statement(&format!("vec3 {} = normalize({} + to_camera)", half_vec, to_light));
+
+                shader.statement(&format!("if ({} > 0.0) {{", diffuse));
+                // TODO: does it make a difference if I add all specular components THEN pow them?
+                shader.statement(&format!("specular += pow(dot(normal, {}), material_shininess)", half_vec));
+                shader.statement("}");
             }
         },
     }
@@ -243,13 +263,36 @@ mod test {
             "    vec3 to_point_light_0 = normalize(v_surface_to_point_light_0);",
             "    vec3 to_point_light_1 = normalize(v_surface_to_point_light_1);",
 
-            "    diffuse += max(dot(normal, to_point_light_0), 0.0);",
-            "    diffuse += max(dot(normal, to_point_light_1), 0.0);",
+            "    float diffuse_0 = dot(normal, to_point_light_0);",
+            "    float diffuse_1 = dot(normal, to_point_light_1);",
+
+            "    diffuse += max(diffuse_0, 0.0);",
+            "    diffuse += max(diffuse_1, 0.0);",
             "}",
         ]);
     }
 
-    // TODO: point lights - specular
+    #[test]
+    fn it_accumulates_specular_light_from_the_point_lights() {
+        let config = ShaderConfig::a_few_lights();
+        let (vert, frag) = Shader::generate_pair(&config);
+
+        assert_contains(&frag, &[
+            "void main() {",
+            "    vec3 half_vec_0 = normalize(to_point_light_0 + to_camera);",
+            "    vec3 half_vec_1 = normalize(to_point_light_1 + to_camera);",
+
+            "    if (diffuse_0 > 0.0) {;",
+            "    specular += pow(dot(normal, half_vec_0), material_shininess);",
+            "    };",
+
+            "    if (diffuse_1 > 0.0) {;",
+            "    specular += pow(dot(normal, half_vec_1), material_shininess);",
+            "    };",
+            "}",
+        ]);
+    }
+
     // TODO: spot lights - diffuse
     // TODO: spot lights - specular
     // TODO: directional lights - specular (needs investigation)
