@@ -37,11 +37,20 @@ impl Shader {
 
         shader.header("precision mediump float");
         shader.varying("vec4", "v_color");
-        shader.statement("gl_FragColor = v_color");
+
+        shader.statement("vec3 ambient = vec3(0.0, 0.0, 0.0)");
+        shader.statement("vec3 diffuse = vec3(0.0, 0.0, 0.0)");
+        shader.statement("vec3 specular = vec3(0.0, 0.0, 0.0)");
 
         vertex_normals(config, &mut shader, FRAG);
         directional_lights(config, &mut shader, FRAG);
         point_lights(config, &mut shader, FRAG);
+
+        shader.statement("vec3 total = min(ambient, 1.0)");
+        shader.statement("total += min(diffuse, 1.0)");
+        shader.statement("total += min(specular, 1.0)");
+
+        shader.statement("gl_FragColor = vec4(v_color.xyz * total, 1.0)");
 
         shader
     }
@@ -69,23 +78,15 @@ fn vertex_normals(config: &ShaderConfig, shader: &mut Shader, shader_type: bool)
 }
 
 fn directional_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
-    if config.directional_lights == 0 {
-        return;
-    }
-
     match shader_type {
         VERT => {},
         FRAG => {
-            shader.statement(&format!("float directional_light = 0.0"));
-
             for i in 0..config.directional_lights {
                 let name = format!("u_directional_light_vector_{}", i);
 
                 shader.uniform("vec3", &name);
-                shader.statement(&format!("directional_light += max(dot(normal, {}), 0.0)", name));
+                shader.statement(&format!("diffuse += max(dot(normal, {}), 0.0)", name));
             }
-
-            shader.statement("gl_FragColor.rgb *= directional_light");
         },
     }
 }
@@ -124,9 +125,7 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
 
                 shader.varying("vec3", &varying);
                 shader.statement(&format!("vec3 {} = normalize({})", local, varying));
-
-                // TODO: add to an accumulation local variable
-                shader.statement(&format!("gl_FragColor.rgb += dot(normal, {})", local));
+                shader.statement(&format!("diffuse += max(dot(normal, {}), 0.0)", local));
             }
         },
     }
@@ -185,12 +184,8 @@ mod test {
             "uniform vec3 u_directional_light_vector_1;",
 
             "void main() {",
-            "    float directional_light = 0.0;",
-
-            "    directional_light += max(dot(normal, u_directional_light_vector_0), 0.0);",
-            "    directional_light += max(dot(normal, u_directional_light_vector_1), 0.0);",
-
-            "    gl_FragColor.rgb *= directional_light;",
+            "    diffuse += max(dot(normal, u_directional_light_vector_0), 0.0);",
+            "    diffuse += max(dot(normal, u_directional_light_vector_1), 0.0);",
             "}",
         ]);
     }
@@ -248,8 +243,8 @@ mod test {
             "    vec3 to_point_light_0 = normalize(v_surface_to_point_light_0);",
             "    vec3 to_point_light_1 = normalize(v_surface_to_point_light_1);",
 
-            "    gl_FragColor.rgb += dot(normal, to_point_light_0);",
-            "    gl_FragColor.rgb += dot(normal, to_point_light_1);",
+            "    diffuse += max(dot(normal, to_point_light_0), 0.0);",
+            "    diffuse += max(dot(normal, to_point_light_1), 0.0);",
             "}",
         ]);
     }
