@@ -21,6 +21,7 @@ impl Shader {
         shader.varying("vec4", "v_color");
 
         vertex_normals(config, &mut shader, VERT);
+        camera_vector(config, &mut shader, VERT);
         directional_lights(config, &mut shader, VERT);
         point_lights(config, &mut shader, VERT);
 
@@ -51,6 +52,7 @@ impl Shader {
         // TODO: add uniforms for the color of lights
 
         vertex_normals(config, &mut shader, FRAG);
+        camera_vector(config, &mut shader, FRAG);
         directional_lights(config, &mut shader, FRAG);
         point_lights(config, &mut shader, FRAG);
 
@@ -87,22 +89,8 @@ fn vertex_normals(config: &ShaderConfig, shader: &mut Shader, shader_type: bool)
     }
 }
 
-fn directional_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
-    match shader_type {
-        VERT => {},
-        FRAG => {
-            for i in 0..config.directional_lights {
-                let name = format!("u_directional_light_vector_{}", i);
-
-                shader.uniform("vec3", &name);
-                shader.statement(&format!("diffuse += max(dot(normal, {}), 0.0)", name));
-            }
-        },
-    }
-}
-
-fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
-    if config.point_lights == 0 {
+fn camera_vector(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
+    if config.total_lights() == 0 {
         return;
     }
 
@@ -114,7 +102,42 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
             shader.uniform("vec3", "u_camera_position");
             shader.varying("vec3", "v_surface_to_camera");
             shader.statement("v_surface_to_camera = u_camera_position - world_position");
+        },
+        FRAG => {
+            shader.varying("vec3", "v_surface_to_camera");
+            shader.statement("vec3 to_camera = normalize(v_surface_to_camera)");
+        },
+    }
+}
 
+fn directional_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
+    match shader_type {
+        VERT => {},
+        FRAG => {
+            for i in 0..config.directional_lights {
+                let to_light = format!("u_directional_light_vector_{}", i);
+                let half_vec = format!("directional_half_vec_{}", i);
+                let diffuse = format!("directional_diffuse_{}", i);
+
+                shader.uniform("vec3", &to_light);
+
+                shader.statement(&format!("float {} = dot(normal, {})", diffuse, to_light));
+                shader.statement(&format!("diffuse += max({}, 0.0)", diffuse));
+
+                shader.statement(&format!("vec3 {} = normalize({} + to_camera)", half_vec, to_light));
+
+                shader.statement(&format!("if ({} > 0.0) {{", diffuse));
+                // TODO: does it make a difference if I add all specular components THEN pow them?
+                shader.statement(&format!("specular += pow(dot(normal, {}), material_shininess)", half_vec));
+                shader.statement("}");
+            }
+        },
+    }
+}
+
+fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
+    match shader_type {
+        VERT => {
             for i in 0..config.point_lights {
                 let uniform = format!("u_point_light_position_{}", i);
                 let varying = format!("v_surface_to_point_light_{}", i);
@@ -126,14 +149,11 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
             }
         },
         FRAG => {
-            shader.varying("vec3", "v_surface_to_camera");
-            shader.statement("vec3 to_camera = normalize(v_surface_to_camera)");
-
             for i in 0..config.point_lights {
                 let varying = format!("v_surface_to_point_light_{}", i);
                 let to_light = format!("to_point_light_{}", i);
-                let half_vec = format!("half_vec_{}", i);
-                let diffuse = format!("diffuse_{}", i);
+                let half_vec = format!("point_half_vec_{}", i);
+                let diffuse = format!("point_diffuse_{}", i);
 
                 shader.varying("vec3", &varying);
                 shader.statement(&format!("vec3 {} = normalize({})", to_light, varying));
@@ -195,17 +215,16 @@ mod test {
     }
 
     #[test]
-    fn it_accumulates_diffuse_light_from_the_directional_lights() {
+    fn it_calculates_the_vector_from_the_surface_to_the_camera() {
         let config = ShaderConfig::a_few_lights();
         let (vert, frag) = Shader::generate_pair(&config);
 
-        assert_contains(&frag, &[
-            "uniform vec3 u_directional_light_vector_0;",
-            "uniform vec3 u_directional_light_vector_1;",
+        assert_contains(&vert, &[
+            "uniform vec3 u_camera_position;",
+            "varying vec3 v_surface_to_camera;",
 
             "void main() {",
-            "    diffuse += max(dot(normal, u_directional_light_vector_0), 0.0);",
-            "    diffuse += max(dot(normal, u_directional_light_vector_1), 0.0);",
+            "    v_surface_to_camera = u_camera_position - world_position;",
             "}",
         ]);
     }
@@ -234,16 +253,20 @@ mod test {
     }
 
     #[test]
-    fn it_calculates_the_vector_from_the_surface_to_the_camera() {
+    fn it_accumulates_diffuse_light_from_the_directional_lights() {
         let config = ShaderConfig::a_few_lights();
         let (vert, frag) = Shader::generate_pair(&config);
 
-        assert_contains(&vert, &[
-            "uniform vec3 u_camera_position;",
-            "varying vec3 v_surface_to_camera;",
+        assert_contains(&frag, &[
+            "uniform vec3 u_directional_light_vector_0;",
+            "uniform vec3 u_directional_light_vector_1;",
 
             "void main() {",
-            "    v_surface_to_camera = u_camera_position - world_position;",
+            "    float directional_diffuse_0 = dot(normal, u_directional_light_vector_0);",
+            "    float directional_diffuse_1 = dot(normal, u_directional_light_vector_1);",
+
+            "    diffuse += max(directional_diffuse_0, 0.0);",
+            "    diffuse += max(directional_diffuse_1, 0.0);",
             "}",
         ]);
     }
@@ -263,11 +286,32 @@ mod test {
             "    vec3 to_point_light_0 = normalize(v_surface_to_point_light_0);",
             "    vec3 to_point_light_1 = normalize(v_surface_to_point_light_1);",
 
-            "    float diffuse_0 = dot(normal, to_point_light_0);",
-            "    float diffuse_1 = dot(normal, to_point_light_1);",
+            "    float point_diffuse_0 = dot(normal, to_point_light_0);",
+            "    float point_diffuse_1 = dot(normal, to_point_light_1);",
 
-            "    diffuse += max(diffuse_0, 0.0);",
-            "    diffuse += max(diffuse_1, 0.0);",
+            "    diffuse += max(point_diffuse_0, 0.0);",
+            "    diffuse += max(point_diffuse_1, 0.0);",
+            "}",
+        ]);
+    }
+
+    #[test]
+    fn it_accumulates_specular_light_from_the_directional_lights() {
+        let config = ShaderConfig::a_few_lights();
+        let (vert, frag) = Shader::generate_pair(&config);
+
+        assert_contains(&frag, &[
+            "void main() {",
+            "    vec3 directional_half_vec_0 = normalize(u_directional_light_vector_0 + to_camera);",
+            "    vec3 directional_half_vec_1 = normalize(u_directional_light_vector_1 + to_camera);",
+
+            "    if (directional_diffuse_0 > 0.0) {;",
+            "    specular += pow(dot(normal, directional_half_vec_0), material_shininess);",
+            "    };",
+
+            "    if (directional_diffuse_1 > 0.0) {;",
+            "    specular += pow(dot(normal, directional_half_vec_1), material_shininess);",
+            "    };",
             "}",
         ]);
     }
@@ -279,15 +323,15 @@ mod test {
 
         assert_contains(&frag, &[
             "void main() {",
-            "    vec3 half_vec_0 = normalize(to_point_light_0 + to_camera);",
-            "    vec3 half_vec_1 = normalize(to_point_light_1 + to_camera);",
+            "    vec3 point_half_vec_0 = normalize(to_point_light_0 + to_camera);",
+            "    vec3 point_half_vec_1 = normalize(to_point_light_1 + to_camera);",
 
-            "    if (diffuse_0 > 0.0) {;",
-            "    specular += pow(dot(normal, half_vec_0), material_shininess);",
+            "    if (point_diffuse_0 > 0.0) {;",
+            "    specular += pow(dot(normal, point_half_vec_0), material_shininess);",
             "    };",
 
-            "    if (diffuse_1 > 0.0) {;",
-            "    specular += pow(dot(normal, half_vec_1), material_shininess);",
+            "    if (point_diffuse_1 > 0.0) {;",
+            "    specular += pow(dot(normal, point_half_vec_1), material_shininess);",
             "    };",
             "}",
         ]);
@@ -295,7 +339,6 @@ mod test {
 
     // TODO: spot lights - diffuse
     // TODO: spot lights - specular
-    // TODO: directional lights - specular (needs investigation)
     // TODO: proper accumulation of light (needs investigation)
     //  - ensure all light contributions are between 0 and 1
     //  - sum light contributions together
