@@ -2,40 +2,37 @@
 pub struct ShaderConfig {
     pub point_lights: u32,
     pub directional_lights: u32,
-    pub spot_lights: u32,
 }
 
 impl ShaderConfig {
     pub fn combinations(&self) -> Vec<Self> {
         (0..=self.point_lights).flat_map(|p| {
-            (0..=self.directional_lights).flat_map(move |d| {
-                (0..=self.spot_lights).map(move |s| {
-                    Self { point_lights: p, directional_lights: d, spot_lights: s }
-                })
+            (0..=self.directional_lights).map(move |d| {
+                Self { point_lights: p, directional_lights: d }
             })
         }).collect()
     }
 
     pub fn total_lights(&self) -> u32 {
-        self.point_lights + self.directional_lights + self.spot_lights
+        self.point_lights + self.directional_lights
     }
 }
 
 impl ShaderConfig {
     pub fn no_lights() -> Self {
-        ShaderConfig { point_lights: 0, directional_lights: 0, spot_lights: 0 }
+        ShaderConfig { point_lights: 0, directional_lights: 0 }
     }
 
     pub fn one_of_each_light() -> Self {
-        ShaderConfig { point_lights: 1, directional_lights: 1, spot_lights: 1 }
+        ShaderConfig { point_lights: 1, directional_lights: 1 }
     }
 
     pub fn a_few_lights() -> Self {
-        ShaderConfig { point_lights: 3, directional_lights: 2, spot_lights: 3 }
+        ShaderConfig { point_lights: 3, directional_lights: 2 }
     }
 
     pub fn lots_of_lights() -> Self {
-        ShaderConfig { point_lights: 8, directional_lights: 3, spot_lights: 5 }
+        ShaderConfig { point_lights: 8, directional_lights: 3 }
     }
 }
 

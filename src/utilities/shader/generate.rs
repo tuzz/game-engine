@@ -337,8 +337,6 @@ mod test {
         ]);
     }
 
-    // TODO: spot lights - diffuse
-    // TODO: spot lights - specular
     // TODO: proper accumulation of light (needs investigation)
     //  - ensure all light contributions are between 0 and 1
     //  - sum light contributions together
