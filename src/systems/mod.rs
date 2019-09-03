@@ -1,5 +1,6 @@
 mod webpage;
 mod vertex_normals;
+mod material_default;
 mod webgl_buffer;
 mod shader_compiler;
 mod location_lookup;
@@ -13,6 +14,7 @@ mod keyboard_input;
 
 pub use webpage::Webpage;
 pub use vertex_normals::VertexNormals;
+pub use material_default::MaterialDefault;
 pub use webgl_buffer::WebGlBuffer;
 pub use shader_compiler::ShaderCompiler;
 pub use location_lookup::LocationLookup;

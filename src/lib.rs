@@ -33,6 +33,7 @@ pub fn main() {
     let mut vertex_normals = VertexNormals;
     let mut shader_compiler = ShaderCompiler;
     let mut location_lookup = LocationLookup;
+    let mut material_default = MaterialDefault;
     let mut webgl_buffer = WebGlBuffer;
     let mut use_program = UseProgram;
     let mut webgl_render = WebGlRender;
@@ -47,6 +48,7 @@ pub fn main() {
         System::setup(&mut vertex_normals, world);
         System::setup(&mut shader_compiler, world);
         System::setup(&mut location_lookup, world);
+        System::setup(&mut material_default, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut use_program, world);
         System::setup(&mut webgl_render, world);
@@ -246,6 +248,7 @@ pub fn main() {
         keyboard_input.run_now(world);
     }, move |world| {
         vertex_normals.run_now(world);
+        material_default.run_now(world);
         webgl_buffer.run_now(world);
         animation.run_now(world);
         hierarchy.run_now(world);
