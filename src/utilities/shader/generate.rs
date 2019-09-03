@@ -124,7 +124,7 @@ fn directional_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: b
 
                 shader.statement(&format!("if ({} > 0.0) {{", diffuse));
                 // TODO: does it make a difference if I add all specular components THEN pow them?
-                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess * 128.0)", half_vec));
+                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess)", half_vec));
                 shader.statement("}");
             }
         },
@@ -160,7 +160,7 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
 
                 shader.statement(&format!("if ({} > 0.0) {{", diffuse));
                 // TODO: does it make a difference if I add all specular components THEN pow them?
-                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess * 128.0)", half_vec));
+                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess)", half_vec));
                 shader.statement("}");
             }
         },
@@ -302,11 +302,11 @@ mod test {
             "    vec3 directional_half_vec_1 = normalize(u_directional_light_vector_1 + to_camera);",
 
             "    if (directional_diffuse_0 > 0.0) {;",
-            "    specular += pow(dot(normal, directional_half_vec_0), u_material_shininess * 128.0);",
+            "    specular += pow(dot(normal, directional_half_vec_0), u_material_shininess);",
             "    };",
 
             "    if (directional_diffuse_1 > 0.0) {;",
-            "    specular += pow(dot(normal, directional_half_vec_1), u_material_shininess * 128.0);",
+            "    specular += pow(dot(normal, directional_half_vec_1), u_material_shininess);",
             "    };",
             "}",
         ]);
@@ -323,11 +323,11 @@ mod test {
             "    vec3 point_half_vec_1 = normalize(to_point_light_1 + to_camera);",
 
             "    if (point_diffuse_0 > 0.0) {;",
-            "    specular += pow(dot(normal, point_half_vec_0), u_material_shininess * 128.0);",
+            "    specular += pow(dot(normal, point_half_vec_0), u_material_shininess);",
             "    };",
 
             "    if (point_diffuse_1 > 0.0) {;",
-            "    specular += pow(dot(normal, point_half_vec_1), u_material_shininess * 128.0);",
+            "    specular += pow(dot(normal, point_half_vec_1), u_material_shininess);",
             "    };",
             "}",
         ]);
