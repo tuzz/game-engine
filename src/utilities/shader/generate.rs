@@ -39,15 +39,13 @@ impl Shader {
         shader.header("precision mediump float");
         shader.varying("vec4", "v_color");
 
-        shader.statement("vec3 ambient = vec3(0.1, 0.1, 0.1)");
+        shader.uniform("vec3", "u_material_ambient");
+        shader.uniform("vec3", "u_material_diffuse");
+        shader.uniform("vec3", "u_material_specular");
+        shader.uniform("float", "u_material_shininess");
+
         shader.statement("vec3 diffuse = vec3(0.0, 0.0, 0.0)");
         shader.statement("vec3 specular = vec3(0.0, 0.0, 0.0)");
-
-        // TODO: move into material attribute/uniform?
-        shader.statement("vec3 material_ambient = v_color.xyz");
-        shader.statement("vec3 material_diffuse = v_color.xyz");
-        shader.statement("vec3 material_specular = vec3(1.0, 1.0, 1.0)");
-        shader.statement("float material_shininess = 10.0");
 
         // TODO: add uniforms for the color of lights
 
@@ -56,13 +54,12 @@ impl Shader {
         directional_lights(config, &mut shader, FRAG);
         point_lights(config, &mut shader, FRAG);
 
-        shader.statement("vec3 total = ambient");
-        shader.statement("total += diffuse");
-        shader.statement("total += specular");
+        // TODO make v_color a vec3 instead of vec4
+        // TODO make u_material_shininess optional
 
-        shader.statement("gl_FragColor = vec4(ambient * material_ambient, 1.0)");
-        shader.statement("gl_FragColor.xyz += diffuse * material_diffuse");
-        shader.statement("gl_FragColor.xyz += specular * material_specular");
+        shader.statement("gl_FragColor = vec4(u_material_ambient * v_color.xyz, 1.0)");
+        shader.statement("gl_FragColor.xyz += diffuse * u_material_diffuse * v_color.xyz");
+        shader.statement("gl_FragColor.xyz += specular * u_material_specular + (u_material_shininess * 0.0)");
 
         shader
     }
@@ -128,7 +125,7 @@ fn directional_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: b
 
                 shader.statement(&format!("if ({} > 0.0) {{", diffuse));
                 // TODO: does it make a difference if I add all specular components THEN pow them?
-                shader.statement(&format!("specular += pow(dot(normal, {}), material_shininess)", half_vec));
+                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess * 128.0)", half_vec));
                 shader.statement("}");
             }
         },
@@ -164,7 +161,7 @@ fn point_lights(config: &ShaderConfig, shader: &mut Shader, shader_type: bool) {
 
                 shader.statement(&format!("if ({} > 0.0) {{", diffuse));
                 // TODO: does it make a difference if I add all specular components THEN pow them?
-                shader.statement(&format!("specular += pow(dot(normal, {}), material_shininess)", half_vec));
+                shader.statement(&format!("specular += pow(dot(normal, {}), u_material_shininess * 128.0)", half_vec));
                 shader.statement("}");
             }
         },
@@ -306,11 +303,11 @@ mod test {
             "    vec3 directional_half_vec_1 = normalize(u_directional_light_vector_1 + to_camera);",
 
             "    if (directional_diffuse_0 > 0.0) {;",
-            "    specular += pow(dot(normal, directional_half_vec_0), material_shininess);",
+            "    specular += pow(dot(normal, directional_half_vec_0), u_material_shininess * 128.0);",
             "    };",
 
             "    if (directional_diffuse_1 > 0.0) {;",
-            "    specular += pow(dot(normal, directional_half_vec_1), material_shininess);",
+            "    specular += pow(dot(normal, directional_half_vec_1), u_material_shininess * 128.0);",
             "    };",
             "}",
         ]);
@@ -327,11 +324,11 @@ mod test {
             "    vec3 point_half_vec_1 = normalize(to_point_light_1 + to_camera);",
 
             "    if (point_diffuse_0 > 0.0) {;",
-            "    specular += pow(dot(normal, point_half_vec_0), material_shininess);",
+            "    specular += pow(dot(normal, point_half_vec_0), u_material_shininess * 128.0);",
             "    };",
 
             "    if (point_diffuse_1 > 0.0) {;",
-            "    specular += pow(dot(normal, point_half_vec_1), material_shininess);",
+            "    specular += pow(dot(normal, point_half_vec_1), u_material_shininess * 128.0);",
             "    };",
             "}",
         ]);

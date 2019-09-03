@@ -4,25 +4,25 @@ use crate::utilities::Vector3f;
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct Material {
-    ambient: Vector3f,
-    diffuse: Vector3f,
-    specular: Vector3f,
-    shininess: f32,
+    pub ambient: Vector3f,
+    pub diffuse: Vector3f,
+    pub specular: Vector3f,
+    pub shininess: f32,
 }
 
 impl Default for Material {
     fn default() -> Self {
         Self {
-            ambient: Vector3f::new(1.0, 1.0, 1.0),
+            ambient: Vector3f::new(0.1, 0.1, 0.1),
             diffuse: Vector3f::new(1.0, 1.0, 1.0),
             specular: Vector3f::new(1.0, 1.0, 1.0),
-            shininess: 1.0,
+            shininess: 0.6,
         }
     }
 }
 
 impl Material {
-    fn emerald() -> Self {
+    pub fn emerald() -> Self {
         Self {
             ambient: Vector3f::new(0.0215, 0.1745, 0.0215),
             diffuse: Vector3f::new(0.07568, 0.61424, 0.07568),
@@ -31,7 +31,7 @@ impl Material {
         }
     }
 
-    fn jade() -> Self {
+    pub fn jade() -> Self {
         Self {
             ambient: Vector3f::new(0.135, 0.2225, 0.1575),
             diffuse: Vector3f::new(0.54, 0.89, 0.63),
@@ -40,7 +40,7 @@ impl Material {
         }
     }
 
-    fn obsidian() -> Self {
+    pub fn obsidian() -> Self {
         Self {
             ambient: Vector3f::new(0.05375, 0.05, 0.06625),
             diffuse: Vector3f::new(0.18275, 0.17, 0.22525),
@@ -49,7 +49,7 @@ impl Material {
         }
     }
 
-    fn pearl() -> Self {
+    pub fn pearl() -> Self {
         Self {
             ambient: Vector3f::new(0.25, 0.20725, 0.20725),
             diffuse: Vector3f::new(1.0, 0.829, 0.829),
@@ -58,7 +58,7 @@ impl Material {
         }
     }
 
-    fn ruby() -> Self {
+    pub fn ruby() -> Self {
         Self {
             ambient: Vector3f::new(0.1745, 0.01175, 0.01175),
             diffuse: Vector3f::new(0.61424, 0.04136, 0.04136),
@@ -67,7 +67,7 @@ impl Material {
         }
     }
 
-    fn turquoise() -> Self {
+    pub fn turquoise() -> Self {
         Self {
             ambient: Vector3f::new(0.1, 0.18725, 0.1745),
             diffuse: Vector3f::new(0.396, 0.74151, 0.69102),
@@ -76,7 +76,7 @@ impl Material {
         }
     }
 
-    fn brass() -> Self {
+    pub fn brass() -> Self {
         Self {
             ambient: Vector3f::new(0.329412, 0.223529, 0.027451),
             diffuse: Vector3f::new(0.780392, 0.568627, 0.113725),
@@ -85,7 +85,7 @@ impl Material {
         }
     }
 
-    fn bronze() -> Self {
+    pub fn bronze() -> Self {
         Self {
             ambient: Vector3f::new(0.2125, 0.1275, 0.054),
             diffuse: Vector3f::new(0.714, 0.4284, 0.18144),
@@ -94,7 +94,7 @@ impl Material {
         }
     }
 
-    fn chrome() -> Self {
+    pub fn chrome() -> Self {
         Self {
             ambient: Vector3f::new(0.25, 0.25, 0.25),
             diffuse: Vector3f::new(0.4, 0.4, 0.4),
@@ -103,7 +103,7 @@ impl Material {
         }
     }
 
-    fn copper() -> Self {
+    pub fn copper() -> Self {
         Self {
             ambient: Vector3f::new(0.19125, 0.0735, 0.0225),
             diffuse: Vector3f::new(0.7038, 0.27048, 0.0828),
@@ -112,7 +112,7 @@ impl Material {
         }
     }
 
-    fn gold() -> Self {
+    pub fn gold() -> Self {
         Self {
             ambient: Vector3f::new(0.24725, 0.1995, 0.0745),
             diffuse: Vector3f::new(0.75164, 0.60648, 0.22648),
@@ -121,7 +121,7 @@ impl Material {
         }
     }
 
-    fn silver() -> Self {
+    pub fn silver() -> Self {
         Self {
             ambient: Vector3f::new(0.19225, 0.19225, 0.19225),
             diffuse: Vector3f::new(0.50754, 0.50754, 0.50754),
@@ -130,7 +130,7 @@ impl Material {
         }
     }
 
-    fn black_plastic() -> Self {
+    pub fn black_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.0, 0.0),
             diffuse: Vector3f::new(0.01, 0.01, 0.01),
@@ -139,7 +139,7 @@ impl Material {
         }
     }
 
-    fn cyan_plastic() -> Self {
+    pub fn cyan_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.1, 0.06),
             diffuse: Vector3f::new(0.0, 0.50980392, 0.50980392),
@@ -148,7 +148,7 @@ impl Material {
         }
     }
 
-    fn green_plastic() -> Self {
+    pub fn green_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.0, 0.0),
             diffuse: Vector3f::new(0.1, 0.35, 0.1),
@@ -157,7 +157,7 @@ impl Material {
         }
     }
 
-    fn red_plastic() -> Self {
+    pub fn red_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.0, 0.0),
             diffuse: Vector3f::new(0.5, 0.0, 0.0),
@@ -166,7 +166,7 @@ impl Material {
         }
     }
 
-    fn white_plastic() -> Self {
+    pub fn white_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.0, 0.0),
             diffuse: Vector3f::new(0.55, 0.55, 0.55),
@@ -175,7 +175,7 @@ impl Material {
         }
     }
 
-    fn yellow_plastic() -> Self {
+    pub fn yellow_plastic() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.0, 0.0),
             diffuse: Vector3f::new(0.5, 0.5, 0.0),
@@ -184,7 +184,7 @@ impl Material {
         }
     }
 
-    fn black_rubber() -> Self {
+    pub fn black_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.02, 0.02, 0.02),
             diffuse: Vector3f::new(0.01, 0.01, 0.01),
@@ -193,7 +193,7 @@ impl Material {
         }
     }
 
-    fn cyan_rubber() -> Self {
+    pub fn cyan_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.05, 0.05),
             diffuse: Vector3f::new(0.4, 0.5, 0.5),
@@ -202,7 +202,7 @@ impl Material {
         }
     }
 
-    fn green_rubber() -> Self {
+    pub fn green_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.0, 0.05, 0.0),
             diffuse: Vector3f::new(0.4, 0.5, 0.4),
@@ -211,7 +211,7 @@ impl Material {
         }
     }
 
-    fn red_rubber() -> Self {
+    pub fn red_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.05, 0.0, 0.0),
             diffuse: Vector3f::new(0.5, 0.4, 0.4),
@@ -220,7 +220,7 @@ impl Material {
         }
     }
 
-    fn white_rubber() -> Self {
+    pub fn white_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.05, 0.05, 0.05),
             diffuse: Vector3f::new(0.5, 0.5, 0.5),
@@ -229,7 +229,7 @@ impl Material {
         }
     }
 
-    fn yellow_rubber() -> Self {
+    pub fn yellow_rubber() -> Self {
         Self {
             ambient: Vector3f::new(0.05, 0.05, 0.0),
             diffuse: Vector3f::new(0.5, 0.5, 0.4),

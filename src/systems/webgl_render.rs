@@ -25,6 +25,7 @@ pub struct SysData<'a> {
     geometries: ReadStorage<'a, Geometry>,
     normals: ReadStorage<'a, Normals>,
     colorings: ReadStorage<'a, Coloring>,
+    materials: ReadStorage<'a, Material>,
 
     directional_lights: ReadStorage<'a, DirectionalLight>,
     point_lights: ReadStorage<'a, PointLight>,
@@ -68,12 +69,17 @@ impl<'a> System<'a> for WebGlRender {
                 set_uniform_from_vector(&s.context, &locations.u_point_light_position[i], &world.position());
             }
 
-            for (geometry, normals, coloring, world_transform, inverse_world) in (
-                &s.geometries, &s.normals, &s.colorings, &s.world_transforms, &s.inverse_transforms
+            for (geometry, normals, coloring, world_transform, inverse_world, material) in (
+                &s.geometries, &s.normals, &s.colorings, &s.world_transforms, &s.inverse_transforms, &s.materials
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
                 set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
+
+                set_uniform_from_vector(&s.context, &locations.u_material_ambient, &material.ambient);
+                set_uniform_from_vector(&s.context, &locations.u_material_diffuse, &material.diffuse);
+                set_uniform_from_vector(&s.context, &locations.u_material_specular, &material.specular);
+                set_uniform_from_float(&s.context, &locations.u_material_shininess, material.shininess);
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);

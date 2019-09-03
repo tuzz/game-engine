@@ -39,6 +39,11 @@ fn shader_location(config: &ShaderConfig, program: &ShaderProgram) -> ShaderLoca
         u_inverse_world: optional_uniform(program, "u_inverse_world"),
         u_camera_position: optional_uniform(program, "u_camera_position"),
 
+        u_material_ambient: uniform(program, "u_material_ambient"),
+        u_material_diffuse: uniform(program, "u_material_diffuse"),
+        u_material_specular: uniform(program, "u_material_specular"),
+        u_material_shininess: uniform(program, "u_material_shininess"),
+
         u_directional_light_vector: uniform_array(program, "u_directional_light_vector", config.directional_lights),
         u_point_light_position: uniform_array(program, "u_point_light_position", config.point_lights),
         //u_to_directional_light: program.uniform_map.get("u_to_directional_light").unwrap().to_owned(),

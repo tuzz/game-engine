@@ -16,6 +16,11 @@ pub struct ShaderLocation {
     pub u_inverse_world: Option<UniformLocation>,
     pub u_camera_position: Option<UniformLocation>,
 
+    pub u_material_ambient: UniformLocation,
+    pub u_material_diffuse: UniformLocation,
+    pub u_material_specular: UniformLocation,
+    pub u_material_shininess: UniformLocation,
+
     pub u_directional_light_vector: Vec<UniformLocation>,
     pub u_point_light_position: Vec<UniformLocation>,
 }
