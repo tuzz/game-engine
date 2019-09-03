@@ -1,7 +1,7 @@
 use specs::prelude::*;
 use std::ops::Deref;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 #[storage(VecStorage)]
 pub struct Dimensions(pub u32);
 
