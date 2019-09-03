@@ -16,9 +16,9 @@ impl Shader {
         let mut shader = Self::default();
 
         shader.attribute("vec4", "a_position");
-        shader.attribute("vec4", "a_color");
+        shader.attribute("vec3", "a_color");
         shader.uniform("mat4", "u_world_view_projection");
-        shader.varying("vec4", "v_color");
+        shader.varying("vec3", "v_color");
 
         vertex_normals(config, &mut shader, VERT);
         camera_vector(config, &mut shader, VERT);
@@ -37,7 +37,7 @@ impl Shader {
         let mut shader = Self::default();
 
         shader.header("precision mediump float");
-        shader.varying("vec4", "v_color");
+        shader.varying("vec3", "v_color");
 
         shader.uniform("vec3", "u_material_ambient");
         shader.uniform("vec3", "u_material_diffuse");
@@ -54,11 +54,10 @@ impl Shader {
         directional_lights(config, &mut shader, FRAG);
         point_lights(config, &mut shader, FRAG);
 
-        // TODO make v_color a vec3 instead of vec4
         // TODO make u_material_shininess optional
 
-        shader.statement("gl_FragColor = vec4(u_material_ambient * v_color.xyz, 1.0)");
-        shader.statement("gl_FragColor.xyz += diffuse * u_material_diffuse * v_color.xyz");
+        shader.statement("gl_FragColor = vec4(u_material_ambient * v_color, 1.0)");
+        shader.statement("gl_FragColor.xyz += diffuse * u_material_diffuse * v_color");
         shader.statement("gl_FragColor.xyz += specular * u_material_specular + (u_material_shininess * 0.0)");
 
         shader
