@@ -173,8 +173,8 @@ pub fn main() {
 
         let cube = world.create_entity()
             .with(Geometry { model: geometry_model })
-            .with(Coloring { model: coloring_model })
-            //.with(Material::gold())
+            //.with(Coloring { model: coloring_model })
+            .with(Material::gold())
             .with(LocalTransform(Matrix4f::translation(0., 0., -4.)))
             .build();
 
@@ -193,7 +193,7 @@ pub fn main() {
                     &Vector3f::new(0.5, 0.1, -1.),
                     &Vector3f::new(0., 1., 0.),
                 )
-            )).with(viewport).with(ClearColor::white())
+            )).with(viewport).with(ClearColor::black())
             .build();
 
 //        world.create_entity()
