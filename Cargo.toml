@@ -1,7 +1,7 @@
 [package]
-name = "minimal-rust-wasm"
-description = "An extremely minimal Rust + WASM example."
-repository = "https://github.com/tuzz/minimal-rust-wasm"
+name = "game-engine"
+description = "A project for me to explore writing a game engine from scratch."
+repository = "https://github.com/tuzz/game-engine"
 version = "0.1.0"
 license = "MIT"
 authors = ["Chris Patuzzo <chris@patuzzo.co.uk>"]

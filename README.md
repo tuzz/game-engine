@@ -1,9 +1,23 @@
-## Minimal Rust + WASM Example
+## Game Engine
 
-An extremely minimal Rust + WASM example that
-[works with GitHub pages](http://tuzz.github.io/minimal-rust-wasm).
-It demonstrates how to write to the DOM and how to call a JavaScript function
-from Rust. Hopefully this will serve as a helpful reference.
+A project for me to explore writing a game engine from scratch using an
+[ECS](https://en.wikipedia.org/wiki/Entity_component_system) design pattern. My
+game engine is written in Rust, compiles to WebAssembly and binds to a WebGL
+canvas. That means [it runs in a browser](http://tuzz.github.io/game-engine).
+
+Currently, it supports the following features:
+
+- 3D meshes built from vertex normals
+- Surface normals calculated for models
+- Phong lighting model (ambient, diffuse, specular)
+- Multiple directional and point lights
+- Orthographic and perspective cameras
+- Multiple cameras, rendered to portions of the view
+- Dynamic generation of GLSL shaders
+- Materials, or colors specified per vertex
+- Scene graph that's optimised for lazy updates
+- Game loop that's frame rate independent
+- Keyboard input event handling
 
 ## Usage
 
