@@ -15,6 +15,8 @@ mod clear_color;
 mod directional_light;
 mod point_light;
 mod material;
+mod image_to_load;
+mod image;
 
 pub use buffer_data::BufferData;
 pub use webgl_buffer::WebGlBuffer;
@@ -33,3 +35,5 @@ pub use clear_color::ClearColor;
 pub use directional_light::DirectionalLight;
 pub use point_light::PointLight;
 pub use material::Material;
+pub use image_to_load::ImageToLoad;
+pub use image::Image;
