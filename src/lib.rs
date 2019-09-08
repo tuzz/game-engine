@@ -178,10 +178,67 @@ pub fn main() {
             1., 0.5, 0.,
         ])).with(Dimensions(3)).build();
 
+        let texture_model = world.create_entity().with(BufferData(vec![
+            // Front
+            0., 0.,
+            1., 0.,
+            1., 1.,
+
+            1., 1.,
+            0., 1.,
+            0., 0.,
+
+            // Back
+            1., 0.,
+            0., 1.,
+            0., 0.,
+
+            0., 1.,
+            1., 0.,
+            1., 1.,
+
+            // Left
+            1., 0.,
+            1., 1.,
+            0., 0.,
+
+            0., 0.,
+            1., 1.,
+            0., 1.,
+
+            // Right
+            0., 0.,
+            1., 0.,
+            1., 1.,
+
+            1., 1.,
+            0., 1.,
+            0., 0.,
+
+            // Bottom
+            0., 1.,
+            0., 0.,
+            1., 1.,
+
+            1., 1.,
+            0., 0.,
+            1., 0.,
+
+            // Top
+            0., 0.,
+            1., 0.,
+            1., 1.,
+
+            1., 1.,
+            0., 1.,
+            0., 0.,
+        ])).with(Dimensions(2)).with(ImageToLoad::new("assets/textures/cc-logo.png")).build();
+
         let cube = world.create_entity()
             .with(Geometry { model: geometry_model })
             //.with(Coloring { model: coloring_model })
             .with(Material::gold())
+            .with(Texture { model: texture_model })
             .with(LocalTransform(Matrix4f::translation(0., 0., -4.)))
             .build();
 
@@ -219,15 +276,16 @@ pub fn main() {
         let cube2 = world.create_entity()
             .with(Geometry { model: geometry_model })
             .with(Coloring { model: coloring_model })
+            .with(Texture { model: texture_model })
             .with(SceneParent(cube))
             .with(LocalTransform(
                 Matrix4f::scaling(0.5, 0.5, 0.5).translate(4., 0., 0.)
             ))
             .build();
 
-        let mut prev =world.create_entity()
+        let mut prev = world.create_entity()
             .with(Geometry { model: geometry_model })
-            .with(Coloring { model: coloring_model })
+            .with(Texture { model: texture_model })
             .with(SceneParent(cube2))
             .with(LocalTransform(
                 Matrix4f::scaling(0.5, 0.5, 0.5).translate(0., 4., 0.)

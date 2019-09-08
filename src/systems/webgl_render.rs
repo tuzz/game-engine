@@ -23,14 +23,16 @@ pub struct SysData<'a> {
     world_transforms: ReadStorage<'a, WorldTransform>,
     inverse_transforms: ReadStorage<'a, InverseWorldTransform>,
     geometries: ReadStorage<'a, Geometry>,
-    normals: ReadStorage<'a, Normals>,
     colorings: ReadStorage<'a, Coloring>,
     materials: ReadStorage<'a, Material>,
+    textures: ReadStorage<'a, Texture>,
+    normals: ReadStorage<'a, Normals>,
 
     directional_lights: ReadStorage<'a, DirectionalLight>,
     point_lights: ReadStorage<'a, PointLight>,
 
-    buffers: ReadStorage<'a, WebGlBuffer>,
+    webgl_buffers: ReadStorage<'a, WebGlBuffer>,
+    webgl_textures: ReadStorage<'a, WebGlTexture>,
     dimensions: ReadStorage<'a, Dimensions>,
 }
 
@@ -48,6 +50,7 @@ impl<'a> System<'a> for WebGlRender {
         context.enable(GL::SCISSOR_TEST);
 
         context.blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
+        context.pixel_storei(GL::UNPACK_FLIP_Y_WEBGL, 1);
     }
 
     fn run(&mut self, s: Self::SystemData) {
@@ -69,8 +72,8 @@ impl<'a> System<'a> for WebGlRender {
                 set_uniform_from_vector(&s.context, &locations.u_point_light_position[i], &world.position());
             }
 
-            for (geometry, normals, coloring, world_transform, inverse_world, material) in (
-                &s.geometries, &s.normals, &s.colorings, &s.world_transforms, &s.inverse_transforms, &s.materials
+            for (geometry, coloring, material, texture, normals, world_transform, inverse_world) in (
+                &s.geometries, &s.colorings, &s.materials, &s.textures, &s.normals, &s.world_transforms, &s.inverse_transforms
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
@@ -83,6 +86,9 @@ impl<'a> System<'a> for WebGlRender {
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);
+                set_attribute_from_model(&s, locations.a_texcoords, texture.model);
+
+                set_texture_from_model(&s, &locations.u_texture, texture.model);
 
                 if let Some(a_normal) = locations.a_normal {
                     set_attribute_from_model(&s, a_normal, normals.model);
@@ -116,7 +122,7 @@ fn clear_viewport(context: &GL, viewport: &Viewport, clear_color: &ClearColor) {
 }
 
 fn set_attribute_from_model(s: &SysData, location: AttributeLocation, model: Entity) {
-    let buffer = s.buffers.get(model).unwrap();
+    let buffer = s.webgl_buffers.get(model).unwrap();
     let dimensions = s.dimensions.get(model).unwrap();
 
     set_attribute_from_buffer(&s.context, location, buffer, **dimensions as i32);
@@ -140,8 +146,15 @@ fn set_uniform_from_float(context: &GL, location: &UniformLocation, float: f32) 
     context.uniform1f(Some(location), float);
 }
 
+fn set_texture_from_model(s: &SysData, location: &UniformLocation, model: Entity) {
+    let texture = s.webgl_textures.get(model).unwrap();
+
+    s.context.bind_texture(GL::TEXTURE_2D, Some(&texture));
+    s.context.uniform1i(Some(&location), 0);
+}
+
 fn number_of_elements(s: &SysData, model: Entity) -> i32 {
-    let buffer = s.buffers.get(model).unwrap();
+    let buffer = s.webgl_buffers.get(model).unwrap();
     let dimensions = s.dimensions.get(model).unwrap();
 
     (buffer.len / **dimensions as usize) as i32

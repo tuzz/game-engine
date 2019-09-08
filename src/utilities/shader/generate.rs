@@ -17,8 +17,12 @@ impl Shader {
 
         shader.attribute("vec4", "a_position");
         shader.attribute("vec3", "a_color");
-        shader.uniform("mat4", "u_world_view_projection");
+        shader.attribute("vec2", "a_texcoord");
+
         shader.varying("vec3", "v_color");
+        shader.varying("vec2", "v_texcoord");
+
+        shader.uniform("mat4", "u_world_view_projection");
 
         vertex_normals(config, &mut shader, VERT);
         camera_vector(config, &mut shader, VERT);
@@ -29,6 +33,7 @@ impl Shader {
         // they're in row-major form which is more natural to me.
         shader.statement("gl_Position = a_position * u_world_view_projection");
         shader.statement("v_color = a_color");
+        shader.statement("v_texcoord = a_texcoord");
 
         shader
     }
@@ -38,11 +43,14 @@ impl Shader {
 
         shader.header("precision mediump float");
         shader.varying("vec3", "v_color");
+        shader.varying("vec2", "v_texcoord");
 
         shader.uniform("vec3", "u_material_ambient");
         shader.uniform("vec3", "u_material_diffuse");
         shader.uniform("vec3", "u_material_specular");
         shader.uniform("float", "u_material_shininess");
+
+        shader.uniform("sampler2D", "u_texture");
 
         shader.statement("vec3 diffuse = vec3(0.0, 0.0, 0.0)");
         shader.statement("vec3 specular = vec3(0.0, 0.0, 0.0)");
@@ -56,8 +64,10 @@ impl Shader {
 
         // TODO make u_material_shininess optional
 
-        shader.statement("gl_FragColor = vec4(u_material_ambient * v_color, 1.0)");
-        shader.statement("gl_FragColor.xyz += diffuse * u_material_diffuse * v_color");
+        shader.statement("vec3 color = v_color * texture2D(u_texture, v_texcoord).xyz");
+
+        shader.statement("gl_FragColor = vec4(u_material_ambient * color, 1.0)");
+        shader.statement("gl_FragColor.xyz += diffuse * u_material_diffuse * color");
         shader.statement("gl_FragColor.xyz += specular * u_material_specular + (u_material_shininess * 0.0)");
 
         shader

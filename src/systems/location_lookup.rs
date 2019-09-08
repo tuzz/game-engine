@@ -34,6 +34,9 @@ fn shader_location(config: &ShaderConfig, program: &ShaderProgram) -> ShaderLoca
         a_normal: optional_attribute(program, "a_normal"),
         a_color: attribute(program, "a_color"),
 
+        a_texcoords: attribute(program, "a_texcoord"),
+        u_texture: uniform(program, "u_texture"),
+
         u_world: optional_uniform(program, "u_world"),
         u_world_view_projection: uniform(program, "u_world_view_projection"),
         u_inverse_world: optional_uniform(program, "u_inverse_world"),

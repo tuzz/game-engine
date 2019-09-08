@@ -11,6 +11,9 @@ pub struct ShaderLocation {
     pub a_normal: Option<AttributeLocation>,
     pub a_color: AttributeLocation,
 
+    pub a_texcoords: AttributeLocation,
+    pub u_texture: UniformLocation,
+
     pub u_world: Option<UniformLocation>,
     pub u_world_view_projection: UniformLocation,
     pub u_inverse_world: Option<UniformLocation>,
