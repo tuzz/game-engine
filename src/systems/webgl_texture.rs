@@ -3,6 +3,7 @@ use web_sys::WebGlRenderingContext as GL;
 use crate::resources::*;
 use crate::components::WebGlTexture as Texture;
 use crate::components::*;
+use crate::utilities::*;
 
 #[derive(Default)]
 pub struct WebGlTexture {
@@ -40,7 +41,8 @@ impl<'a> System<'a> for WebGlTexture {
         }
 
         for (entity, _, _) in (&s.entities, &s.images_to_load, !&s.textures).join() {
-            textures_to_add.push((entity, create_blank_texture(&s.context)));
+            let texture = Texture(create_blank_texture(&s.context, &[255, 255, 255, 255]));
+            textures_to_add.push((entity, texture));
         };
 
         for (entity, texture) in textures_to_add {
@@ -74,16 +76,9 @@ fn create_or_update_texture_from_image(s: &mut SysData, entity: Entity) -> Textu
     let image = s.images.get(entity).unwrap();
 
     s.context.bind_texture(GL::TEXTURE_2D, Some(&texture));
+
     fill_texture_from_image(&s.context, &image);
-
-    texture
-}
-
-fn create_blank_texture(context: &GL) -> Texture {
-    let texture = Texture(context.create_texture().unwrap());
-
-    context.bind_texture(GL::TEXTURE_2D, Some(&texture));
-    fill_texture_with_a_single_pixel(context, &[0, 0, 0, 255]);
+    generate_mipmap_or_clamp_to_edge(&s.context, &image);
 
     texture
 }
@@ -100,17 +95,13 @@ fn fill_texture_from_image(context: &GL, image: &Image) {
     ).unwrap();
 }
 
-fn fill_texture_with_a_single_pixel(context: &GL, color: &[u8]) {
-    let target = GL::TEXTURE_2D;
-    let level = 0;
-    let internal_format = GL::RGBA as i32;
-    let width = 1;
-    let height = 1;
-    let border = 0;
-    let format = GL::RGBA;
-    let type_ = GL::UNSIGNED_BYTE;
-
-    context.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-        target, level, internal_format, width, height, border, format, type_, Some(color),
-    ).unwrap();
+fn generate_mipmap_or_clamp_to_edge(context: &GL, image: &Image) {
+    if image.width().is_power_of_two() && image.height().is_power_of_two() {
+        context.generate_mipmap(GL::TEXTURE_2D);
+    } else {
+        // TODO: allow these parameters to be set through a TextureOptions component
+        context.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::CLAMP_TO_EDGE as i32);
+        context.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP_TO_EDGE as i32);
+        context.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::LINEAR as i32);
+    }
 }
