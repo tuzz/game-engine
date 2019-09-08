@@ -23,6 +23,7 @@ use utilities::Matrix4f;
 use utilities::Vector3f;
 use resources::*;
 use components::*;
+use systems::WebGlTexture;
 use systems::*;
 
 #[wasm_bindgen(start)]
@@ -36,6 +37,7 @@ pub fn main() {
     let mut location_lookup = LocationLookup;
     let mut material_default = MaterialDefault;
     let mut coloring_default = ColoringDefault;
+    let mut webgl_texture = WebGlTexture::default();
     let mut webgl_buffer = WebGlBuffer;
     let mut use_program = UseProgram;
     let mut webgl_render = WebGlRender;
@@ -53,6 +55,7 @@ pub fn main() {
         System::setup(&mut location_lookup, world);
         System::setup(&mut material_default, world);
         System::setup(&mut coloring_default, world);
+        System::setup(&mut webgl_texture, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut use_program, world);
         System::setup(&mut webgl_render, world);
@@ -256,6 +259,7 @@ pub fn main() {
         vertex_normals.run_now(world);
         material_default.run_now(world);
         coloring_default.run_now(world);
+        webgl_texture.run_now(world);
         webgl_buffer.run_now(world);
         animation.run_now(world);
         hierarchy.run_now(world);

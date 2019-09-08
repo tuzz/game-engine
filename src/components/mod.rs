@@ -1,5 +1,6 @@
 mod buffer_data;
 mod webgl_buffer;
+mod webgl_texture;
 mod geometry;
 mod coloring;
 mod normals;
@@ -20,6 +21,7 @@ mod image;
 
 pub use buffer_data::BufferData;
 pub use webgl_buffer::WebGlBuffer;
+pub use webgl_texture::WebGlTexture;
 pub use geometry::Geometry;
 pub use coloring::Coloring;
 pub use normals::Normals;
