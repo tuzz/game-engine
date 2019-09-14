@@ -17,6 +17,8 @@ mod viewport;
 mod clear_color;
 mod directional_light;
 mod point_light;
+mod file_to_load;
+mod file_content;
 mod image_to_load;
 mod image;
 
@@ -39,5 +41,7 @@ pub use viewport::Viewport;
 pub use clear_color::ClearColor;
 pub use directional_light::DirectionalLight;
 pub use point_light::PointLight;
+pub use file_to_load::FileToLoad;
+pub use file_content::FileContent;
 pub use image_to_load::ImageToLoad;
 pub use image::Image;

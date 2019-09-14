@@ -41,6 +41,7 @@ features = [
   'KeyboardEvent',
   'Node',
   'Performance',
+  'Response',
   'Text',
   'WebGlBuffer',
   'WebGlProgram',
