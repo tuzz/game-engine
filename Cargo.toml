@@ -23,6 +23,7 @@ specs-hierarchy = "0.5.1"
 specs-derive = "0.4.0"
 shred-derive = "0.6.1"
 impl_ops = "0.1.1"
+tobj = "0.1.10"
 
 [dependencies.specs]
 version = "0.15.0"
