@@ -25,12 +25,19 @@ fn start_loading_files(s: &mut SysData) {
             continue;
         }
 
-        for (filename, file_loader) in &mut models_to_load.object_filenames {
-            let file_to_load = FileToLoad::new(filename);
-            let entity = s.entities.create();
+        let model_filenames = &mut [
+            &mut models_to_load.material_filenames,
+            &mut models_to_load.object_filenames,
+        ];
 
-            s.files_to_load.insert(entity, file_to_load).unwrap();
-            file_loader.replace(entity);
+        for filenames in model_filenames {
+            for (filename, file_loader) in filenames.iter_mut() {
+                let file_to_load = FileToLoad::new(filename);
+                let entity = s.entities.create();
+
+                s.files_to_load.insert(entity, file_to_load).unwrap();
+                file_loader.replace(entity);
+            }
         }
 
         models_to_load.preloading = true;
@@ -45,9 +52,16 @@ fn check_if_files_are_loaded(s: &mut SysData) {
 
         models_to_load.preloading = false;
 
-        for (_, file_loader) in &mut models_to_load.object_filenames {
-            if s.files_to_load.get(file_loader.unwrap()).is_some() {
-                models_to_load.preloading = true;
+        let model_filenames = &mut [
+            &mut models_to_load.material_filenames,
+            &mut models_to_load.object_filenames,
+        ];
+
+        for filenames in model_filenames {
+            for (_, file_loader) in filenames.iter_mut() {
+                if s.files_to_load.get(file_loader.unwrap()).is_some() {
+                    models_to_load.preloading = true;
+                }
             }
         }
 
