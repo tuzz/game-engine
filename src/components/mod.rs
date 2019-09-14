@@ -21,6 +21,7 @@ mod file_to_load;
 mod file_content;
 mod image_to_load;
 mod image;
+mod models_to_load;
 
 pub use buffer_data::BufferData;
 pub use webgl_buffer::WebGlBuffer;
@@ -45,3 +46,4 @@ pub use file_to_load::FileToLoad;
 pub use file_content::FileContent;
 pub use image_to_load::ImageToLoad;
 pub use image::Image;
+pub use models_to_load::ModelsToLoad;

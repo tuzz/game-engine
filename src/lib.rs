@@ -31,6 +31,7 @@ pub fn main() {
     let mut game_loop = GameLoop::new();
 
     let mut webpage = Webpage;
+    let mut model_preloader = ModelPreloader;
     let mut file_loader = FileLoader;
     let mut image_loader = ImageLoader;
     let mut vertex_normals = VertexNormals;
@@ -51,6 +52,7 @@ pub fn main() {
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
+        System::setup(&mut model_preloader, world);
         System::setup(&mut file_loader, world);
         System::setup(&mut image_loader, world);
         System::setup(&mut vertex_normals, world);
@@ -317,6 +319,7 @@ pub fn main() {
     game_loop.run(move |world| {
         keyboard_input.run_now(world);
     }, move |world| {
+        model_preloader.run_now(world);
         file_loader.run_now(world);
         image_loader.run_now(world);
         vertex_normals.run_now(world);
