@@ -3,10 +3,9 @@
   # comment
 
 # empty line including some space
-   
 
-mtllib cornell_box.mtl
-mtllib cornell_box2.mtl
+mtllib assets/materials/cornell_box.mtl
+mtllib assets/materials/cornell_box2.mtl
 
 o floor
 usemtl white
@@ -25,7 +24,7 @@ v 265.0 0.0 296.0
 v 314.0 0.0 456.0
 v 472.0 0.0 406.0
 
-f 1 2 3 4 
+f 1 2 3 4
 f 8 7 6 5
 f 12 11 10 9
 
