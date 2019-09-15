@@ -49,25 +49,19 @@ impl<'a> System<'a> for SceneLoader {
                 return;
             }
 
-            let geometry_model = *s.name_index.get("geometry_cube").unwrap();
-            let _texture_model = *s.name_index.get("assets/textures/test.png").unwrap();
-
             let cube = s.entities.create();
-
+            let geometry_model = *s.name_index.get("geometry_cube").unwrap();
             s.geometries.insert(cube, Geometry { model: geometry_model }).unwrap();
-            //s.textures.insert(cube, Texture { model: texture_model }).unwrap();
             s.local_transforms.insert(cube, LocalTransform(Matrix4f::scaling(0.1, 0.1, 0.1).translate(0., 0., -4.))).unwrap();
 
-            let viewport = Viewport::new(0, 0, s.html_canvas.width() , s.html_canvas.height());
-
             let camera = s.entities.create();
+            let viewport = Viewport::new(0, 0, s.html_canvas.width() , s.html_canvas.height());
             s.cameras.insert(camera, Camera).unwrap();
             s.viewports.insert(camera, viewport).unwrap();
-
+            s.clear_colors.insert(camera, ClearColor::black()).unwrap();
             s.projection_transforms.insert(camera, ProjectionTransform(
                 Matrix4f::perspective(std::f32::consts::PI / 2., 16. / 9., 0.1, 100.0)
             )).unwrap();
-
             s.local_transforms.insert(camera, LocalTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
@@ -75,8 +69,6 @@ impl<'a> System<'a> for SceneLoader {
                     &Vector3f::new(0., 1., 0.),
                 )
             )).unwrap();
-
-            s.clear_colors.insert(camera, ClearColor::black()).unwrap();
 
             let directional = s.entities.create();
             s.directional_lights.insert(directional, DirectionalLight).unwrap();
@@ -86,7 +78,7 @@ impl<'a> System<'a> for SceneLoader {
 
             let point = s.entities.create();
             s.point_lights.insert(point, PointLight).unwrap();
-            s.local_transforms.insert(point, LocalTransform (
+            s.local_transforms.insert(point, LocalTransform(
                 Matrix4f::translation(0., 0., -2.)
             )).unwrap();
 
@@ -98,7 +90,7 @@ impl<'a> System<'a> for SceneLoader {
             s.models_to_load.insert(model_loader, ModelsToLoad::new(&[
                 "assets/objects/cube.obj",
             ], &[
-                "assets/materials/cube.mtl",
+                "assets/materials/default.mtl",
             ])).unwrap();
 
             self.loading = true;
