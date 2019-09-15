@@ -9,7 +9,7 @@ pub struct GroupExpander;
 pub struct SysData<'a> {
     entities: Entities<'a>,
     model_groups: ReadExpect<'a, ModelGroups>,
-    model_group_names: WriteStorage<'a, ModelGroup>,
+    geometry_groups: WriteStorage<'a, GeometryGroup>,
     scene_parents: WriteStorage<'a, SceneParent>,
     geometries: WriteStorage<'a, Geometry>,
     local_transforms: WriteStorage<'a, LocalTransform>,
@@ -21,7 +21,7 @@ impl<'a> System<'a> for GroupExpander {
     fn run(&mut self, mut s: SysData) {
         let mut expanded = vec![];
 
-        for (parent, name) in (&s.entities, &s.model_group_names).join() {
+        for (parent, name) in (&s.entities, &s.geometry_groups).join() {
             let bitset = s.model_groups.get(&name.0).unwrap();
 
             for (_, geometry_model) in (bitset, &s.entities).join() {
@@ -36,7 +36,7 @@ impl<'a> System<'a> for GroupExpander {
         }
 
         for entity in expanded {
-            s.model_group_names.remove(entity).unwrap();
+            s.geometry_groups.remove(entity).unwrap();
         }
     }
 }
