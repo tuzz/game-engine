@@ -34,6 +34,7 @@ pub struct SysData<'a> {
     point_lights: WriteStorage<'a, PointLight>,
 
     models_to_load: WriteStorage<'a, ModelsToLoad>,
+    model_groups: WriteStorage<'a, ModelGroup>,
 }
 
 impl<'a> System<'a> for SceneLoader {
@@ -50,7 +51,7 @@ impl<'a> System<'a> for SceneLoader {
             }
 
             let cube = s.entities.create();
-            s.geometries.insert(cube, Geometry::find(&s.name_index, "cube")).unwrap();
+            s.model_groups.insert(cube, ModelGroup::new("assets/objects/cube.obj")).unwrap();
             s.materials.insert(cube, Material::find(&s.name_index, "gold")).unwrap();
             s.local_transforms.insert(cube, LocalTransform(Matrix4f::scaling(0.1, 0.1, 0.1).translate(0., 0., -4.))).unwrap();
 

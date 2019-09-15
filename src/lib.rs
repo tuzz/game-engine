@@ -33,6 +33,7 @@ pub fn main() {
     let mut image_loader = ImageLoader;
     let mut model_loader = ModelLoader;
     let mut name_indexer = NameIndexer::default();
+    let mut group_expander = GroupExpander;
     let mut vertex_normals = VertexNormals;
     let mut shader_compiler = ShaderCompiler;
     let mut location_lookup = LocationLookup;
@@ -59,6 +60,7 @@ pub fn main() {
         System::setup(&mut image_loader, world);
         System::setup(&mut model_loader, world);
         System::setup(&mut name_indexer, world);
+        System::setup(&mut group_expander, world);
         System::setup(&mut vertex_normals, world);
         System::setup(&mut shader_compiler, world);
         System::setup(&mut location_lookup, world);
@@ -85,6 +87,7 @@ pub fn main() {
         image_loader.run_now(world);
         model_loader.run_now(world);
         name_indexer.run_now(world);
+        group_expander.run_now(world);
         vertex_normals.run_now(world);
         material_default.run_now(world);
         coloring_default.run_now(world);

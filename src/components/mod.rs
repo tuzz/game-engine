@@ -27,6 +27,7 @@ mod file_content;
 mod image_to_load;
 mod image;
 mod models_to_load;
+mod model_group;
 mod name;
 
 pub use buffer_data::BufferData;
@@ -58,4 +59,5 @@ pub use file_content::FileContent;
 pub use image_to_load::ImageToLoad;
 pub use image::Image;
 pub use models_to_load::ModelsToLoad;
+pub use model_group::ModelGroup;
 pub use name::Name;

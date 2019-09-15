@@ -22,6 +22,7 @@ mod scene_graph;
 mod inverse_world;
 mod keyboard_input;
 mod name_indexer;
+mod group_expander;
 
 pub use webpage::Webpage;
 pub use panic_to_console::PanicToConsole;
@@ -47,3 +48,4 @@ pub use inverse_world::InverseWorld;
 pub use animation::Animation;
 pub use keyboard_input::KeyboardInput;
 pub use name_indexer::NameIndexer;
+pub use group_expander::GroupExpander;
