@@ -1,4 +1,5 @@
 mod webpage;
+mod panic_to_console;
 mod vertex_normals;
 mod material_default;
 mod coloring_default;
@@ -23,6 +24,7 @@ mod keyboard_input;
 mod name_indexer;
 
 pub use webpage::Webpage;
+pub use panic_to_console::PanicToConsole;
 pub use vertex_normals::VertexNormals;
 pub use material_default::MaterialDefault;
 pub use coloring_default::ColoringDefault;

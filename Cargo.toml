@@ -17,6 +17,7 @@ lto = true
 assert_approx_eq = "1.1.0"
 
 [dependencies]
+console_error_panic_hook = "0.1.6"
 wasm-bindgen = "0.2.42"
 js-sys = "0.3.27"
 specs-hierarchy = "0.5.1"

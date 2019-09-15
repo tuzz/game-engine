@@ -25,6 +25,7 @@ pub fn main() {
     let mut game_loop = GameLoop::new();
 
     let mut webpage = Webpage;
+    let mut panic_to_console = PanicToConsole;
     let mut scene_loader = SceneLoader::default();
     let mut model_preloader = ModelPreloader;
     let mut file_loader = FileLoader;
@@ -50,6 +51,7 @@ pub fn main() {
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
+        System::setup(&mut panic_to_console, world);
         System::setup(&mut scene_loader, world);
         System::setup(&mut model_preloader, world);
         System::setup(&mut file_loader, world);
