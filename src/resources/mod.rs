@@ -10,6 +10,7 @@ mod shader_programs;
 mod shader_locations;
 mod keyboard;
 mod name_index;
+mod model_groups;
 
 pub use game_timing::GameTiming;
 pub use browser_window::BrowserWindow;
@@ -23,3 +24,4 @@ pub use shader_programs::*;
 pub use shader_locations::*;
 pub use keyboard::{Keyboard, Key};
 pub use name_index::NameIndex;
+pub use model_groups::ModelGroups;

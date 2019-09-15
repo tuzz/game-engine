@@ -2,6 +2,7 @@ use specs::prelude::*;
 use tobj::{load_obj_buf, load_mtl_buf};
 use std::collections::HashMap;
 use std::io::BufReader;
+use crate::resources::*;
 use crate::components::*;
 
 pub struct ModelLoader;
@@ -9,6 +10,8 @@ pub struct ModelLoader;
 #[derive(SystemData)]
 pub struct SysData<'a> {
     entities: Entities<'a>,
+    model_groups: Write<'a, ModelGroups>,
+
     models_to_load: WriteStorage<'a, ModelsToLoad>,
     file_contents: WriteStorage<'a, FileContent>,
     buffer_datas: WriteStorage<'a, BufferData>,
@@ -47,7 +50,7 @@ impl<'a> System<'a> for ModelLoader {
                 (material_model, texture_model)
             }).collect::<Vec<_>>();
 
-            for (model, material_index) in models {
+            for (model, material_index, filename) in models {
                 let material_and_texture = material_index.map(|i| materials_and_textures[i]);
 
                 let geometry_model = create_buffer_entity(&mut s, &model, &model.mesh.positions, 3, "geometry").unwrap();
@@ -69,6 +72,8 @@ impl<'a> System<'a> for ModelLoader {
                 if let Some((_, Some(model))) = material_and_texture {
                     s.textures.insert(geometry_model, Texture { model }).unwrap();
                 }
+
+                s.model_groups.add(filename, &geometry_model);
             }
         }
     }
@@ -96,7 +101,7 @@ fn files_and_content(s: &mut SysData, models_to_load: &mut ModelsToLoad) -> File
     }).collect()
 }
 
-fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(tobj::Model, Option<usize>)>, Vec<tobj::Material>) {
+fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(tobj::Model, Option<usize>, String)>, Vec<tobj::Material>) {
     let (mut models, mut materials) = (vec![], vec![]);
     let mut material_map = HashMap::new();
 
@@ -117,7 +122,7 @@ fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(tobj::Model
                     let offset = materials.len();
                     let index = model.mesh.material_id.map(|i| i + offset);
 
-                    models.push((model, index));
+                    models.push((model, index, filename.clone()));
                 }
 
                 materials.append(&mut m2);
