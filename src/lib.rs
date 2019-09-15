@@ -37,6 +37,7 @@ pub fn main() {
     let mut material_default = MaterialDefault;
     let mut coloring_default = ColoringDefault;
     let mut texture_default = TextureDefault;
+    let mut texcoords_default = TexcoordsDefault;
     let mut webgl_texture = WebGlTexture::default();
     let mut webgl_buffer = WebGlBuffer;
     let mut use_program = UseProgram;
@@ -61,6 +62,7 @@ pub fn main() {
         System::setup(&mut material_default, world);
         System::setup(&mut coloring_default, world);
         System::setup(&mut texture_default, world);
+        System::setup(&mut texcoords_default, world);
         System::setup(&mut webgl_texture, world);
         System::setup(&mut webgl_buffer, world);
         System::setup(&mut use_program, world);
@@ -84,6 +86,7 @@ pub fn main() {
         material_default.run_now(world);
         coloring_default.run_now(world);
         texture_default.run_now(world);
+        texcoords_default.run_now(world);
         webgl_texture.run_now(world);
         webgl_buffer.run_now(world);
         animation.run_now(world);

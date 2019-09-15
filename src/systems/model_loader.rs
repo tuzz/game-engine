@@ -25,6 +25,7 @@ pub struct SysData<'a> {
     normals: WriteStorage<'a, Normals>,
     materials: WriteStorage<'a, Material>,
     textures: WriteStorage<'a, Texture>,
+    texcoords: WriteStorage<'a, TexCoords>,
 }
 
 impl<'a> System<'a> for ModelLoader {
@@ -57,9 +58,8 @@ impl<'a> System<'a> for ModelLoader {
                     s.normals.insert(geometry_model, Normals { model }).unwrap();
                 }
 
-                if let Some(_model) = texcoords_model {
-                    // TODO
-                    //s.texcoords.insert(geometry_model, TexCoords { model }).unwrap();
+                if let Some(model) = texcoords_model {
+                    s.texcoords.insert(geometry_model, TexCoords { model }).unwrap();
                 }
 
                 if let Some((model, _)) = material_and_texture {
@@ -173,9 +173,10 @@ fn create_buffer_entity(s: &mut SysData, model: &tobj::Model, field: &[f32], dim
 
     let mesh = &model.mesh;
     let entity = s.entities.create();
+    let d = dimensions as usize;
 
     let data = mesh.indices.iter()
-        .flat_map(|&i| field[3 * i as usize..].iter().take(3).cloned())
+        .flat_map(|&i| field[d * i as usize..].iter().take(d).cloned())
         .collect::<Vec<_>>();
 
     let name = format!("{}_{}", name_prefix, model.name);

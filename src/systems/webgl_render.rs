@@ -26,6 +26,7 @@ pub struct SysData<'a> {
     colorings: ReadStorage<'a, Coloring>,
     materials: ReadStorage<'a, Material>,
     textures: ReadStorage<'a, Texture>,
+    texcoords: ReadStorage<'a, TexCoords>,
     normals: ReadStorage<'a, Normals>,
 
     ambients: ReadStorage<'a, Ambient>,
@@ -77,8 +78,8 @@ impl<'a> System<'a> for WebGlRender {
                 set_uniform_from_vector(&s.context, &locations.u_point_light_position[i], &world.position());
             }
 
-            for (geometry, coloring, material, texture, normals, world_transform, inverse_world) in (
-                &s.geometries, &s.colorings, &s.materials, &s.textures, &s.normals, &s.world_transforms, &s.inverse_transforms
+            for (geometry, coloring, material, texture, texcoords, normals, world_transform, inverse_world) in (
+                &s.geometries, &s.colorings, &s.materials, &s.textures, &s.texcoords, &s.normals, &s.world_transforms, &s.inverse_transforms
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
@@ -96,7 +97,7 @@ impl<'a> System<'a> for WebGlRender {
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);
-                set_attribute_from_model(&s, locations.a_texcoords, texture.model);
+                set_attribute_from_model(&s, locations.a_texcoords, texcoords.model);
 
                 set_texture_from_model(&s, &locations.u_texture, texture.model);
 
