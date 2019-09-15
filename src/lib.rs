@@ -34,6 +34,7 @@ pub fn main() {
     let mut model_preloader = ModelPreloader;
     let mut file_loader = FileLoader;
     let mut image_loader = ImageLoader;
+    let mut model_loader = ModelLoader;
     let mut vertex_normals = VertexNormals;
     let mut shader_compiler = ShaderCompiler;
     let mut location_lookup = LocationLookup;
@@ -55,6 +56,7 @@ pub fn main() {
         System::setup(&mut model_preloader, world);
         System::setup(&mut file_loader, world);
         System::setup(&mut image_loader, world);
+        System::setup(&mut model_loader, world);
         System::setup(&mut vertex_normals, world);
         System::setup(&mut shader_compiler, world);
         System::setup(&mut location_lookup, world);
@@ -314,6 +316,15 @@ pub fn main() {
         world.create_entity().with(PointLight).with(LocalTransform(
             Matrix4f::translation(0., 0., -2.)
         )).build();
+
+        world.create_entity().with(
+            ModelsToLoad::new(&[
+                "assets/objects/cornell_box.obj",
+            ], &[
+                "assets/materials/cornell_box.mtl",
+                "assets/materials/cornell_box2.mtl",
+            ])
+        ).build();
     });
 
     game_loop.run(move |world| {
@@ -322,6 +333,7 @@ pub fn main() {
         model_preloader.run_now(world);
         file_loader.run_now(world);
         image_loader.run_now(world);
+        model_loader.run_now(world);
         vertex_normals.run_now(world);
         material_default.run_now(world);
         coloring_default.run_now(world);
