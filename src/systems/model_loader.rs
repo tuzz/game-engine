@@ -112,7 +112,10 @@ fn create_entity(s: &mut SysData, model: &Model, field: &[f32], dimensions: u32,
     let mesh = &model.mesh;
     let entity = s.entities.create();
 
-    let data = mesh.indices.iter().map(|i| field[*i as usize]).collect::<Vec<_>>();
+    let data = mesh.indices.iter()
+        .flat_map(|&i| field[3 * i as usize..].iter().take(3).cloned())
+        .collect::<Vec<_>>();
+
     let name = format!("{}_{}", name_prefix, model.name);
 
     s.buffer_datas.insert(entity, BufferData(data)).unwrap();
