@@ -77,10 +77,3 @@ fn optional_uniform(program: &ShaderProgram, name: &str) -> Option<UniformLocati
 fn uniform_array(program: &ShaderProgram, basename: &str, count: u32) -> Vec<UniformLocation> {
     (0..count).map(|i| uniform(program, &format!("{}_{}", basename, i))).collect()
 }
-
-use wasm_bindgen::prelude::*;
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}

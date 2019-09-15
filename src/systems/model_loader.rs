@@ -187,10 +187,3 @@ fn create_buffer_entity(s: &mut SysData, model: &tobj::Model, field: &[f32], dim
 
     Some(entity)
 }
-
-use wasm_bindgen::prelude::*;
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}

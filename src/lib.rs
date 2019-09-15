@@ -10,10 +10,11 @@ extern crate impl_ops;
 #[macro_use] #[cfg(test)]
 extern crate assert_approx_eq;
 
+#[macro_use]
+mod utilities;
 mod components;
 mod resources;
 mod systems;
-mod utilities;
 
 use specs::prelude::*;
 use wasm_bindgen::prelude::*;
