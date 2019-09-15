@@ -1,5 +1,5 @@
 use specs::prelude::*;
-use tobj::{load_obj_buf, load_mtl_buf, Model, Material};
+use tobj::{load_obj_buf, load_mtl_buf};
 use std::collections::HashMap;
 use std::io::BufReader;
 use crate::components::*;
@@ -14,6 +14,17 @@ pub struct SysData<'a> {
     buffer_datas: WriteStorage<'a, BufferData>,
     dimensions: WriteStorage<'a, Dimensions>,
     names: WriteStorage<'a, Name>,
+
+    ambients: WriteStorage<'a, Ambient>,
+    diffuses: WriteStorage<'a, Diffuse>,
+    speculars: WriteStorage<'a, Specular>,
+    shinies: WriteStorage<'a, Shininess>,
+
+    images_to_load: WriteStorage<'a, ImageToLoad>,
+
+    normals: WriteStorage<'a, Normals>,
+    materials: WriteStorage<'a, Material>,
+    textures: WriteStorage<'a, Texture>,
 }
 
 impl<'a> System<'a> for ModelLoader {
@@ -28,22 +39,35 @@ impl<'a> System<'a> for ModelLoader {
             let files_and_content = files_and_content(&mut s, &mut models_to_load);
             let (models, materials) = models_and_materials(files_and_content);
 
-            log(&format!("{:?}", models));
-            log(&format!("{:?}", materials));
+            let materials_and_textures = materials.iter().map(|material| {
+                let material_model = create_material_entity(&mut s, &material);
+                let texture_model = create_texture_entity(&mut s, &material);
+
+                (material_model, texture_model)
+            }).collect::<Vec<_>>();
 
             for (model, material_index) in models {
-                let _material = &materials[material_index.unwrap()];
+                let material_and_texture = material_index.map(|i| materials_and_textures[i]);
 
-                create_entity(&mut s, &model, &model.mesh.positions, 3, "geometry");
-                create_entity(&mut s, &model, &model.mesh.normals, 3, "normals");
+                let geometry_model = create_buffer_entity(&mut s, &model, &model.mesh.positions, 3, "geometry").unwrap();
+                let normals_model = create_buffer_entity(&mut s, &model, &model.mesh.normals, 3, "normals");
+                let texcoords_model = create_buffer_entity(&mut s, &model, &model.mesh.texcoords, 2, "texcoords");
 
-                match create_entity(&mut s, &model, &model.mesh.texcoords, 2, "material") {
-                    Some(_entity) => {
-                        // add material component to texture coordinate entity
-                    },
-                    None => {
-                        // create a new entity with the component
-                    },
+                if let Some(model) = normals_model {
+                    s.normals.insert(geometry_model, Normals { model }).unwrap();
+                }
+
+                if let Some(_model) = texcoords_model {
+                    // TODO
+                    //s.texcoords.insert(geometry_model, TexCoords { model }).unwrap();
+                }
+
+                if let Some((model, _)) = material_and_texture {
+                    s.materials.insert(geometry_model, Material { model }).unwrap();
+                }
+
+                if let Some((_, Some(model))) = material_and_texture {
+                    s.textures.insert(geometry_model, Texture { model }).unwrap();
                 }
             }
         }
@@ -72,7 +96,7 @@ fn files_and_content(s: &mut SysData, models_to_load: &mut ModelsToLoad) -> File
     }).collect()
 }
 
-fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(Model, Option<usize>)>, Vec<Material>) {
+fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(tobj::Model, Option<usize>)>, Vec<tobj::Material>) {
     let (mut models, mut materials) = (vec![], vec![]);
     let mut material_map = HashMap::new();
 
@@ -104,7 +128,45 @@ fn models_and_materials(files_and_content: FilesAndContent) -> (Vec<(Model, Opti
     (models, materials)
 }
 
-fn create_entity(s: &mut SysData, model: &Model, field: &[f32], dimensions: u32, name_prefix: &str) -> Option<Entity> {
+fn create_material_entity(s: &mut SysData, material: &tobj::Material) -> Entity {
+    let entity = s.entities.create();
+
+    let ambient = material.ambient.into();
+    let diffuse = material.diffuse.into();
+    let specular = material.specular.into();
+    let shininess = material.shininess.into();
+
+    let name = format!("material_{}", material.name);
+
+    s.ambients.insert(entity, Ambient(ambient)).unwrap();
+    s.diffuses.insert(entity, Diffuse(diffuse)).unwrap();
+    s.speculars.insert(entity, Specular(specular)).unwrap();
+    s.shinies.insert(entity, Shininess(shininess)).unwrap();
+    s.names.insert(entity, Name(name)).unwrap();
+
+    entity
+}
+
+fn create_texture_entity(s: &mut SysData, material: &tobj::Material) -> Option<Entity> {
+    let entity = s.entities.create();
+
+    let filenames = [
+        &material.ambient_texture,
+        &material.diffuse_texture,
+        &material.specular_texture,
+        &material.normal_texture,
+        &material.dissolve_texture,
+    ];
+
+    let filename = filenames.iter().find(|f| !f.is_empty()).cloned()?;
+
+    s.images_to_load.insert(entity, ImageToLoad::new(filename)).unwrap();
+    s.names.insert(entity, Name(filename.to_string())).unwrap();
+
+    Some(entity)
+}
+
+fn create_buffer_entity(s: &mut SysData, model: &tobj::Model, field: &[f32], dimensions: u32, name_prefix: &str) -> Option<Entity> {
     if field.len() == 0 {
         return None;
     }

@@ -8,6 +8,12 @@ impl From<Tuple> for Vector3f {
     }
 }
 
+impl From<[f32; 3]> for Vector3f {
+    fn from(arr: [f32; 3]) -> Self {
+        Self { x: arr[0], y: arr[1], z: arr[2] }
+    }
+}
+
 impl Vector3f {
     pub fn assign_tuple(&mut self, t: Tuple) {
         self.x = t.0;
