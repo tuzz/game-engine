@@ -11,22 +11,20 @@ pub struct WebGlBuffer;
 impl<'a> System<'a> for WebGlBuffer {
     type SystemData = (
         Entities<'a>,
-
         ReadExpect<'a, WebGlContext>,
-
-        WriteStorage<'a, BufferData>,
+        ReadStorage<'a, BufferData>,
         WriteStorage<'a, Buffer>,
     );
 
     fn run(&mut self, system_data: Self::SystemData) {
-        let (entities, context, mut buffer_datas, mut webgl_buffers) = system_data;
+        let (entities, context, buffer_datas, mut webgl_buffers) = system_data;
 
         let entities_to_update = (&entities, &buffer_datas, !&webgl_buffers).join()
             .map(|(entity, _, _)| entity)
             .collect::<Vec<_>>();
 
         for entity in entities_to_update {
-            let buffer_data = buffer_datas.remove(entity).unwrap();
+            let buffer_data = buffer_datas.get(entity).unwrap();
 
             let buffer = context.create_buffer().unwrap();
             let array = unsafe { Float32Array::view(&buffer_data) };
