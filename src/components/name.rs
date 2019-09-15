@@ -1,9 +1,11 @@
 use specs::prelude::*;
 use std::ops::Deref;
 
-#[derive(Component)]
-#[storage(DenseVecStorage)]
 pub struct Name(pub String);
+
+impl Component for Name {
+    type Storage = FlaggedStorage<Self, DenseVecStorage<Self>>;
+}
 
 impl Deref for Name {
     type Target = String;

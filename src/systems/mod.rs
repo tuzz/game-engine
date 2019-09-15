@@ -18,6 +18,7 @@ mod hierarchy;
 mod scene_graph;
 mod inverse_world;
 mod keyboard_input;
+mod name_indexer;
 
 pub use webpage::Webpage;
 pub use vertex_normals::VertexNormals;
@@ -39,3 +40,4 @@ pub use scene_graph::SceneGraph;
 pub use inverse_world::InverseWorld;
 pub use animation::Animation;
 pub use keyboard_input::KeyboardInput;
+pub use name_indexer::NameIndexer;

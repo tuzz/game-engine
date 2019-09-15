@@ -9,6 +9,7 @@ mod active_config;
 mod shader_programs;
 mod shader_locations;
 mod keyboard;
+mod name_index;
 
 pub use game_timing::GameTiming;
 pub use browser_window::BrowserWindow;
@@ -21,3 +22,4 @@ pub use active_config::ActiveConfig;
 pub use shader_programs::*;
 pub use shader_locations::*;
 pub use keyboard::{Keyboard, Key};
+pub use name_index::NameIndex;
