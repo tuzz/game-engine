@@ -17,13 +17,7 @@ mod utilities;
 
 use specs::prelude::*;
 use wasm_bindgen::prelude::*;
-
 use utilities::GameLoop;
-use utilities::Matrix4f;
-use utilities::Vector3f;
-use resources::*;
-use components::*;
-use systems::WebGlTexture;
 use systems::*;
 
 #[wasm_bindgen(start)]
@@ -31,6 +25,7 @@ pub fn main() {
     let mut game_loop = GameLoop::new();
 
     let mut webpage = Webpage;
+    let mut scene_loader = SceneLoader::default();
     let mut model_preloader = ModelPreloader;
     let mut file_loader = FileLoader;
     let mut image_loader = ImageLoader;
@@ -54,6 +49,7 @@ pub fn main() {
 
     game_loop.before(|world| {
         System::setup(&mut webpage, world);
+        System::setup(&mut scene_loader, world);
         System::setup(&mut model_preloader, world);
         System::setup(&mut file_loader, world);
         System::setup(&mut image_loader, world);
@@ -73,265 +69,12 @@ pub fn main() {
         System::setup(&mut inverse_world, world);
         System::setup(&mut animation, world);
         System::setup(&mut keyboard_input, world);
-
-        let geometry_model = world.create_entity().with(BufferData(vec![
-            // Front
-            -1., -1.,  1.,
-             1., -1.,  1.,
-             1.,  1.,  1.,
-
-             1.,  1.,  1.,
-            -1.,  1.,  1.,
-            -1., -1.,  1.,
-
-            // Back
-            -1., -1., -1.,
-             1.,  1., -1.,
-             1., -1., -1.,
-
-             1.,  1., -1.,
-            -1., -1., -1.,
-            -1.,  1., -1.,
-
-            // Left
-            -1., -1.,  1.,
-            -1.,  1.,  1.,
-            -1., -1., -1.,
-
-            -1., -1., -1.,
-            -1.,  1.,  1.,
-            -1.,  1., -1.,
-
-            // Right
-             1., -1.,  1.,
-             1., -1., -1.,
-             1.,  1., -1.,
-
-             1.,  1., -1.,
-             1.,  1.,  1.,
-             1., -1.,  1.,
-
-            // Bottom
-            -1., -1.,  1.,
-            -1., -1., -1.,
-             1., -1.,  1.,
-
-             1., -1.,  1.,
-            -1., -1., -1.,
-             1., -1., -1.,
-
-            // Top
-            -1.,  1.,  1.,
-             1.,  1.,  1.,
-             1.,  1., -1.,
-
-             1.,  1., -1.,
-            -1.,  1., -1.,
-            -1.,  1.,  1.,
-        ])).with(Dimensions(3)).build();
-
-        let coloring_model = world.create_entity().with(BufferData(vec![
-            // Front
-            0.5, 0.5, 0.5,
-            0.5, 0.5, 0.5,
-            0.5, 0.5, 0.5,
-
-            0., 0., 1.,
-            0., 0., 1.,
-            0., 0., 1.,
-
-            // Back
-            0., 1., 0.,
-            0., 1., 0.,
-            0., 1., 0.,
-
-            0., 1., 1.,
-            0., 1., 1.,
-            0., 1., 1.,
-
-            // Left
-            1., 0., 0.,
-            1., 0., 0.,
-            1., 0., 0.,
-
-            1., 0., 1.,
-            1., 0., 1.,
-            1., 0., 1.,
-
-            // Right
-            1., 1., 0.,
-            1., 1., 0.,
-            1., 1., 0.,
-
-            0., 0., 0.5,
-            0., 0., 0.5,
-            0., 0., 0.5,
-
-            // Bottom
-            0., 0.5, 0.,
-            0., 0.5, 0.,
-            0., 0.5, 0.,
-
-            0.5, 0., 0.,
-            0.5, 0., 0.,
-            0.5, 0., 0.,
-
-            // Top
-            0.5, 0., 1.,
-            0.5, 0., 1.,
-            0.5, 0., 1.,
-
-            1., 0.5, 0.,
-            1., 0.5, 0.,
-            1., 0.5, 0.,
-        ])).with(Dimensions(3)).build();
-
-        let texture_model = world.create_entity().with(BufferData(vec![
-            // Front
-            0., 0.,
-            1., 0.,
-            1., 1.,
-
-            1., 1.,
-            0., 1.,
-            0., 0.,
-
-            // Back
-            1., 0.,
-            0., 1.,
-            0., 0.,
-
-            0., 1.,
-            1., 0.,
-            1., 1.,
-
-            // Left
-            1., 0.,
-            1., 1.,
-            0., 0.,
-
-            0., 0.,
-            1., 1.,
-            0., 1.,
-
-            // Right
-            0., 0.,
-            1., 0.,
-            1., 1.,
-
-            1., 1.,
-            0., 1.,
-            0., 0.,
-
-            // Bottom
-            0., 1.,
-            0., 0.,
-            1., 1.,
-
-            1., 1.,
-            0., 0.,
-            1., 0.,
-
-            // Top
-            0., 0.,
-            1., 0.,
-            1., 1.,
-
-            1., 1.,
-            0., 1.,
-            0., 0.,
-        ])).with(Dimensions(2)).with(ImageToLoad::new("assets/textures/cc-logo.png")).build();
-
-        let cube = world.create_entity()
-            .with(Geometry { model: geometry_model })
-            //.with(Coloring { model: coloring_model })
-            .with(Material::gold())
-            .with(Texture { model: texture_model })
-            .with(LocalTransform(Matrix4f::translation(0., 0., -4.)))
-            .build();
-
-        let canvas = world.fetch::<HtmlCanvas>();
-        let viewport = Viewport::new(0, 0, canvas.width() , canvas.height());
-        //let viewport2 = Viewport::new(canvas.width() / 2, 0, canvas.width() / 2, canvas.height());
-        drop(canvas);
-
-        world.create_entity()
-            .with(Camera)
-            .with(ProjectionTransform(
-                Matrix4f::perspective(std::f32::consts::PI / 2., 16. / 9., 0.1, 100.0)
-            )).with(LocalTransform(
-                Matrix4f::look_at(
-                    &Vector3f::new(0., 0., 0.),
-                    &Vector3f::new(0.5, 0.1, -1.),
-                    &Vector3f::new(0., 1., 0.),
-                )
-            )).with(viewport).with(ClearColor::black())
-            .build();
-
-//        world.create_entity()
-//            .with(Camera)
-//            .with(ProjectionTransform(
-//                Matrix4f::orthographic(-5., 5., -5., 5., -5., 5.)
-//            )).with(LocalTransform(
-//                Matrix4f::look_at(
-//                    &Vector3f::new(0., 0., 0.),
-//                    &Vector3f::new(0., 0., -1.),
-//                    &Vector3f::new(0., 1., 0.),
-//                )
-//            )).with(viewport2).with(ClearColor::black())
-//            .build();
-
-        let cube2 = world.create_entity()
-            .with(Geometry { model: geometry_model })
-            .with(Coloring { model: coloring_model })
-            .with(Texture { model: texture_model })
-            .with(SceneParent(cube))
-            .with(LocalTransform(
-                Matrix4f::scaling(0.5, 0.5, 0.5).translate(4., 0., 0.)
-            ))
-            .build();
-
-        let mut prev = world.create_entity()
-            .with(Geometry { model: geometry_model })
-            .with(Texture { model: texture_model })
-            .with(SceneParent(cube2))
-            .with(LocalTransform(
-                Matrix4f::scaling(0.5, 0.5, 0.5).translate(0., 4., 0.)
-            ))
-            .build();
-
-        for i in 1..200 {
-            prev = world.create_entity()
-                .with(Geometry { model: geometry_model })
-                .with(Coloring { model: coloring_model })
-                .with(SceneParent(prev))
-                .with(LocalTransform(
-                    Matrix4f::identity().scale(0.95, 0.95, 0.95).translate(i as f32 * -0.01, 5., 1.)
-                ))
-                .build();
-        }
-
-        world.create_entity().with(DirectionalLight).with(LocalTransform(
-            Matrix4f::translation(0., 1., 0.)
-        )).build();
-
-        world.create_entity().with(PointLight).with(LocalTransform(
-            Matrix4f::translation(0., 0., -2.)
-        )).build();
-
-        world.create_entity().with(
-            ModelsToLoad::new(&[
-                "assets/objects/cornell_box.obj",
-            ], &[
-                "assets/materials/cornell_box.mtl",
-                "assets/materials/cornell_box2.mtl",
-            ])
-        ).build();
     });
 
     game_loop.run(move |world| {
         keyboard_input.run_now(world);
     }, move |world| {
+        scene_loader.run_now(world);
         model_preloader.run_now(world);
         file_loader.run_now(world);
         image_loader.run_now(world);
