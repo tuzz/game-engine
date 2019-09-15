@@ -50,8 +50,8 @@ impl<'a> System<'a> for SceneLoader {
             }
 
             let cube = s.entities.create();
-            let geometry_model = *s.name_index.get("geometry_cube").unwrap();
-            s.geometries.insert(cube, Geometry { model: geometry_model }).unwrap();
+            s.geometries.insert(cube, Geometry::find(&s.name_index, "cube")).unwrap();
+            s.materials.insert(cube, Material::find(&s.name_index, "gold")).unwrap();
             s.local_transforms.insert(cube, LocalTransform(Matrix4f::scaling(0.1, 0.1, 0.1).translate(0., 0., -4.))).unwrap();
 
             let camera = s.entities.create();
