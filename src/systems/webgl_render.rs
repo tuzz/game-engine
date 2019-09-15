@@ -28,6 +28,11 @@ pub struct SysData<'a> {
     textures: ReadStorage<'a, Texture>,
     normals: ReadStorage<'a, Normals>,
 
+    ambients: ReadStorage<'a, Ambient>,
+    diffuses: ReadStorage<'a, Diffuse>,
+    speculars: ReadStorage<'a, Specular>,
+    shinies: ReadStorage<'a, Shininess>,
+
     directional_lights: ReadStorage<'a, DirectionalLight>,
     point_lights: ReadStorage<'a, PointLight>,
 
@@ -77,12 +82,17 @@ impl<'a> System<'a> for WebGlRender {
             ).join() {
                 let world_view_projection = view_projection.multiply(&world_transform);
 
+                let ambient = s.ambients.get(material.model).unwrap();
+                let diffuse = s.diffuses.get(material.model).unwrap();
+                let specular = s.speculars.get(material.model).unwrap();
+                let shininess = s.shinies.get(material.model).unwrap();
+
                 set_uniform_from_matrix(&s.context, &locations.u_world_view_projection, &world_view_projection);
 
-                set_uniform_from_vector(&s.context, &locations.u_material_ambient, &material.ambient);
-                set_uniform_from_vector(&s.context, &locations.u_material_diffuse, &material.diffuse);
-                set_uniform_from_vector(&s.context, &locations.u_material_specular, &material.specular);
-                set_uniform_from_float(&s.context, &locations.u_material_shininess, material.shininess);
+                set_uniform_from_vector(&s.context, &locations.u_material_ambient, ambient);
+                set_uniform_from_vector(&s.context, &locations.u_material_diffuse, diffuse);
+                set_uniform_from_vector(&s.context, &locations.u_material_specular, specular);
+                set_uniform_from_float(&s.context, &locations.u_material_shininess, shininess);
 
                 set_attribute_from_model(&s, locations.a_position, geometry.model);
                 set_attribute_from_model(&s, locations.a_color, coloring.model);
@@ -142,8 +152,8 @@ fn set_uniform_from_vector(context: &GL, location: &UniformLocation, vector: &Ve
     context.uniform3fv_with_f32_array(Some(location), &[vector.x, vector.y, vector.z]);
 }
 
-fn set_uniform_from_float(context: &GL, location: &UniformLocation, float: f32) {
-    context.uniform1f(Some(location), float);
+fn set_uniform_from_float(context: &GL, location: &UniformLocation, float: &f32) {
+    context.uniform1f(Some(location), *float);
 }
 
 fn set_texture_from_model(s: &SysData, location: &UniformLocation, model: Entity) {
