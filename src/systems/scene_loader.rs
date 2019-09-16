@@ -50,10 +50,59 @@ impl<'a> System<'a> for SceneLoader {
                 return;
             }
 
-            let cube = s.entities.create();
-            s.geometry_groups.insert(cube, GeometryGroup::new("assets/objects/cube.obj")).unwrap();
-            s.materials.insert(cube, Material::find(&s.name_index, "gold")).unwrap();
-            s.local_transforms.insert(cube, LocalTransform(Matrix4f::scaling(0.1, 0.1, 0.1).translate(0., 0., -4.))).unwrap();
+            let skull = s.entities.create();
+            s.geometry_groups.insert(skull, GeometryGroup::new("assets/objects/skull.obj")).unwrap();
+            s.local_transforms.insert(skull, LocalTransform(
+                Matrix4f::translation(0., -10., -30.).x_rotate(-PI / 2.)
+            )).unwrap();
+
+            let left_cube = s.entities.create();
+            s.geometries.insert(left_cube, Geometry::find(&s.name_index, "cube")).unwrap();
+            s.materials.insert(left_cube, Material::find(&s.name_index, "gold")).unwrap();
+            s.local_transforms.insert(left_cube, LocalTransform(
+                Matrix4f::translation(-37., 17., -30.).scale(5., 5., 5.)
+            )).unwrap();
+
+            let right_cube = s.entities.create();
+            s.geometries.insert(right_cube, Geometry::find(&s.name_index, "cube")).unwrap();
+            s.textures.insert(right_cube, Texture::find(&s.name_index, "assets/textures/tuzz.jpg")).unwrap();
+            s.local_transforms.insert(right_cube, LocalTransform(
+                Matrix4f::translation(37., 17., -30.).scale(5., 5., 5.)
+            )).unwrap();
+
+            for i in 0..20 {
+                let ratio = i as f32 / 20.0;
+                let mini_skull = s.entities.create();
+
+                s.geometry_groups.insert(mini_skull, GeometryGroup::new("assets/objects/skull.obj")).unwrap();
+                s.scene_parents.insert(mini_skull, SceneParent(skull)).unwrap();
+                s.local_transforms.insert(mini_skull, LocalTransform(
+                    Matrix4f::translation(0., 0., 5.)
+                        .z_rotate(2. * PI * ratio)
+                        .translate(20., 0., 0.)
+                        .z_rotate(PI / 2.)
+                        .scale(0.1, 0.1, 0.1)
+                )).unwrap();
+
+                let center = s.entities.create();
+                s.scene_parents.insert(center, SceneParent(mini_skull)).unwrap();
+                s.local_transforms.insert(center, LocalTransform(
+                    Matrix4f::translation(0., 0., 8.).scale(4., 4., 4.))
+                ).unwrap();
+
+                for j in 0..5 {
+                    let jratio = j as f32 / 5.0;
+                    let cube = s.entities.create();
+
+                    s.geometries.insert(cube, Geometry::find(&s.name_index, "cube")).unwrap();
+                    s.scene_parents.insert(cube, SceneParent(center)).unwrap();
+                    s.local_transforms.insert(cube, LocalTransform(
+                        Matrix4f::translation(8., 8., 0.)
+                            .y_rotate(2. * PI / jratio)
+                            .translate(5., 0., 5.)
+                    )).unwrap();
+                }
+            }
 
             let camera = s.entities.create();
             let viewport = Viewport::new(0, 0, s.html_canvas.width() , s.html_canvas.height());
@@ -66,7 +115,7 @@ impl<'a> System<'a> for SceneLoader {
             s.local_transforms.insert(camera, LocalTransform(
                 Matrix4f::look_at(
                     &Vector3f::new(0., 0., 0.),
-                    &Vector3f::new(0.5, 0.1, -1.),
+                    &Vector3f::new(0., 0., -1.),
                     &Vector3f::new(0., 1., 0.),
                 )
             )).unwrap();
@@ -80,7 +129,7 @@ impl<'a> System<'a> for SceneLoader {
             let point = s.entities.create();
             s.point_lights.insert(point, PointLight).unwrap();
             s.local_transforms.insert(point, LocalTransform(
-                Matrix4f::translation(0., 0., -2.)
+                Matrix4f::translation(0., 1., -50.)
             )).unwrap();
 
             self.loading = false;
@@ -89,8 +138,10 @@ impl<'a> System<'a> for SceneLoader {
             let model_loader = s.entities.create();
 
             s.models_to_load.insert(model_loader, ModelsToLoad::new(&[
+                "assets/objects/skull.obj",
                 "assets/objects/cube.obj",
             ], &[
+                "assets/materials/skull.mtl",
                 "assets/materials/default.mtl",
             ])).unwrap();
 
