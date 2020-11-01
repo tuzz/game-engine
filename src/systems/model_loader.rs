@@ -180,8 +180,16 @@ fn create_buffer_entity(s: &mut SysData, model: &tobj::Model, field: &[f32], dim
     let entity = s.entities.create();
     let d = dimensions as usize;
 
+    log!("{} {} {}", mesh.indices.len(), name_prefix, field.len());
+
     let data = mesh.indices.iter()
-        .flat_map(|&i| field[d * i as usize..].iter().take(d).cloned())
+        .flat_map(|&i| {
+            if (d * i as usize - d < field.len()) {
+                field[d * i as usize..].iter().take(d).cloned()
+            } else {
+                field[0..].iter().take(d).cloned()
+            }
+        })
         .collect::<Vec<_>>();
 
     let name = format!("{}_{}", name_prefix, model.name);

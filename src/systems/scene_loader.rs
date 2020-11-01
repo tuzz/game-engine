@@ -51,9 +51,10 @@ impl<'a> System<'a> for SceneLoader {
             }
 
             let skull = s.entities.create();
-            s.geometry_groups.insert(skull, GeometryGroup::new("assets/objects/skull.obj")).unwrap();
+            s.geometry_groups.insert(skull, GeometryGroup::new("assets/objects/minster-road.obj")).unwrap();
+            //s.materials.insert(skull, Material::find(&s.name_index, "minster-road")).unwrap();
             s.local_transforms.insert(skull, LocalTransform(
-                Matrix4f::translation(0., -10., -30.).x_rotate(-PI / 2.)
+                Matrix4f::scaling(3., 3., 3.).translate(0., 0., -5.).x_rotate(-PI / 2.).y_rotate(-PI / 2.)
             )).unwrap();
 
             let left_cube = s.entities.create();
@@ -74,7 +75,7 @@ impl<'a> System<'a> for SceneLoader {
                 let ratio = i as f32 / 20.0;
                 let mini_skull = s.entities.create();
 
-                s.geometry_groups.insert(mini_skull, GeometryGroup::new("assets/objects/skull.obj")).unwrap();
+                s.geometry_groups.insert(mini_skull, GeometryGroup::new("assets/objects/minster-road.obj")).unwrap();
                 s.scene_parents.insert(mini_skull, SceneParent(skull)).unwrap();
                 s.local_transforms.insert(mini_skull, LocalTransform(
                     Matrix4f::translation(0., 0., 5.)
@@ -138,9 +139,11 @@ impl<'a> System<'a> for SceneLoader {
             let model_loader = s.entities.create();
 
             s.models_to_load.insert(model_loader, ModelsToLoad::new(&[
+                "assets/objects/minster-road.obj",
                 "assets/objects/skull.obj",
                 "assets/objects/cube.obj",
             ], &[
+                "assets/materials/minster-road.mtl",
                 "assets/materials/skull.mtl",
                 "assets/materials/default.mtl",
             ])).unwrap();
